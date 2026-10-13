@@ -16,6 +16,13 @@ public class MaterialPickup : MonoBehaviour
         GetComponent<Collider2D>().isTrigger = true;
     }
 
+        // Lo usa EnemyDrop para configurar el pickup al soltarlo.
+    public void Setup(MaterialData newMaterial, int newAmount)
+    {
+        material = newMaterial;
+        amount = Mathf.Max(1, newAmount);
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (collected) return; // GAME-46: evita recoger dos veces
