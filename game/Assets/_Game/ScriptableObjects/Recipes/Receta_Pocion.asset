@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffbbdf79dc8e94edab45a6a2d128bb61, type: 3}
+  m_Name: Receta_Pocion
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
+  id: receta_pocion
+  displayName: "Poci\xF3n"
+  ingredients:
+  - material: {fileID: 11400000, guid: e406999056ab7451caa84810bc5a036a, type: 2}
+    amount: 2
+  - material: {fileID: 11400000, guid: 9293f519c77b74ac5814e5669b8ad422, type: 2}
+    amount: 1
+  result: {fileID: 11400000, guid: 1c2cb974d59334262b4ba356e6721dae, type: 2}
+  resultAmount: 1

@@ -1,0 +1,266 @@
+# =====================================================================
+#  CI Game — Videojuego (Unity 6.6, GameCI)
+#  Política diferenciada (sección 9.5.4 de la planeación):
+#    - Pull request:          solo pruebas EditMode (rápidas)
+#    - Push a dev/main:   pruebas + build completo del ejecutable para Windows
+#    - Noches de lunes a viernes (02:00 Chihuahua): pruebas + build
+#  Artefactos: game-test-results, game-win64
+#  Secretos: UNITY_LICENSE, UNITY_EMAIL, UNITY_PASSWORD, TELEMETRY_API_KEY_STAGING
+# =====================================================================
+name: CI Game
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+  schedule:
+    - cron: '0 8 * * 1-5'        # lunes a viernes 08:00 UTC = 02:00 en Chihuahua; ahorra minutos (repo privado)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-game-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PROJECT_PATH: game
+  BUILD_NAME: TheDayIMadeThatPromise
+
+jobs:
+  changes:
+    name: game-changes
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      unity: ${{ steps.filter.outputs.unity }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            unity:
+              - 'game/Assets/**'
+              - 'game/Packages/**'
+              - 'game/ProjectSettings/**'
+              - '.github/workflows/ci-game.yml'
+
+  tests:
+    name: game-tests
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.outputs.unity == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    # Sin caché de Library, Unity importa todo el proyecto desde cero (runner de 2 núcleos);
+    # la primera vez tarda más de 30 min. El caché solo se guarda si el job termina bien.
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      checks: write
+    env:
+      # true solo si el secreto existe; sin licencia Unity no puede iniciar
+      HAS_UNITY_LICENSE: ${{ secrets.UNITY_LICENSE != '' }}
+      HAS_DOCKERHUB: ${{ secrets.DOCKERHUB_TOKEN != '' }}
+    outputs:
+      licensed: ${{ steps.license.outputs.ready }}
+    steps:
+      # Mientras no se carguen UNITY_LICENSE, UNITY_EMAIL y UNITY_PASSWORD, las pruebas
+      # y el build se omiten con un aviso en lugar de fallar. Al cargarlos corren solos.
+      - name: ¿Está configurada la licencia de Unity?
+        id: license
+        run: |
+          if [ "$HAS_UNITY_LICENSE" = "true" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Pruebas de Unity omitidas::Falta el secreto UNITY_LICENSE (ver docs/GUIA-IMPLEMENTACION.md, fase 4)"
+            echo "### Pruebas de Unity omitidas: falta el secreto UNITY_LICENSE (guía, fase 4)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Liberar espacio en disco (la imagen de Unity ocupa más de lo que trae libre el runner)
+        if: steps.license.outputs.ready == 'true'
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          docker-images: true
+          swap-storage: false      # la swap se conserva: sin ella Unity agota los 7 GB de RAM
+          tool-cache: true
+          large-packages: true
+      - name: Memoria swap de 8 GB (Unity 6 importando el proyecto supera los 7 GB del runner)
+        if: steps.license.outputs.ready == 'true'
+        run: |
+          sudo swapoff -a || true
+          sudo rm -f /mnt/swapfile /swapfile
+          SWAP=/swapfile; mountpoint -q /mnt && SWAP=/mnt/swapfile   # /mnt es el disco temporal del runner
+          sudo fallocate -l 8G "$SWAP" || sudo dd if=/dev/zero of="$SWAP" bs=1M count=8192 status=none
+          sudo chmod 600 "$SWAP"
+          sudo mkswap "$SWAP" >/dev/null
+          sudo swapon "$SWAP"
+          free -h
+          df -h / /mnt 2>/dev/null || df -h /
+      - uses: actions/checkout@v4
+        if: steps.license.outputs.ready == 'true'
+        with:
+          lfs: true
+      # Docker Hub limita las descargas anónimas por IP, y los runners comparten IP: con cuenta
+      # (secretos DOCKERHUB_USERNAME y DOCKERHUB_TOKEN) el límite es propio. Sin secretos se omite.
+      - name: Iniciar sesión en Docker Hub
+        if: steps.license.outputs.ready == 'true' && env.HAS_DOCKERHUB == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # GameCI no reintenta la descarga; aquí se baja antes con reintentos y GameCI la encuentra local.
+      - name: Descargar imagen de Unity (con reintentos)
+        if: steps.license.outputs.ready == 'true'
+        run: |
+          VER=$(sed -n 's/^m_EditorVersion: //p' ${{ env.PROJECT_PATH }}/ProjectSettings/ProjectVersion.txt | tr -d '\r')
+          IMAGE="unityci/editor:ubuntu-${VER}-linux-il2cpp-3"
+          for i in 1 2 3 4 5; do
+            echo "Intento $i: docker pull $IMAGE"
+            if docker pull -q "$IMAGE"; then exit 0; fi
+            [ "$i" -lt 5 ] && sleep $((i * 60))
+          done
+          echo "::error title=Imagen de Unity::No se pudo descargar $IMAGE tras 5 intentos"
+          exit 1
+      # Sin caché de Library a propósito: con una Library restaurada, Unity 6.6 se cerraba a los
+      # pocos segundos (su base de datos interna usa 1 GB de memoria compartida y el contenedor de
+      # GameCI tiene 1025 MB). Importar desde cero tarda ~16-20 min pero es estable.
+      - name: Pruebas EditMode
+        if: steps.license.outputs.ready == 'true'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          testMode: editmode
+          artifactsPath: test-results
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Resultados EditMode
+          # GameCI guarda el log completo del editor en test-results/editmode.log (se publica abajo)
+      - name: Memoria y disco después de Unity
+        if: always() && steps.license.outputs.ready == 'true'
+        run: |
+          free -h
+          df -h / /mnt 2>/dev/null || df -h /
+      - name: Publicar resultados de pruebas y logs de Unity
+        if: always() && steps.license.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-test-results
+          path: |
+            test-results
+            ${{ env.PROJECT_PATH }}/Logs
+          retention-days: 14
+          if-no-files-found: ignore
+
+  build:
+    name: game-build-win64
+    needs: [changes, tests]
+    if: ${{ !cancelled() && needs.tests.result == 'success' && needs.tests.outputs.licensed == 'true' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      HAS_DOCKERHUB: ${{ secrets.DOCKERHUB_TOKEN != '' }}
+    steps:
+      - name: Liberar espacio en disco (la imagen de Unity ocupa más de lo que trae libre el runner)
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          docker-images: true
+          swap-storage: false      # la swap se conserva: sin ella Unity agota los 7 GB de RAM
+          tool-cache: true
+          large-packages: true
+      - name: Memoria swap de 8 GB (Unity 6 importando el proyecto supera los 7 GB del runner)
+        run: |
+          sudo swapoff -a || true
+          sudo rm -f /mnt/swapfile /swapfile
+          SWAP=/swapfile; mountpoint -q /mnt && SWAP=/mnt/swapfile   # /mnt es el disco temporal del runner
+          sudo fallocate -l 8G "$SWAP" || sudo dd if=/dev/zero of="$SWAP" bs=1M count=8192 status=none
+          sudo chmod 600 "$SWAP"
+          sudo mkswap "$SWAP" >/dev/null
+          sudo swapon "$SWAP"
+          free -h
+          df -h / /mnt 2>/dev/null || df -h /
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0           # GameCI calcula la versión semántica con los tags
+      # Sin caché de Library, igual que en game-tests: con una Library restaurada Unity 6.6 muere a los
+      # pocos segundos (exit 137). Importar desde cero tarda más, pero el repo es público y los minutos
+      # de Actions no tienen costo.
+      # Docker Hub limita las descargas anónimas por IP, y los runners comparten IP: con cuenta
+      # (secretos DOCKERHUB_USERNAME y DOCKERHUB_TOKEN) el límite es propio. Sin secretos se omite.
+      - name: Iniciar sesión en Docker Hub
+        if: env.HAS_DOCKERHUB == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # GameCI no reintenta la descarga; aquí se baja antes con reintentos y GameCI la encuentra local.
+      - name: Descargar imagen de Unity (con reintentos)
+        run: |
+          VER=$(sed -n 's/^m_EditorVersion: //p' ${{ env.PROJECT_PATH }}/ProjectSettings/ProjectVersion.txt | tr -d '\r')
+          IMAGE="unityci/editor:ubuntu-${VER}-windows-mono-3"
+          for i in 1 2 3 4 5; do
+            echo "Intento $i: docker pull $IMAGE"
+            if docker pull -q "$IMAGE"; then exit 0; fi
+            [ "$i" -lt 5 ] && sleep $((i * 60))
+          done
+          echo "::error title=Imagen de Unity::No se pudo descargar $IMAGE tras 5 intentos"
+          exit 1
+      - name: Compilar ejecutable para Windows 64 bits
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          targetPlatform: StandaloneWindows64
+          buildName: ${{ env.BUILD_NAME }}
+          buildMethod: TDIMP.CI.BuildScript.Build
+          versioning: Semantic
+      - name: Memoria y disco después de Unity
+        if: always()
+        run: |
+          free -h
+          df -h / /mnt 2>/dev/null || df -h /
+      # Mientras no exista el despliegue de staging (variable API_BASE_URL_STAGING y secreto
+      # TELEMETRY_API_KEY_STAGING), el ejecutable se publica sin telemetry.json y con un aviso.
+      - name: Configurar telemetría del build para el ambiente de pruebas
+        env:
+          API_URL: ${{ vars.API_BASE_URL_STAGING }}
+          TELEMETRY_KEY: ${{ secrets.TELEMETRY_API_KEY_STAGING }}
+        run: |
+          OUT=build/StandaloneWindows64
+          if [ ! -d "$OUT" ]; then
+            echo "::error title=Build sin salida::No existe $OUT; contenido de build/:"
+            ls -la build 2>/dev/null || echo "(no existe build/)"
+            exit 1
+          fi
+          sudo chown -R "$USER" build
+          ls -la "$OUT"
+          if [ -z "$API_URL" ] || [ -z "$TELEMETRY_KEY" ]; then
+            echo "::notice title=Telemetría omitida::Falta la variable API_BASE_URL_STAGING o el secreto TELEMETRY_API_KEY_STAGING; el ejecutable se publica sin telemetry.json"
+            echo "### Ejecutable publicado sin telemetry.json (falta configurar staging)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          ./infra/scripts/game/write-telemetry-config.sh "$OUT" "$API_URL" "$TELEMETRY_KEY"
+      - name: Publicar ejecutable
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-win64
+          path: build/StandaloneWindows64
+          retention-days: ${{ github.ref_name == 'main' && 90 || 7 }}
+          if-no-files-found: error

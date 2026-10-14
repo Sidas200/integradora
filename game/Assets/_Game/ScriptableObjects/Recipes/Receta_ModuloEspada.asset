@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffbbdf79dc8e94edab45a6a2d128bb61, type: 3}
+  m_Name: Receta_ModuloEspada
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
+  id: receta_modulo_espada
+  displayName: "M\xF3dulo de espada"
+  ingredients:
+  - material: {fileID: 11400000, guid: 99094f689d2e04f569e7564b9875fb18, type: 2}
+    amount: 10
+  - material: {fileID: 11400000, guid: 860d42c64879b4bdf8095db4d771e114, type: 2}
+    amount: 5
+  result: {fileID: 11400000, guid: 71cc62449d9a24141bdcd6baf7e61d64, type: 2}
+  resultAmount: 1

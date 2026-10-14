@@ -1,0 +1,50 @@
+# =====================================================================
+#  Release — Publicación de una versión del juego (versionado semántico)
+#  Se dispara al empujar un tag vMAYOR.MENOR.PARCHE sobre main:
+#      git switch main && git pull && git tag v1.0.0 && git push origin v1.0.0
+#  1. Verifica que el tag apunte a un commit de main.
+#  2. Reúne el último ejecutable de Windows compilado en main (sin recompilar).
+#  3. Crea el GitHub Release con notas generadas desde los PR.
+# =====================================================================
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write      # crear el release
+  actions: read        # descargar el artefacto del CI
+
+jobs:
+  release:
+    name: publish-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERSION: ${{ github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: El tag debe estar sobre main
+        run: |
+          git fetch origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "✘ $VERSION no apunta a un commit de main; las versiones solo salen de main." >&2
+            exit 1
+          fi
+      - name: Reunir el ejecutable del juego
+        env:
+          PROD_API_URL: ${{ vars.API_BASE_URL_PROD }}
+          TELEMETRY_API_KEY_PROD: ${{ secrets.TELEMETRY_API_KEY_PROD }}
+        run: ./infra/scripts/release/collect-artifacts.sh "$VERSION"
+      - name: Crear GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: The Day I Made That Promise ${{ env.VERSION }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: artifacts/release/*.zip

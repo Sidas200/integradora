@@ -1,0 +1,9 @@
+# Dependabot: abre PRs semanales hacia dev para actualizar las Actions de los workflows.
+# (Los paquetes de Unity se actualizan desde el Package Manager del editor.)
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "dev"
+    schedule: { interval: "weekly", day: "monday" }
+    commit-message: { prefix: "ci" }

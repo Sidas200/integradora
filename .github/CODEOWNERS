@@ -1,0 +1,20 @@
+# CODEOWNERS — GitHub pide automáticamente la revisión de estas personas
+# en cada pull request que toque su carpeta (responsable principal primero).
+#
+# Usuarios confirmados en el historial del repo: @byfelc, @EmmanuelRDGZ98, @Sidas200 (Arturo).
+# Desde que el repo solo contiene el juego, todo cae en /game/ o en la configuración.
+# Pendientes de vincular (sus commits no están ligados a un usuario de GitHub):
+#   Yahir (Yahir@utch.edu.mx), Santiago, Omar, Regina.
+# Cuando cada uno comparta su usuario, sustitúyelo en las líneas comentadas
+# y quita el "#". Un usuario sin acceso de escritura al repo se ignora.
+
+# Por defecto: dueño del repositorio + Product Owner
+*                         @byfelc @Sidas200
+
+# Videojuego (Unity 6.6)
+/game/                    @byfelc
+# /game/                  @usuario-omar @usuario-santiago
+
+# Pipelines e infraestructura
+/.github/                 @byfelc
+/infra/                   @byfelc
