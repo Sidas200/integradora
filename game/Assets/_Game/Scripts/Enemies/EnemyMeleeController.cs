@@ -13,9 +13,10 @@ public class EnemyMeleeController : MonoBehaviour
     [Header("Persecución")]
     [SerializeField] private float moveSpeed = 1.5f;
 
-    [Header("Ataque")]
+   [Header("Ataque")]
     [SerializeField] private float attackRange = 0.35f;
     [SerializeField] private float attackCooldown = 1.5f;
+    [SerializeField, Min(1)] private int attackDamage = 10;
 
     [Header("Hitbox")]
     [SerializeField] private Transform attackPoint;
@@ -55,32 +56,43 @@ public class EnemyMeleeController : MonoBehaviour
     }
 
     // GAME-09: DETECCIÓN
-    private void DetectPlayer()
+    // GAME-09: DETECCIÓN
+// GAME-15: Evitar detectar jugadores muertos
+private void DetectPlayer()
+{
+    if (player == null)
     {
-        if (player == null)
-        {
-            PlayerDetected = false;
-            return;
-        }
-
-        float distance = Vector2.Distance(
-            transform.position,
-            player.position
-        );
-
-        bool detectedNow = distance <= detectionRange;
-
-        if (detectedNow == PlayerDetected)
-            return;
-
-        PlayerDetected = detectedNow;
-
-        Debug.Log(
-            PlayerDetected
-                ? "Enemy Melee: Player detectado"
-                : "Enemy Melee: Player fuera del rango"
-        );
+        PlayerDetected = false;
+        return;
     }
+
+    // GAME-15: Verificar si el Player está muerto
+    Health playerHealth = player.GetComponentInParent<Health>();
+
+    if (playerHealth != null && playerHealth.IsDead)
+    {
+        PlayerDetected = false;
+        return;
+    }
+
+    float distance = Vector2.Distance(
+        transform.position,
+        player.position
+    );
+
+    bool detectedNow = distance <= detectionRange;
+
+    if (detectedNow == PlayerDetected)
+        return;
+
+    PlayerDetected = detectedNow;
+
+    Debug.Log(
+        PlayerDetected
+            ? "Enemy Melee: Player detectado"
+            : "Enemy Melee: Player fuera del rango"
+    );
+}
 
     // GAME-10: PERSECUCIÓN
     private void ChasePlayer()
@@ -171,26 +183,57 @@ public class EnemyMeleeController : MonoBehaviour
     }
 
     // EJECUTAR ATAQUE
-    private void Attack()
+// GAME-15.1: CONECTAR DAÑO REAL DEL ENEMY MELEE AL PLAYER
+private void Attack()
+{
+    Debug.Log("Enemy Melee: ataque cuerpo a cuerpo");
+
+    ShowAttackFX();
+
+    bool hitPlayer = CheckAttackHitbox();
+
+    if (!hitPlayer)
     {
-        Debug.Log("Enemy Melee: ataque cuerpo a cuerpo");
-
-        ShowAttackFX();
-
-        bool hitPlayer = CheckAttackHitbox();
-
-        if (hitPlayer)
-        {
-            Debug.Log("Enemy Melee: golpe acertado al Player");
-
-            // GAME-15:
-            // Aquí se conectará el daño real al Player.
-        }
-        else
-        {
-            Debug.Log("Enemy Melee: ataque fallado");
-        }
+        Debug.Log("Enemy Melee: ataque fallado");
+        return;
     }
+
+    Debug.Log("Enemy Melee: golpe acertado al Player");
+
+    // Obtener el componente Health del jugador
+    Health playerHealth = player.GetComponentInParent<Health>();
+
+    if (playerHealth == null)
+    {
+        Debug.LogWarning(
+            "Enemy Melee: el Player no tiene componente Health"
+        );
+        return;
+    }
+
+    // No aplicar daño si el jugador ya murió
+    if (playerHealth.IsDead)
+        return;
+
+    int previousHealth = playerHealth.CurrentHealth;
+
+    // Aplicar daño usando el sistema Health existente
+    playerHealth.TakeDamage(attackDamage);
+
+    if (playerHealth.CurrentHealth < previousHealth)
+    {
+        Debug.Log(
+            $"Enemy Melee: daño aplicado ({attackDamage} base). " +
+            $"Vida: {previousHealth} -> {playerHealth.CurrentHealth}"
+        );
+    }
+    else
+    {
+        Debug.Log(
+            "Enemy Melee: golpe bloqueado por invulnerabilidad"
+        );
+    }
+}
 
     // COMPROBAR HITBOX
     private bool CheckAttackHitbox()

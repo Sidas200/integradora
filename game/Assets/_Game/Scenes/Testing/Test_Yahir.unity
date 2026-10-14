@@ -264,7 +264,8 @@ MonoBehaviour:
   detectionRange: 2
   moveSpeed: 1.5
   attackRange: 0.35
-  attackCooldown: 1.5
+  attackCooldown: 0.5
+  attackDamage: 10
   attackPoint: {fileID: 1152009653}
   attackPointDistance: 0.2
   attackRadius: 0.25
@@ -631,10 +632,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.23789063
-    y: 0.03125
-    width: 0.375
-    height: 0.375
+    x: 0
+    y: 0
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -25985,7 +25986,7 @@ MonoBehaviour:
   maxHealth: 100
   minDamage: 1
   destroyOnDeath: 0
-  invulnerableTime: 0
+  invulnerableTime: 0.8
   onHealthChanged:
     m_PersistentCalls:
       m_Calls: []
