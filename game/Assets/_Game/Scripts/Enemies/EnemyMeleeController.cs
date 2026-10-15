@@ -43,6 +43,24 @@ public class EnemyMeleeController : MonoBehaviour
         }
     }
 
+    // GAME-16: Buscar automáticamente al Player
+    private void Start()
+    {
+        if (player != null)
+            return;
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject != null)
+        {
+            player = playerObject.transform;
+            Debug.Log("Enemy Melee: Player asignado automáticamente");
+        }
+        else
+        {
+            Debug.LogWarning("Enemy Melee: No se encontró un Player");
+        }
+    }
     private void Update()
     {
         DetectPlayer();
@@ -95,28 +113,42 @@ private void DetectPlayer()
 }
 
     // GAME-10: PERSECUCIÓN
+    // GAME-10: PERSECUCIÓN
+// GAME-16: Movimiento físico estable
     private void ChasePlayer()
     {
+        // Detenerse cuando no detecta al jugador
         if (!PlayerDetected || player == null)
+        {
+            rb.linearVelocity = Vector2.zero;
             return;
+        }
 
-        float distance = Vector2.Distance(
-            rb.position,
-            player.position
-        );
+        // No moverse si el jugador murió
+        Health playerHealth = player.GetComponentInParent<Health>();
 
-        // Detenerse cuando esté suficientemente cerca.
-        if (distance <= attackRange)
+        if (playerHealth != null && playerHealth.IsDead)
+        {
+            rb.linearVelocity = Vector2.zero;
             return;
+        }
 
         Vector2 direction =
-            ((Vector2)player.position - rb.position).normalized;
+            (Vector2)player.position - rb.position;
 
-        Vector2 nextPosition =
-            rb.position +
-            direction * moveSpeed * Time.fixedDeltaTime;
+        float distance = direction.magnitude;
 
-        rb.MovePosition(nextPosition);
+        // Detenerse antes de llegar al centro del jugador
+        float stopDistance = Mathf.Max(0f, attackRange - 0.05f);
+
+        if (distance <= stopDistance)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        // Movimiento mediante velocidad física
+        rb.linearVelocity = direction.normalized * moveSpeed;
     }
 
     // ACTUALIZAR HITBOX Y EFECTO VISUAL
