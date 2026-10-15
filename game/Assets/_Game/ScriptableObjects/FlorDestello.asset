@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MaterialData
   id: flor_destello
   displayName: Flor destello
-  icon: {fileID: -855298285791758126, guid: 0eb38cc1e14d2304a85a5d4e100a67be, type: 3}
+  icon: {fileID: 6761164967045977113, guid: 53f8aae62d5664ea1986d4f4cbb256e5, type: 3}
   description: Flor que emite un brillo tenue. Suelta por los slimes.

@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MaterialData
   id: alma_antigua
   displayName: Alma antigua
-  icon: {fileID: 0}
+  icon: {fileID: -5428206428529569624, guid: 53f8aae62d5664ea1986d4f4cbb256e5, type: 3}
   description: Fragmento de alma de un ser antiguo.

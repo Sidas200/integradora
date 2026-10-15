@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MaterialData
   id: alma_pequena
   displayName: "Alma peque\xF1a"
-  icon: {fileID: 0}
+  icon: {fileID: 5860025163644826426, guid: 53f8aae62d5664ea1986d4f4cbb256e5, type: 3}
   description: Permite entrar al primer Santuario.
