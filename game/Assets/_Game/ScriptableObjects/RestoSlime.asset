@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MaterialData
   id: resto_slime
   displayName: Resto de slime
-  icon: {fileID: 0}
+  icon: {fileID: -68751727340038015, guid: 53f8aae62d5664ea1986d4f4cbb256e5, type: 3}
   description: Restos pegajosos que deja un slime.

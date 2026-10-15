@@ -9,6 +9,7 @@ public class MaterialPickup : MonoBehaviour
     [SerializeField] private int amount = 1;
 
     private bool collected;
+    private SpriteRenderer spriteRenderer;
 
     private void Reset()
     {
@@ -16,11 +17,30 @@ public class MaterialPickup : MonoBehaviour
         GetComponent<Collider2D>().isTrigger = true;
     }
 
-        // Lo usa EnemyDrop para configurar el pickup al soltarlo.
+    private void Awake()
+    {
+        ApplyVisual();
+    }
+
+    // Lo usa EnemyDrop para configurar el pickup al soltarlo.
     public void Setup(MaterialData newMaterial, int newAmount)
     {
         material = newMaterial;
         amount = Mathf.Max(1, newAmount);
+        ApplyVisual();
+    }
+
+    // Muestra el ícono del material en el suelo (si ya tiene uno asignado).
+    private void ApplyVisual()
+    {
+        if (material == null || material.icon == null) return;
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (spriteRenderer == null) return;
+
+        spriteRenderer.sprite = material.icon;
+        spriteRenderer.color = Color.white; // quita el tinte azul/verde de prueba
     }
 
     private void OnTriggerEnter2D(Collider2D other)

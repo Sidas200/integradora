@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MaterialData
   id: gota_amrita
   displayName: Gota de Amrita
-  icon: {fileID: 0}
+  icon: {fileID: -3900491669773934356, guid: bf4dbc349e1514e159934ed3691f52f4, type: 3}
   description: Ofrenda que despierta al jefe. Se consume al usarla.
