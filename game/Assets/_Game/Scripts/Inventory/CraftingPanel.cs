@@ -17,6 +17,7 @@ public class CraftingPanel : MonoBehaviour
     [SerializeField] private float rowHeight = 80f;
 
     private Inventory inventory;
+    private PlayerStats playerStats;
     private readonly List<Row> rows = new List<Row>();
     private bool built;
     private bool paused;
@@ -54,6 +55,7 @@ public class CraftingPanel : MonoBehaviour
     private void OnEnable()
     {
         inventory = FindFirstObjectByType<Inventory>();
+        playerStats = FindFirstObjectByType<PlayerStats>();
         if (inventory == null)
         {
             Debug.LogWarning("CraftingPanel: no hay Inventory en la escena.");
@@ -128,13 +130,23 @@ public class CraftingPanel : MonoBehaviour
         }
     }
 
-    private void Refresh()
+     private void Refresh()
     {
         if (inventory == null) return;
 
         foreach (var row in rows)
         {
-            row.button.interactable = inventory.CanCraft(row.recipe);
+            // La receta de mejora de espada desaparece una vez aplicada.
+            if (row.recipe.upgradesSword)
+            {
+                bool alreadyUpgraded = playerStats != null && !playerStats.CanUpgradeSword;
+                row.button.gameObject.SetActive(!alreadyUpgraded);
+                if (alreadyUpgraded) continue;
+            }
+
+            bool canUse = inventory.CanCraft(row.recipe)
+                          && (!row.recipe.upgradesSword || playerStats != null);
+            row.button.interactable = canUse;
             row.label.text = BuildLabel(row.recipe);
         }
     }
@@ -160,6 +172,16 @@ public class CraftingPanel : MonoBehaviour
     private void Craft(CraftingRecipe recipe)
     {
         if (inventory == null) return;
+
+        if (recipe.upgradesSword)
+        {
+            if (playerStats == null || !playerStats.CanUpgradeSword) return;
+            if (inventory.TryConsumeIngredients(recipe) && playerStats.UpgradeSword())
+                Debug.Log("Crafteado: " + recipe.displayName + " (espada mejorada)");
+            Refresh();
+            return;
+        }
+
         if (inventory.TryCraft(recipe))
             Debug.Log("Crafteado: " + recipe.displayName);
         Refresh();

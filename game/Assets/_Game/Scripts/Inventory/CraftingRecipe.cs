@@ -20,4 +20,6 @@ public class CraftingRecipe : ScriptableObject
     public List<Ingredient> ingredients = new List<Ingredient>();
     public MaterialData result;
     [Min(1)] public int resultAmount = 1;
+    [Tooltip("Si está activo, al craftearla sube el nivel de la espada y no entrega ningún item.")]
+    public bool upgradesSword;
 }

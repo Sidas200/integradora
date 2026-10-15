@@ -44,7 +44,7 @@ public class Inventory : MonoBehaviour
         // Revisa si hay suficientes ingredientes para la receta (no consume nada).
     public bool CanCraft(CraftingRecipe recipe)
     {
-        if (recipe == null || recipe.result == null) return false;
+        if (recipe == null || (recipe.result == null && !recipe.upgradesSword)) return false;
 
         foreach (var ing in recipe.ingredients)
         {
@@ -63,6 +63,22 @@ public class Inventory : MonoBehaviour
             TryConsume(ing.material.id, ing.amount);
 
         Add(recipe.result, recipe.resultAmount);
+        return true;
+    }
+
+        // Consume solo los ingredientes, sin dar ningún item. Todo o nada.
+    public bool TryConsumeIngredients(CraftingRecipe recipe)
+    {
+        if (recipe == null) return false;
+
+        foreach (var ing in recipe.ingredients)
+        {
+            if (ing.material == null) return false;
+            if (!Has(ing.material.id, ing.amount)) return false;
+        }
+
+        foreach (var ing in recipe.ingredients)
+            TryConsume(ing.material.id, ing.amount);
         return true;
     }
 }
