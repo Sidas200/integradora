@@ -6,10 +6,9 @@
 # Por eso hay una sola regla para todo el repo; no agregues reglas por carpeta
 # (p. ej. /game/) o esa carpeta dejará de pedir revisión a todo el equipo.
 #
-# Usuarios confirmados: @byfelc, @EmmanuelRDGZ98, @Sidas200 (Arturo).
-# Pendientes de agregar (aún sin usuario de GitHub ligado al repo):
-#   Yahir, Santiago, Omar, Regina.
-# Para agregarlos, pon su @usuario al final de la línea de abajo.
+# Equipo: @byfelc (Felc), @EmmanuelRDGZ98 (Emmanuel), @Sidas200 (Arturo, dueño),
+#   @ElGuapoEnmascarado (Yahir), @OmarMol75 (Omar), @perrohambreado (Regina).
+# Para agregar a alguien, pon su @usuario al final de la línea de abajo.
 # Cada usuario debe tener acceso de escritura (Write) al repo o GitHub lo ignora.
 
-*    @byfelc @EmmanuelRDGZ98 @Sidas200
+*    @byfelc @EmmanuelRDGZ98 @Sidas200 @ElGuapoEnmascarado @OmarMol75 @perrohambreado
