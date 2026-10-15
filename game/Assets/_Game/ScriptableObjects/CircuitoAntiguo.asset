@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MaterialData
   id: circuito_antiguo
   displayName: Circuito antiguo
-  icon: {fileID: 0}
+  icon: {fileID: -7833671090200325546, guid: 53f8aae62d5664ea1986d4f4cbb256e5, type: 3}
   description: Mecanismo olvidado dentro del golem antiguo.

@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MaterialData
   id: concentrado_slime
   displayName: Concentrado de slime
-  icon: {fileID: 0}
+  icon: {fileID: 5508725064705088119, guid: 53f8aae62d5664ea1986d4f4cbb256e5, type: 3}
   description: "Esencia espesa extra\xEDda de un slime."
