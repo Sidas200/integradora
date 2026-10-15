@@ -21,3 +21,4 @@ MonoBehaviour:
     amount: 5
   result: {fileID: 11400000, guid: 71cc62449d9a24141bdcd6baf7e61d64, type: 2}
   resultAmount: 1
+  upgradesSword: 1

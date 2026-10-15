@@ -8,14 +8,22 @@ public class PlayerStats : MonoBehaviour, IHealthProvider
 {
     [Header("Base Stats")]
     [SerializeField] private int baseMaxHealth = 100;
-    [SerializeField] private int baseAttack = 10;
+    [SerializeField] private int baseAttack = 15;
     [SerializeField] private int baseDefense = 0;
     [SerializeField] private float baseMoveSpeed = 1.4f;
+
+    [Header("Mejora de espada")]
+    [SerializeField] private int maxSwordLevel = 1;
+    [SerializeField] private int attackPerSwordLevel = 10;
+    [SerializeField, Min(0)] private int swordLevel = 0;
 
     public int MaxHealth { get; private set; }
     public int Attack { get; private set; }
     public int Defense { get; private set; }
     public float MoveSpeed { get; private set; }
+
+    public int SwordLevel => swordLevel;
+    public bool CanUpgradeSword => swordLevel < maxSwordLevel;
 
     // Puente para scripts que ya usaban PlayerStats para la vida
     public int CurrentHealth => health != null ? health.CurrentHealth : MaxHealth;
@@ -33,6 +41,7 @@ public class PlayerStats : MonoBehaviour, IHealthProvider
         health = GetComponent<Health>();
         health.HealthChanged += HandleHealthChanged;
         health.Died += HandleDeath;
+        swordLevel = Mathf.Clamp(swordLevel, 0, maxSwordLevel);
 
         RecalculateStats();
     }
@@ -70,6 +79,24 @@ public class PlayerStats : MonoBehaviour, IHealthProvider
         RecalculateStats();
     }
 
+        // Sube un nivel la espada. Devuelve false si ya está al máximo.
+    public bool UpgradeSword()
+    {
+        if (!CanUpgradeSword) return false;
+
+        swordLevel++;
+        RecalculateStats();
+        Debug.Log($"Espada mejorada a nivel {swordLevel}. Ataque: {Attack}");
+        return true;
+    }
+
+    [ContextMenu("TEST - Mejorar espada")]
+    private void TestUpgradeSword()
+    {
+        if (!UpgradeSword())
+            Debug.Log("La espada ya está al nivel máximo.");
+    }
+
     private void RecalculateStats()
     {
         int bonusHealth = 0, bonusAttack = 0, bonusDefense = 0;
@@ -86,7 +113,7 @@ public class PlayerStats : MonoBehaviour, IHealthProvider
 
         int previousMax = MaxHealth;
         MaxHealth = baseMaxHealth + bonusHealth;
-        Attack = baseAttack + bonusAttack;
+        Attack = baseAttack + bonusAttack + swordLevel * attackPerSwordLevel;        
         Defense = baseDefense + bonusDefense;
         MoveSpeed = baseMoveSpeed + bonusSpeed;
 
