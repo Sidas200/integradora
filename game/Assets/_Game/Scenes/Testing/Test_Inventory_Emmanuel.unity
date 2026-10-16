@@ -2372,10 +2372,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.8032454
-    y: 0.06885759
-    width: 0.9736308
-    height: 0.8450704
+    x: 0
+    y: 0
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -29733,6 +29733,8 @@ MonoBehaviour:
   materials: []
   safePointId: 
   safePointScene: 
+  safePointX: 0
+  safePointY: 0
   sealOpened: 0
   guardianPermission: 0
 --- !u!4 &1047495166
@@ -30904,8 +30906,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   comboWindow: 0.8
-  endHoldTime: 0.5
-  cancelOnAnyMove: 0
   animator: {fileID: 0}
   spriteSheet: {fileID: 2800000, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   allFrames:
@@ -36989,6 +36989,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 273031999874485129, guid: 8ff966d3e6ef24a0c89030f1b819cc18, type: 3}
+      propertyPath: amount
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2727085414248178534, guid: 8ff966d3e6ef24a0c89030f1b819cc18, type: 3}
       propertyPath: m_Name
       value: Pickup_CueroAntiguo (1)
