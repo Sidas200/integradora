@@ -81,4 +81,50 @@ public class Inventory : MonoBehaviour
             TryConsume(ing.material.id, ing.amount);
         return true;
     }
+
+        // GAME-102 / SCRUM-85 (102.2): copia de todos los materiales,
+    // para guardarlos o pasarlos entre escenas.
+    public List<MaterialEntry> ExportEntries()
+    {
+        var list = new List<MaterialEntry>();
+        foreach (var pair in amounts)
+        {
+            if (pair.Value > 0)
+                list.Add(new MaterialEntry { id = pair.Key, amount = pair.Value });
+        }
+        return list;
+    }
+
+    // Reemplaza todo el inventario con las entradas dadas.
+    public void ImportEntries(IEnumerable<MaterialEntry> entries)
+    {
+        // Avisar al HUD que los materiales anteriores quedan en 0.
+        var oldIds = new List<string>(amounts.Keys);
+        amounts.Clear();
+        foreach (var id in oldIds)
+            OnAmountChanged?.Invoke(id, 0);
+
+        if (entries == null) return;
+
+        foreach (var entry in entries)
+        {
+            if (entry == null || string.IsNullOrEmpty(entry.id) || entry.amount <= 0) continue;
+            amounts[entry.id] = entry.amount;
+            OnAmountChanged?.Invoke(entry.id, entry.amount);
+        }
+    }
+
+    [ContextMenu("TEST - Exportar e importar")]
+    private void TestExportImport()
+    {
+        var entries = ExportEntries();
+        foreach (var e in entries)
+            Debug.Log($"Exportado: {e.id} = {e.amount}");
+
+        ImportEntries(null);            // vacía
+        Debug.Log($"Vaciado. Materiales: {ExportEntries().Count}");
+
+        ImportEntries(entries);         // restaura
+        Debug.Log($"Restaurado. Materiales: {ExportEntries().Count}");
+    }
 }

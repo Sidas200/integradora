@@ -100,6 +100,14 @@ public class Health : MonoBehaviour, IDamageable
         NotifyChanged();
     }
 
+        // GAME-106 / SCRUM-82: restaura la vida guardada (mínimo 1, nunca carga muerto).
+    public void SetCurrentHealth(int value)
+    {
+        IsDead = false;
+        currentHealth = Mathf.Clamp(value, 1, MaxHealth);
+        NotifyChanged();
+    }
+
     // Cuando cambia la vida máxima (equipo), suma o resta la diferencia a la vida actual
     public void ApplyMaxHealthChange(int previousMax)
     {
