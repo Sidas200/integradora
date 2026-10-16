@@ -81,6 +81,20 @@ public class SessionState : MonoBehaviour
         respawnAtSafePoint = true;
         ChangeScene(safePointScene);
     }
+        // 102.3: pide al jugador que copie su estado ahora (para guardar sin cambiar de escena).
+    public void SyncFromPlayer()
+    {
+        BeforeSceneChange?.Invoke();
+    }
+
+    // 102.3: aplica un guardado y lleva al jugador a su punto seguro.
+    // No usa ChangeScene para que el estado actual del jugador no sobreescriba lo cargado.
+    public void LoadFromSave(SaveData data)
+    {
+        data.ApplyTo(this);
+        respawnAtSafePoint = HasSafePoint;
+        LoadSceneInternal(HasSafePoint ? safePointScene : SceneManager.GetActiveScene().path);
+    }
 
     public int GetMaterial(string id)
     {
@@ -135,6 +149,40 @@ public class SessionState : MonoBehaviour
     private void TestRestoreSafePoint()
     {
         RestoreSafePoint();
+    }
+
+    [ContextMenu("TEST - Ver JSON de guardado")]
+    private void TestShowSaveJson()
+    {
+        SyncFromPlayer();
+        var data = SaveData.FromSession(this);
+        Debug.Log(JsonUtility.ToJson(data, true));
+    }
+
+        [ContextMenu("TEST - Guardar a disco")]
+    private void TestSaveToDisk()
+    {
+        SyncFromPlayer();
+        var repo = new LocalSaveRepository();
+        repo.Save(SaveData.FromSession(this));
+        Debug.Log($"Guardado en {repo.FilePath}");
+    }
+
+    [ContextMenu("TEST - Cargar de disco")]
+    private void TestLoadFromDisk()
+    {
+        var data = new LocalSaveRepository().Load();
+        if (data != null)
+            LoadFromSave(data);
+        else
+            Debug.LogWarning("No hay guardado válido: se queda como Nueva partida.");
+    }
+
+    [ContextMenu("TEST - Borrar guardado")]
+    private void TestDeleteSave()
+    {
+        new LocalSaveRepository().Delete();
+        Debug.Log("Guardado borrado.");
     }
 }
 
