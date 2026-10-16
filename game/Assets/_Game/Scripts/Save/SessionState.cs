@@ -154,6 +154,7 @@ public class SessionState : MonoBehaviour
     [ContextMenu("TEST - Ver JSON de guardado")]
     private void TestShowSaveJson()
     {
+        SyncFromPlayer();
         var data = SaveData.FromSession(this);
         Debug.Log(JsonUtility.ToJson(data, true));
     }
