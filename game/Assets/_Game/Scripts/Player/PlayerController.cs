@@ -96,6 +96,16 @@ public class PlayerController : MonoBehaviour
     private GameObject attackBox;
     private float attackVisibleTimer;
     private Vector2 attackDirection = Vector2.down;
+    // GAME-101: Reacción al recibir daño
+    [Header("Hit Feedback")]
+    [SerializeField] private Color hitFlashColor = Color.red;
+    [SerializeField] private float hitFlashDuration = 0.15f;
+    [SerializeField] private float hitStunDuration = 0.15f;
+    [SerializeField] private float knockbackSpeed = 2f;
+
+    private float hitFlashTimer;
+    private float hitStunTimer;
+    private Vector2 knockbackDirection;
 
     // Animaciones armadas a partir de los rangos
     private Sprite[] walkRight;
@@ -200,33 +210,53 @@ public class PlayerController : MonoBehaviour
         UpdateAttackBox();
         UpdateSpriteAnimation();
 
-        if (isDashing)
+        // GAME-101: Actualizar destello por daño
+        if (hitFlashTimer > 0f)
+            hitFlashTimer -= Time.deltaTime;
+
+        // Prioridad al efecto de daño
+        if (hitFlashTimer > 0f)
+            sr.color = hitFlashColor;
+        else if (isDashing)
             sr.color = dashColor;
-        else if (dashCooldownTimer > 0)
+        else if (dashCooldownTimer > 0f)
             sr.color = cooldownColor;
         else
             sr.color = normalColor;
     }
 
-    private void FixedUpdate()
+    
+private void FixedUpdate()
+{
+    // DASH: Tiene prioridad sobre el resto
+    if (isDashing)
     {
-        if (isDashing)
-        {
-            rb.linearVelocity = lastMoveDirection * dashSpeed;
-            dashTimer -= Time.fixedDeltaTime;
-            if (dashTimer <= 0)
-                isDashing = false;
-        }
-        else if (IsAttacking)
-        {
-            // Mientras ataca no se puede mover
-            rb.linearVelocity = Vector2.zero;
-        }
-        else
-        {
-            rb.linearVelocity = movement * stats.MoveSpeed;
-        }
+        hitStunTimer = 0f;
+
+        rb.linearVelocity = lastMoveDirection * dashSpeed;
+        dashTimer -= Time.fixedDeltaTime;
+
+        if (dashTimer <= 0f)
+            isDashing = false;
     }
+    // GAME-101: Retroceso cuando el Player recibe daño
+    else if (hitStunTimer > 0f)
+    {
+        rb.linearVelocity = knockbackDirection * knockbackSpeed;
+        hitStunTimer -= Time.fixedDeltaTime;
+    }
+    // DEV: Mantener al jugador quieto durante el combo
+    else if (IsAttacking)
+    {
+        rb.linearVelocity = Vector2.zero;
+    }
+    // Movimiento normal
+    else
+    {
+        rb.linearVelocity = movement * stats.MoveSpeed;
+    }
+}
+
 
     // ---------- COMBO ----------
 
@@ -469,7 +499,23 @@ public class PlayerController : MonoBehaviour
         if (attackVisibleTimer <= 0f)
             attackBox.SetActive(false);
     }
+    // GAME-101: Reacción visual y física al recibir daño
+    public void ApplyHitReaction(Vector2 attackerPosition)
+    {
+        // Activar destello rojo
+        hitFlashTimer = hitFlashDuration;
 
+        // Calcular dirección contraria al atacante
+        Vector2 direction =
+            (Vector2)transform.position - attackerPosition;
+
+        knockbackDirection = direction.sqrMagnitude > 0.001f
+            ? direction.normalized
+            : -lastMoveDirection;
+
+        // Activar retroceso
+        hitStunTimer = hitStunDuration;
+    }
     private void OnDestroy()
     {
         if (attackBox != null)

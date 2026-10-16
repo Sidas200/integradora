@@ -27,11 +27,25 @@ public class EnemyMeleeController : MonoBehaviour
     [SerializeField] private GameObject attackFX;
     [SerializeField] private float attackFXDuration = 0.15f;
     [SerializeField] private float attackFXRotationOffset = 0f;
+    // GAME-101: Advertencia antes del ataque
+    [Header("Attack Warning")]
+    [SerializeField] private float attackWindup = 0.4f;
+    [SerializeField] private GameObject attackWarningFX;
+
+    private bool preparingAttack;
+    private float warningTimer;
 
     public bool PlayerDetected { get; private set; }
 
     private Rigidbody2D rb;
     private float nextAttackTime;
+    // GAME-101: Reacción al recibir daño
+[Header("Hit Reaction")]
+[SerializeField] private float hitStunDuration = 0.15f;
+[SerializeField] private float knockbackSpeed = 1.5f;
+
+private float hitStunTimer;
+private Vector2 knockbackDirection;
 
     private void Awake()
     {
@@ -40,6 +54,10 @@ public class EnemyMeleeController : MonoBehaviour
         if (attackFX != null)
         {
             attackFX.SetActive(false);
+        }
+        if (attackWarningFX != null)
+        {
+            attackWarningFX.SetActive(false);
         }
     }
 
@@ -68,9 +86,36 @@ public class EnemyMeleeController : MonoBehaviour
         HandleAttack();
     }
 
+  // GAME-101: Controlar empuje y pausa al recibir daño
     private void FixedUpdate()
     {
+        if (hitStunTimer > 0f)
+        {
+            hitStunTimer -= Time.fixedDeltaTime;
+
+            // Retroceder al recibir un golpe
+            rb.linearVelocity = knockbackDirection * knockbackSpeed;
+            return;
+        }
+
+        // Continuar persiguiendo cuando termina la reacción
         ChasePlayer();
+    }
+
+    // GAME-101: Empuje y pausa al recibir un golpe
+    public void ApplyHitReaction()
+    {
+        if (player == null)
+            return;
+
+        Vector2 direction =
+            rb.position - (Vector2)player.position;
+
+        knockbackDirection = direction.sqrMagnitude > 0.001f
+            ? direction.normalized
+            : Vector2.up;
+
+        hitStunTimer = hitStunDuration;
     }
 
     // GAME-09: DETECCIÓN
@@ -165,6 +210,11 @@ private void DetectPlayer()
             (Vector2)transform.position +
             direction * attackPointDistance;
 
+        // GAME-101: Posicionar advertencia del golpe
+        if (attackWarningFX != null)
+        {
+            attackWarningFX.transform.position = attackPosition;
+        }
         // La hitbox apunta hacia el jugador.
         if (attackPoint != null)
         {
@@ -191,81 +241,134 @@ private void DetectPlayer()
     }
 
     // GAME-11: CONTROL DEL ATAQUE
+    // GAME-11 / GAME-101: Ataque con advertencia previa
     private void HandleAttack()
     {
-        if (!PlayerDetected || player == null)
+        // Cancelar si está aturdido o no detecta al jugador
+        if (hitStunTimer > 0f || !PlayerDetected || player == null)
+        {
+            CancelAttackWarning();
             return;
+        }
 
         float distance = Vector2.Distance(
             transform.position,
             player.position
         );
 
-        // No atacar si está lejos.
+        // Si está preparando el ataque
+        if (preparingAttack)
+        {
+            // Cancelar si el jugador sale del rango
+            if (distance > attackRange)
+            {
+                CancelAttackWarning();
+                return;
+            }
+
+            warningTimer -= Time.deltaTime;
+
+            if (warningTimer > 0f)
+                return;
+
+            // Termina la advertencia y ejecuta el ataque
+            CancelAttackWarning();
+
+            Attack();
+
+            nextAttackTime = Time.time + attackCooldown;
+            return;
+        }
+
+        // No iniciar ataques fuera del rango
         if (distance > attackRange)
             return;
 
-        // Respetar el cooldown.
+        // Respetar cooldown
         if (Time.time < nextAttackTime)
             return;
 
-        Attack();
+        // Comenzar advertencia
+        preparingAttack = true;
+        warningTimer = attackWindup;
 
-        nextAttackTime = Time.time + attackCooldown;
+        if (attackWarningFX != null)
+            attackWarningFX.SetActive(true);
     }
 
-    // EJECUTAR ATAQUE
-// GAME-15.1: CONECTAR DAÑO REAL DEL ENEMY MELEE AL PLAYER
-private void Attack()
-{
-    Debug.Log("Enemy Melee: ataque cuerpo a cuerpo");
-
-    ShowAttackFX();
-
-    bool hitPlayer = CheckAttackHitbox();
-
-    if (!hitPlayer)
+    // GAME-101: Cancelar advertencia
+    private void CancelAttackWarning()
     {
-        Debug.Log("Enemy Melee: ataque fallado");
-        return;
+        preparingAttack = false;
+        warningTimer = 0f;
+
+        if (attackWarningFX != null)
+            attackWarningFX.SetActive(false);
     }
-
-    Debug.Log("Enemy Melee: golpe acertado al Player");
-
-    // Obtener el componente Health del jugador
-    Health playerHealth = player.GetComponentInParent<Health>();
-
-    if (playerHealth == null)
+        // EJECUTAR ATAQUE
+    // GAME-15.1: CONECTAR DAÑO REAL DEL ENEMY MELEE AL PLAYER
+    private void Attack()
     {
-        Debug.LogWarning(
-            "Enemy Melee: el Player no tiene componente Health"
-        );
-        return;
+        Debug.Log("Enemy Melee: ataque cuerpo a cuerpo");
+
+        ShowAttackFX();
+
+        bool hitPlayer = CheckAttackHitbox();
+
+        if (!hitPlayer)
+        {
+            Debug.Log("Enemy Melee: ataque fallado");
+            return;
+        }
+
+        Debug.Log("Enemy Melee: golpe acertado al Player");
+
+        // Obtener el componente Health del jugador
+        Health playerHealth = player.GetComponentInParent<Health>();
+
+        if (playerHealth == null)
+        {
+            Debug.LogWarning(
+                "Enemy Melee: el Player no tiene componente Health"
+            );
+            return;
+        }
+
+        // No aplicar daño si el jugador ya murió
+        if (playerHealth.IsDead)
+            return;
+
+        int previousHealth = playerHealth.CurrentHealth;
+
+        // Aplicar daño usando el sistema Health existente
+        playerHealth.TakeDamage(attackDamage);
+
+        if (playerHealth.CurrentHealth < previousHealth)
+        {
+            Debug.Log(
+                $"Enemy Melee: daño aplicado ({attackDamage} base). " +
+                $"Vida: {previousHealth} -> {playerHealth.CurrentHealth}"
+            );
+
+            // GAME-101: Activar reacción del Player
+            if (!playerHealth.IsDead)
+            {
+                PlayerController playerController =
+                    player.GetComponentInParent<PlayerController>();
+
+                if (playerController != null)
+                {
+                    playerController.ApplyHitReaction(transform.position);
+                }
+            }
+        }
+        else
+        {
+            Debug.Log(
+                "Enemy Melee: golpe bloqueado por invulnerabilidad"
+            );
+        }
     }
-
-    // No aplicar daño si el jugador ya murió
-    if (playerHealth.IsDead)
-        return;
-
-    int previousHealth = playerHealth.CurrentHealth;
-
-    // Aplicar daño usando el sistema Health existente
-    playerHealth.TakeDamage(attackDamage);
-
-    if (playerHealth.CurrentHealth < previousHealth)
-    {
-        Debug.Log(
-            $"Enemy Melee: daño aplicado ({attackDamage} base). " +
-            $"Vida: {previousHealth} -> {playerHealth.CurrentHealth}"
-        );
-    }
-    else
-    {
-        Debug.Log(
-            "Enemy Melee: golpe bloqueado por invulnerabilidad"
-        );
-    }
-}
 
     // COMPROBAR HITBOX
     private bool CheckAttackHitbox()
