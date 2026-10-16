@@ -97,6 +97,13 @@ public class PlayerStats : MonoBehaviour, IHealthProvider
             Debug.Log("La espada ya está al nivel máximo.");
     }
 
+        // GAME-106 / SCRUM-82: restaura el nivel guardado sin pasar por la forja.
+    public void SetSwordLevel(int level)
+    {
+        swordLevel = Mathf.Clamp(level, 0, maxSwordLevel);
+        RecalculateStats();
+    }
+
     private void RecalculateStats()
     {
         int bonusHealth = 0, bonusAttack = 0, bonusDefense = 0;

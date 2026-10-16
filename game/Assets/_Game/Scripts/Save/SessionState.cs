@@ -25,6 +25,15 @@ public class SessionState : MonoBehaviour
     public bool sealOpened;
     public bool guardianPermission;
 
+        // Se dispara justo antes de cambiar de escena, para que el jugador copie su estado.
+    public event Action BeforeSceneChange;
+
+    public void ChangeScene(string sceneName)
+    {
+        BeforeSceneChange?.Invoke();
+        SceneManager.LoadScene(sceneName);
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -69,6 +78,7 @@ public class SessionState : MonoBehaviour
     [ContextMenu("TEST - Recargar escena")]
     private void TestReloadScene()
     {
+        BeforeSceneChange?.Invoke();
 #if UNITY_EDITOR
         // En el editor carga la escena aunque no esté en Build Profiles.
         string path = SceneManager.GetActiveScene().path;

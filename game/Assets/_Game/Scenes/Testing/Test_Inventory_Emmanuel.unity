@@ -2372,10 +2372,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
+    x: 0.8032454
+    y: 0.06885759
+    width: 0.9736308
+    height: 0.8450704
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -30837,6 +30837,7 @@ GameObject:
   - component: {fileID: 1249487871}
   - component: {fileID: 1249487870}
   - component: {fileID: 1249487872}
+  - component: {fileID: 1249487873}
   m_Layer: 0
   m_Name: protagonista_0
   m_TagString: Untagged
@@ -31116,6 +31117,18 @@ MonoBehaviour:
   onAmritaUsed:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1249487873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249487860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22c6078f9f3f544ba974a7b6cf6d2894, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SessionSync
 --- !u!1 &1249975313
 GameObject:
   m_ObjectHideFlags: 0
