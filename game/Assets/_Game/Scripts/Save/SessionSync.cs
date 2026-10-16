@@ -40,7 +40,7 @@ public class SessionSync : MonoBehaviour
         session.currentHealth = health.CurrentHealth;
     }
 
-    public void RestoreFromSession()
+        public void RestoreFromSession()
     {
         var session = SessionState.Instance;
         if (session == null) return;
@@ -49,5 +49,26 @@ public class SessionSync : MonoBehaviour
         stats.SetSwordLevel(session.swordLevel);
         if (session.currentHealth > 0)
             health.SetCurrentHealth(session.currentHealth);
+
+        // 106.3: aparecer en el punto seguro si se pidió.
+        if (session.respawnAtSafePoint)
+        {
+            session.respawnAtSafePoint = false;
+            var pos = new Vector3(session.safePointX, session.safePointY, transform.position.z);
+            transform.position = pos;
+            var rb = GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.position = pos;
+                rb.linearVelocity = Vector2.zero;
+            }
+        }
+    }
+
+    [ContextMenu("TEST - Guardar punto seguro aquí")]
+    private void TestSaveSafePoint()
+    {
+        if (SessionState.Instance != null)
+            SessionState.Instance.SaveSafePoint("base", transform.position);
     }
 }
