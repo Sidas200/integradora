@@ -136,6 +136,13 @@ public class SessionState : MonoBehaviour
     {
         RestoreSafePoint();
     }
+
+    [ContextMenu("TEST - Ver JSON de guardado")]
+    private void TestShowSaveJson()
+    {
+        var data = SaveData.FromSession(this);
+        Debug.Log(JsonUtility.ToJson(data, true));
+    }
 }
 
 [Serializable]
