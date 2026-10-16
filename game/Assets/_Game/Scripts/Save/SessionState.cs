@@ -170,8 +170,8 @@ public class SessionState : MonoBehaviour
     [ContextMenu("TEST - Cargar de disco")]
     private void TestLoadFromDisk()
     {
-        var repo = new LocalSaveRepository();
-        if (repo.TryLoad(out var data))
+        var data = new LocalSaveRepository().Load();
+        if (data != null)
             LoadFromSave(data);
         else
             Debug.LogWarning("No hay guardado válido: se queda como Nueva partida.");

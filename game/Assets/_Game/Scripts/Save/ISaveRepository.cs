@@ -3,7 +3,7 @@
 public interface ISaveRepository
 {
     void Save(SaveData data);
-    bool TryLoad(out SaveData data);
-    bool HasSave();
+    SaveData Load();     // null si no hay guardado o está dañado (SRS-HEX-04)
+    bool Exists();
     void Delete();
 }

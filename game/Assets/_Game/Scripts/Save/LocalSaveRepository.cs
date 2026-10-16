@@ -2,18 +2,17 @@ using System;
 using System.IO;
 using UnityEngine;
 
-// GAME-102 / SCRUM-86 (102.3): guarda SaveData como JSON en persistentDataPath.
-// Si el archivo falta, está dañado o es de otra versión, TryLoad devuelve false (SRS-HEX-04).
+// GAME-102 / SCRUM-86 (102.3): guarda SaveData como JSON en persistentDataPath/save_slot{n}.json.
+// Escribe a un temporal y luego reemplaza, para no corromper el guardado bueno.
+// Si el archivo falta, está dañado o es de otra versión, Load devuelve null (SRS-HEX-04).
 public class LocalSaveRepository : ISaveRepository
 {
-    public const string DefaultFileName = "save.json";
-
     public string FilePath { get; }
 
-    public LocalSaveRepository()
-        : this(Path.Combine(Application.persistentDataPath, DefaultFileName)) { }
+    public LocalSaveRepository(int slot = 1)
+        : this(Path.Combine(Application.persistentDataPath, $"save_slot{slot}.json")) { }
 
-    // Permite usar otra ruta (la prueba EditMode usa una carpeta temporal).
+    // Permite usar otra ruta (útil para pruebas).
     public LocalSaveRepository(string filePath)
     {
         FilePath = filePath;
@@ -26,38 +25,38 @@ public class LocalSaveRepository : ISaveRepository
         string dir = Path.GetDirectoryName(FilePath);
         if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
 
-        // Primero a un temporal: si el juego se cierra a medio guardar, el bueno no se corrompe.
         string tmp = FilePath + ".tmp";
         File.WriteAllText(tmp, JsonUtility.ToJson(data, true));
-        File.Copy(tmp, FilePath, true);
-        File.Delete(tmp);
+
+        if (File.Exists(FilePath))
+            File.Replace(tmp, FilePath, null);
+        else
+            File.Move(tmp, FilePath);
     }
 
-    public bool TryLoad(out SaveData data)
+    public SaveData Load()
     {
-        data = null;
-        if (!File.Exists(FilePath)) return false;
+        if (!File.Exists(FilePath)) return null;
 
         try
         {
             string json = File.ReadAllText(FilePath);
-            var loaded = JsonUtility.FromJson<SaveData>(json);
-            if (loaded == null || !loaded.IsValid)
+            var data = JsonUtility.FromJson<SaveData>(json);
+            if (data == null || !data.IsValid)
             {
                 Debug.LogWarning("Guardado inválido o de otra versión; se ignora.");
-                return false;
+                return null;
             }
-            data = loaded;
-            return true;
+            return data;
         }
         catch (Exception e)
         {
             Debug.LogWarning($"Guardado dañado; se ignora. ({e.Message})");
-            return false;
+            return null;
         }
     }
 
-    public bool HasSave() => File.Exists(FilePath);
+    public bool Exists() => File.Exists(FilePath);
 
     public void Delete()
     {
