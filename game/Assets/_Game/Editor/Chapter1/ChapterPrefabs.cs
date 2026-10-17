@@ -20,6 +20,7 @@ namespace Game.EditorTools.Chapter1
             EnsureFolder();
             MoveSharedPrefabsToSpritesLayer();
             BuildPlayer();
+            ChapterUi.BuildSystemsPrefab();
             AssetDatabase.SaveAssets();
             Debug.Log("[Chapter1] Prefabs listos.");
         }

@@ -155,6 +155,14 @@ public class PlayerController : MonoBehaviour
         if (Keyboard.current == null)
             return;
 
+        // Pausa, diálogo, forja o transición: el jugador se queda quieto
+        if (GameInput.Locked)
+        {
+            movement = Vector2.zero;
+            UpdateSpriteAnimation();
+            return;
+        }
+
         // Se sigue leyendo el teclado durante el ataque para que el dash
         // salga hacia donde el jugador está presionando
         movement = Vector2.zero;

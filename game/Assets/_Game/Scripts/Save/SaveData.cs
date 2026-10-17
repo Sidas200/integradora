@@ -43,6 +43,7 @@ public class SaveData
         data.progress.sealOpened = session.sealOpened;
         data.progress.guardianPermit = session.guardianPermission;
         data.progress.swordLevel = session.swordLevel;
+        data.progress.flags = new List<string>(session.flags);
 
         // inventario.cantidad debe ser > 0 en la base de datos.
         foreach (var m in session.materials)
@@ -67,6 +68,8 @@ public class SaveData
         session.sealOpened = progress.sealOpened;
         session.guardianPermission = progress.guardianPermit;
         session.swordLevel = progress.swordLevel;
+        session.flags.Clear();
+        if (progress.flags != null) session.flags.AddRange(progress.flags);
 
         session.materials.Clear();
         foreach (var e in inventory)
@@ -101,6 +104,8 @@ public class ProgressData
     public bool sealOpened;
     public bool guardianPermit;
     public int swordLevel;
+    // Capítulo 1: eventos de historia. Campo nuevo: un guardado v2 sin él carga una lista vacía.
+    public List<string> flags = new List<string>();
 }
 
 // inventario: item_id, cantidad

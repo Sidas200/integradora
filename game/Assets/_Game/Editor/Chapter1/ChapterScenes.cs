@@ -37,18 +37,35 @@ namespace Game.EditorTools.Chapter1
         [MenuItem("Tools/Claude/Chapter 1/4 - Build Scenes")]
         public static void BuildAll()
         {
-            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            // Solo pregunta por escenas guardadas; una escena nueva sin título se descarta
+            var active = SceneManager.GetActiveScene();
+            if (!string.IsNullOrEmpty(active.path) && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             ChapterTiles.ClearCache();
 
-            BuildUiScene(MainMenu);
-            BuildUiScene(Intro);
-            BuildZoneScene(FlowerIsland, FlowerIslandZone, "Spawn_Wake", SkyDay, true);
-            BuildZoneScene(OpenField, OpenFieldZone, "Spawn_FromIsland", SkyDay, true);
-            BuildZoneScene(Camp, CampZone, "Spawn_FromField", SkyDay, true);
-            BuildZoneScene(Sanctuary, SanctuaryZone, "Spawn_FromField", Interior, false);
-            BuildZoneScene(CombatZone, CombatZoneDef, "Spawn_FromField", SkyDusk, true);
-            BuildZoneScene(GuardianArena, ArenaZone, "Spawn_FromZone2", SkyDusk, true);
-            BuildUiScene(DemoEnd);
+            BuildMainMenuScene();
+            BuildTextScene(Intro, "Hace mil años...",
+                "(Intro provisional: la secuencia con diálogos llega en la fase 3)", ClickToContinue.Action.StartChapter);
+
+            BuildZoneScene(FlowerIsland, FlowerIslandZone, "Spawn_Wake", SkyDay, true, "Isla de las Flores",
+                new Exit("Door_Cabin", null, "Spawn_CabinInside", "Cabaña"),
+                new Exit("Exit_CabinInside", null, "Spawn_CabinDoor", "Salir"),
+                new Exit("Exit_Bridge", OpenField, "Spawn_FromIsland", "Cruzar el puente"));
+            BuildZoneScene(OpenField, OpenFieldZone, "Spawn_FromIsland", SkyDay, true, "Llanura del Eco",
+                new Exit("Exit_ToCamp", Camp, "Spawn_FromField", "Campamento"),
+                new Exit("Exit_ToSanctuary", Sanctuary, "Spawn_FromField", "Santuario"),
+                new Exit("Exit_ToCombat", CombatZone, "Spawn_FromField", "Bosque Quebrado"));
+            BuildZoneScene(Camp, CampZone, "Spawn_FromField", SkyDay, true, "Campamento oculto",
+                new Exit("Exit_ToField", OpenField, "Spawn_FromCamp", "Llanura del Eco"));
+            BuildZoneScene(Sanctuary, SanctuaryZone, "Spawn_FromField", Interior, false, "Santuario",
+                new Exit("Exit_ToField", OpenField, "Spawn_FromSanctuary", "Llanura del Eco"));
+            BuildZoneScene(CombatZone, CombatZoneDef, "Spawn_FromField", SkyDusk, true, "Bosque Quebrado",
+                new Exit("Exit_ToField", OpenField, "Spawn_FromCombat", "Llanura del Eco"),
+                new Exit("Exit_ToArena", GuardianArena, "Spawn_FromZone2", "Umbral del Guardián",
+                    "seal_opened", "Un sello carmesí bloquea el paso."));
+            BuildZoneScene(GuardianArena, ArenaZone, "Spawn_FromZone2", SkyDusk, true, "Umbral del Guardián");
+
+            BuildTextScene(DemoEnd, "Fin de la demo",
+                "(Cierre provisional: el texto final llega en la fase 3)", ClickToContinue.Action.ReturnToMenu);
 
             AssetDatabase.SaveAssets();
             Debug.Log("[Chapter1] Escenas generadas en " + Folder);
@@ -73,7 +90,7 @@ namespace Game.EditorTools.Chapter1
             z.Marker("Spawn_Wake", new V(9, 5), 2);
             z.Prop("placeholder_cabin", new V(13, 11), true, "Cabin", Square(2));
             z.Marker("Door_Cabin", new V(12, 11));
-            z.Marker("Spawn_CabinDoor", new V(11, 10));
+            z.Marker("Spawn_CabinDoor", new V(10, 9));
             z.Path(Ground.Sand, 1, new V(9, 5), new V(11, 10));
             z.Path(Ground.Sand, 1, new V(9, 5), new V(17, 3));
             z.Bridge(new V(18, 3), new V(1, 0), 9);
@@ -92,7 +109,7 @@ namespace Game.EditorTools.Chapter1
             z.Prop("placeholder_bed", new V(60, 2), true, "Bed");
             z.Prop("placeholder_table", new V(62, -1), true, "Table");
             z.Prop("placeholder_barrel", new V(63, -2), true, "Barrel");
-            z.Marker("Spawn_CabinInside", new V(59, 0), 0);
+            z.Marker("Spawn_CabinInside", new V(60, 0), 0);
             z.Marker("Exit_CabinInside", new V(58, -1), 0);
             return z;
         }
@@ -263,9 +280,21 @@ namespace Game.EditorTools.Chapter1
 
         // ------------------------------------------------------------ ensamblado de escenas
 
+        // Salida: marcador de la zona -> escena destino (null = misma escena) y spawn de llegada.
+        private struct Exit
+        {
+            public string marker, scene, spawn, label, flag, blocked;
+
+            public Exit(string marker, string scene, string spawn, string label, string flag = null, string blocked = null)
+            {
+                this.marker = marker; this.scene = scene; this.spawn = spawn;
+                this.label = label; this.flag = flag; this.blocked = blocked;
+            }
+        }
+
         // La zona se define DESPUÉS de crear la escena: NewScene descarga los assets sin usar
         // y dejaría inválidos los tiles leídos antes (p. ej. los de la isla de Omar).
-        private static void BuildZoneScene(string name, System.Func<ZoneBuilder> define, string defaultSpawn, Color sky, bool outdoor)
+        private static void BuildZoneScene(string name, System.Func<ZoneBuilder> define, string defaultSpawn, Color sky, bool outdoor, string zoneName, params Exit[] exits)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var zone = define();
@@ -274,7 +303,16 @@ namespace Game.EditorTools.Chapter1
 
             if (outdoor) AddClouds(zone, grid);
 
-            var spawn = gridGo.transform.Find("Markers/" + defaultSpawn);
+            var context = new GameObject("SceneContext").AddComponent<SceneContext>();
+            context.Configure(zoneName, defaultSpawn, true, true, true);
+
+            var markers = gridGo.transform.Find("Markers");
+            foreach (Transform m in markers)
+                if (m.name.StartsWith("Spawn_")) m.gameObject.AddComponent<SpawnPoint>().SetId(m.name);
+            foreach (var exit in exits)
+                AddExit(markers.Find(exit.marker), exit);
+
+            var spawn = markers.Find(defaultSpawn);
             var playerPrefab = ChapterPrefabs.LoadPlayer();
             var player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
             player.transform.position = spawn != null ? spawn.position : Vector3.zero;
@@ -292,11 +330,56 @@ namespace Game.EditorTools.Chapter1
             SaveScene(scene, name);
         }
 
-        private static void BuildUiScene(string name)
+        private static void AddExit(Transform marker, Exit exit)
+        {
+            if (marker == null) { Debug.LogError("[Chapter1] Falta el marcador " + exit.marker); return; }
+            var col = marker.gameObject.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            col.size = new Vector2(0.36f, 0.2f);
+            var transition = marker.gameObject.AddComponent<SceneTransition>();
+            transition.Configure(exit.scene != null ? PathOf(exit.scene) : "", exit.spawn, exit.label, exit.flag, exit.blocked);
+
+            // Marca en el suelo (legible sin sonido) y etiqueta del destino
+            var glow = new GameObject("ExitGlow");
+            glow.transform.SetParent(marker, false);
+            glow.transform.localPosition = new Vector3(0f, -0.08f, 0f);
+            var sr = glow.AddComponent<SpriteRenderer>();
+            sr.sprite = PlaceholderArtGenerator.Load("placeholder_exit_marker");
+            sr.sortingLayerName = "Background";
+            sr.sortingOrder = 5;
+
+            var label = new GameObject("ExitLabel");
+            label.transform.SetParent(marker, false);
+            label.transform.localPosition = new Vector3(0f, 0.32f, 0f);
+            var tmp = label.AddComponent<TMPro.TextMeshPro>();
+            tmp.text = exit.label;
+            tmp.fontSize = 0.9f;
+            tmp.alignment = TMPro.TextAlignmentOptions.Center;
+            tmp.color = new Color(1f, 0.96f, 0.85f);
+            tmp.fontStyle = TMPro.FontStyles.Bold;
+            tmp.rectTransform.sizeDelta = new Vector2(2f, 0.3f);
+            tmp.sortingLayerID = SortingLayer.NameToID("UI");
+        }
+
+        private static void BuildMainMenuScene()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             CreateCamera(new Color(0.04f, 0.05f, 0.12f));
             CreateGlobalLight(1f);
+            var context = new GameObject("SceneContext").AddComponent<SceneContext>();
+            context.Configure("", "", false, false, false);
+            ChapterUi.BuildMainMenu(context.transform);
+            SaveScene(scene, MainMenu);
+        }
+
+        private static void BuildTextScene(string name, string title, string body, ClickToContinue.Action action)
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            CreateCamera(new Color(0.04f, 0.05f, 0.12f));
+            CreateGlobalLight(1f);
+            var context = new GameObject("SceneContext").AddComponent<SceneContext>();
+            context.Configure("", "", false, false, false);
+            ChapterUi.BuildTextScreen(context.transform, title, body, action);
             SaveScene(scene, name);
         }
 

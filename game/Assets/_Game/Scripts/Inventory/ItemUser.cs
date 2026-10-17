@@ -32,7 +32,7 @@ public class ItemUser : MonoBehaviour
     private void Update()
     {
         // Con el juego en pausa (panel de crafteo, menú) no se usan items
-        if (Time.timeScale == 0f) return;
+        if (Time.timeScale == 0f || GameInput.Locked) return;
 
         var keyboard = Keyboard.current;
         if (keyboard == null) return;
