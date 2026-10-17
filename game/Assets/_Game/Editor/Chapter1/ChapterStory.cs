@@ -106,6 +106,7 @@ namespace Game.EditorTools.Chapter1
             var statue = props.Find("Maiden_Statue");
             var spirit = ChapterPrefabs.CreateNpc("Aoi_Spirit", "placeholder_maiden_spirit", statue.position + new Vector3(0.22f, -0.06f, 0f), root, out _);
             Object.DestroyImmediate(spirit.GetComponent<BoxCollider2D>());
+            Object.DestroyImmediate(spirit.GetComponent<UnityEngine.Rendering.Universal.ShadowCaster2D>()); // un espíritu no proyecta sombra
             spirit.transform.Find("Visual").gameObject.AddComponent<FloatBob>();
 
             var interact = statue.gameObject.AddComponent<MaidenStatue>();

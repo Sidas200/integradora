@@ -335,7 +335,8 @@ namespace Game.EditorTools.Chapter1
             so.ApplyModifiedPropertiesWithoutUndo();
             cam.transform.position = player.transform.position + new Vector3(0f, 0.25f, -10f);
 
-            CreateGlobalLight(1f);
+            var global = CreateGlobalLight(1f);
+            ChapterLighting.ApplyToScene(name, gridGo, global);
             SaveScene(scene, name);
         }
 

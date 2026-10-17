@@ -95,6 +95,8 @@ namespace Game.EditorTools.Chapter1
             itemSo.FindProperty("amritaDrop").objectReferenceValue = LoadMaterial("GotaAmrita");
             itemSo.ApplyModifiedPropertiesWithoutUndo();
 
+            ChapterLighting.AddPlayerLights(root);
+
             PrefabUtility.SaveAsPrefabAsset(root, PlayerPath);
             Object.DestroyImmediate(root);
         }
@@ -118,6 +120,7 @@ namespace Game.EditorTools.Chapter1
             var col = root.AddComponent<BoxCollider2D>();
             col.size = new Vector2(0.14f, 0.07f);
             col.offset = new Vector2(0f, 0.035f);
+            ChapterLighting.ShadowCaster(root, 0.12f, 0.05f, new Vector2(0f, 0.02f));
 
             marker = CreateMarker(root.transform, sr.sprite != null ? sr.sprite.bounds.size.y + 0.08f : 0.6f);
             return root;

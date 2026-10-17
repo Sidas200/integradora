@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 1774756473542778652}
   - component: {fileID: 7128699323755633215}
   - component: {fileID: 7361532233865930294}
+  - component: {fileID: 3262793506244424946}
   - component: {fileID: 6414727937308363887}
   - component: {fileID: 3448221658418938767}
   - component: {fileID: 4910939718433913912}
@@ -208,6 +209,82 @@ SortingGroup:
   m_SortingOrder: 0
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
+--- !u!114 &3262793506244424946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6332647835375270341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
+  m_ShadowGroup: 0
+  m_Priority: 0
+  m_ComponentVersion: 6
+  m_HasRenderer: 0
+  m_UseRendererSilhouette: 0
+  m_CastsShadows: 1
+  m_SelfShadows: 0
+  m_AlphaCutoff: 0.1
+  m_ApplyToSortingLayers: 000000004d60ecc5f1b34e8f1bb0b31903dbfc79i
+  m_ShapePath:
+  - {x: 0.132, y: 0.02, z: 0}
+  - {x: 0.093338095, y: 0.058890875, z: 0}
+  - {x: -0.000000005769903, y: 0.075, z: 0}
+  - {x: -0.093338095, y: 0.058890875, z: 0}
+  - {x: -0.132, y: 0.019999994, z: 0}
+  - {x: -0.09333808, y: -0.018890882, z: 0}
+  - {x: 0.0000000015740842, y: -0.035000004, z: 0}
+  - {x: 0.093338124, y: -0.018890861, z: 0}
+  m_ShapePathHash: 0
+  m_InstanceId: 0
+  m_ShadowShape2DComponent: {fileID: 7128699323755633215}
+  m_ShadowShape2DProvider:
+    rid: 8748772602472301464
+  m_ShadowCastingSource: 1
+  m_ShadowMesh:
+    rid: 8748772602472301465
+  m_CastingOption: 1
+  m_PreviousTrimEdge: 0
+  m_PreviousEdgeProcessing: -1
+  m_PreviousShadowCastingSource: -1
+  m_PreviousShadowShape2DSource: {fileID: 0}
+  m_PreviousShadowShape2DProviderHash: 0
+  m_SelectionSources:
+    rid: 8748772602472301466
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 8748772602472301464
+      type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data: 
+    - rid: 8748772602472301465
+      type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data:
+        m_Vertices: []
+        m_Indices: 
+        m_IsTransformable: 1
+        m_LocalBounds:
+          m_Center: {x: 0, y: 0, z: 0}
+          m_Extent: {x: 0, y: 0, z: 0}
+        m_EdgeProcessing: 1
+        m_TrimEdge: -1
+        m_FlipX: 0
+        m_FlipY: 0
+        m_InitialTrim: 0
+    - rid: 8748772602472301466
+      type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data:
+        m_SelectedHashCode: 0
+        m_SelectedSource:
+          rid: -2
+        m_Provider2DCache:
+          rid: -2
 --- !u!114 &6414727937308363887
 MonoBehaviour:
   m_ObjectHideFlags: 0

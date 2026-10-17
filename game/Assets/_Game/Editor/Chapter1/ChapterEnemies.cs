@@ -129,6 +129,7 @@ namespace Game.EditorTools.Chapter1
             if (root.GetComponent<SortingGroup>() == null)
                 root.AddComponent<SortingGroup>().sortingLayerName = "Sprites";
             ChapterPrefabs.AddBlobShadow(root.transform, shadowScale);
+            ChapterLighting.ShadowCaster(root, 0.12f * shadowScale, 0.05f * shadowScale, new Vector2(0f, 0.02f));
 
             var hurt = new GameObject("Hurtbox");
             hurt.layer = LayerMask.NameToLayer("Enemy");
