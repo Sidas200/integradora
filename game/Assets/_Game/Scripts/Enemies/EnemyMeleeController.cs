@@ -13,9 +13,10 @@ public class EnemyMeleeController : MonoBehaviour
     [Header("Persecución")]
     [SerializeField] private float moveSpeed = 1.5f;
 
-    [Header("Ataque")]
+   [Header("Ataque")]
     [SerializeField] private float attackRange = 0.35f;
     [SerializeField] private float attackCooldown = 1.5f;
+    [SerializeField, Min(1)] private int attackDamage = 10;
 
     [Header("Hitbox")]
     [SerializeField] private Transform attackPoint;
@@ -26,11 +27,25 @@ public class EnemyMeleeController : MonoBehaviour
     [SerializeField] private GameObject attackFX;
     [SerializeField] private float attackFXDuration = 0.15f;
     [SerializeField] private float attackFXRotationOffset = 0f;
+    // GAME-101: Advertencia antes del ataque
+    [Header("Attack Warning")]
+    [SerializeField] private float attackWindup = 0.4f;
+    [SerializeField] private GameObject attackWarningFX;
+
+    private bool preparingAttack;
+    private float warningTimer;
 
     public bool PlayerDetected { get; private set; }
 
     private Rigidbody2D rb;
     private float nextAttackTime;
+    // GAME-101: Reacción al recibir daño
+[Header("Hit Reaction")]
+[SerializeField] private float hitStunDuration = 0.15f;
+[SerializeField] private float knockbackSpeed = 1.5f;
+
+private float hitStunTimer;
+private Vector2 knockbackDirection;
 
     private void Awake()
     {
@@ -40,8 +55,30 @@ public class EnemyMeleeController : MonoBehaviour
         {
             attackFX.SetActive(false);
         }
+        if (attackWarningFX != null)
+        {
+            attackWarningFX.SetActive(false);
+        }
     }
 
+    // GAME-16: Buscar automáticamente al Player
+    private void Start()
+    {
+        if (player != null)
+            return;
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject != null)
+        {
+            player = playerObject.transform;
+            Debug.Log("Enemy Melee: Player asignado automáticamente");
+        }
+        else
+        {
+            Debug.LogWarning("Enemy Melee: No se encontró un Player");
+        }
+    }
     private void Update()
     {
         DetectPlayer();
@@ -49,62 +86,114 @@ public class EnemyMeleeController : MonoBehaviour
         HandleAttack();
     }
 
+  // GAME-101: Controlar empuje y pausa al recibir daño
     private void FixedUpdate()
     {
-        ChasePlayer();
-    }
-
-    // GAME-09: DETECCIÓN
-    private void DetectPlayer()
-    {
-        if (player == null)
+        if (hitStunTimer > 0f)
         {
-            PlayerDetected = false;
+            hitStunTimer -= Time.fixedDeltaTime;
+
+            // Retroceder al recibir un golpe
+            rb.linearVelocity = knockbackDirection * knockbackSpeed;
             return;
         }
 
-        float distance = Vector2.Distance(
-            transform.position,
-            player.position
-        );
-
-        bool detectedNow = distance <= detectionRange;
-
-        if (detectedNow == PlayerDetected)
-            return;
-
-        PlayerDetected = detectedNow;
-
-        Debug.Log(
-            PlayerDetected
-                ? "Enemy Melee: Player detectado"
-                : "Enemy Melee: Player fuera del rango"
-        );
+        // Continuar persiguiendo cuando termina la reacción
+        ChasePlayer();
     }
 
-    // GAME-10: PERSECUCIÓN
-    private void ChasePlayer()
+    // GAME-101: Empuje y pausa al recibir un golpe
+    public void ApplyHitReaction()
     {
-        if (!PlayerDetected || player == null)
-            return;
-
-        float distance = Vector2.Distance(
-            rb.position,
-            player.position
-        );
-
-        // Detenerse cuando esté suficientemente cerca.
-        if (distance <= attackRange)
+        if (player == null)
             return;
 
         Vector2 direction =
-            ((Vector2)player.position - rb.position).normalized;
+            rb.position - (Vector2)player.position;
 
-        Vector2 nextPosition =
-            rb.position +
-            direction * moveSpeed * Time.fixedDeltaTime;
+        knockbackDirection = direction.sqrMagnitude > 0.001f
+            ? direction.normalized
+            : Vector2.up;
 
-        rb.MovePosition(nextPosition);
+        hitStunTimer = hitStunDuration;
+    }
+
+    // GAME-09: DETECCIÓN
+    // GAME-09: DETECCIÓN
+// GAME-15: Evitar detectar jugadores muertos
+private void DetectPlayer()
+{
+    if (player == null)
+    {
+        PlayerDetected = false;
+        return;
+    }
+
+    // GAME-15: Verificar si el Player está muerto
+    Health playerHealth = player.GetComponentInParent<Health>();
+
+    if (playerHealth != null && playerHealth.IsDead)
+    {
+        PlayerDetected = false;
+        return;
+    }
+
+    float distance = Vector2.Distance(
+        transform.position,
+        player.position
+    );
+
+    bool detectedNow = distance <= detectionRange;
+
+    if (detectedNow == PlayerDetected)
+        return;
+
+    PlayerDetected = detectedNow;
+
+    Debug.Log(
+        PlayerDetected
+            ? "Enemy Melee: Player detectado"
+            : "Enemy Melee: Player fuera del rango"
+    );
+}
+
+    // GAME-10: PERSECUCIÓN
+    // GAME-10: PERSECUCIÓN
+// GAME-16: Movimiento físico estable
+    private void ChasePlayer()
+    {
+        // Detenerse cuando no detecta al jugador
+        if (!PlayerDetected || player == null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        // No moverse si el jugador murió
+        Health playerHealth = player.GetComponentInParent<Health>();
+
+        if (playerHealth != null && playerHealth.IsDead)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        Vector2 direction =
+            (Vector2)player.position - rb.position;
+
+        float distance = direction.magnitude;
+
+        // Detenerse antes de llegar al centro del jugador
+        float stopDistance = Mathf.Max(0f, attackRange - 0.05f);
+
+        if (distance <= stopDistance)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        // Movimiento mediante velocidad física
+        rb.linearVelocity = direction.normalized * moveSpeed;
     }
 
     // ACTUALIZAR HITBOX Y EFECTO VISUAL
@@ -121,6 +210,11 @@ public class EnemyMeleeController : MonoBehaviour
             (Vector2)transform.position +
             direction * attackPointDistance;
 
+        // GAME-101: Posicionar advertencia del golpe
+        if (attackWarningFX != null)
+        {
+            attackWarningFX.transform.position = attackPosition;
+        }
         // La hitbox apunta hacia el jugador.
         if (attackPoint != null)
         {
@@ -147,30 +241,72 @@ public class EnemyMeleeController : MonoBehaviour
     }
 
     // GAME-11: CONTROL DEL ATAQUE
+    // GAME-11 / GAME-101: Ataque con advertencia previa
     private void HandleAttack()
     {
-        if (!PlayerDetected || player == null)
+        // Cancelar si está aturdido o no detecta al jugador
+        if (hitStunTimer > 0f || !PlayerDetected || player == null)
+        {
+            CancelAttackWarning();
             return;
+        }
 
         float distance = Vector2.Distance(
             transform.position,
             player.position
         );
 
-        // No atacar si está lejos.
+        // Si está preparando el ataque
+        if (preparingAttack)
+        {
+            // Cancelar si el jugador sale del rango
+            if (distance > attackRange)
+            {
+                CancelAttackWarning();
+                return;
+            }
+
+            warningTimer -= Time.deltaTime;
+
+            if (warningTimer > 0f)
+                return;
+
+            // Termina la advertencia y ejecuta el ataque
+            CancelAttackWarning();
+
+            Attack();
+
+            nextAttackTime = Time.time + attackCooldown;
+            return;
+        }
+
+        // No iniciar ataques fuera del rango
         if (distance > attackRange)
             return;
 
-        // Respetar el cooldown.
+        // Respetar cooldown
         if (Time.time < nextAttackTime)
             return;
 
-        Attack();
+        // Comenzar advertencia
+        preparingAttack = true;
+        warningTimer = attackWindup;
 
-        nextAttackTime = Time.time + attackCooldown;
+        if (attackWarningFX != null)
+            attackWarningFX.SetActive(true);
     }
 
-    // EJECUTAR ATAQUE
+    // GAME-101: Cancelar advertencia
+    private void CancelAttackWarning()
+    {
+        preparingAttack = false;
+        warningTimer = 0f;
+
+        if (attackWarningFX != null)
+            attackWarningFX.SetActive(false);
+    }
+        // EJECUTAR ATAQUE
+    // GAME-15.1: CONECTAR DAÑO REAL DEL ENEMY MELEE AL PLAYER
     private void Attack()
     {
         Debug.Log("Enemy Melee: ataque cuerpo a cuerpo");
@@ -179,16 +315,58 @@ public class EnemyMeleeController : MonoBehaviour
 
         bool hitPlayer = CheckAttackHitbox();
 
-        if (hitPlayer)
+        if (!hitPlayer)
         {
-            Debug.Log("Enemy Melee: golpe acertado al Player");
+            Debug.Log("Enemy Melee: ataque fallado");
+            return;
+        }
 
-            // GAME-15:
-            // Aquí se conectará el daño real al Player.
+        Debug.Log("Enemy Melee: golpe acertado al Player");
+
+        // Obtener el componente Health del jugador
+        Health playerHealth = player.GetComponentInParent<Health>();
+
+        if (playerHealth == null)
+        {
+            Debug.LogWarning(
+                "Enemy Melee: el Player no tiene componente Health"
+            );
+            return;
+        }
+
+        // No aplicar daño si el jugador ya murió
+        if (playerHealth.IsDead)
+            return;
+
+        int previousHealth = playerHealth.CurrentHealth;
+
+        // Aplicar daño usando el sistema Health existente
+        playerHealth.TakeDamage(attackDamage);
+
+        if (playerHealth.CurrentHealth < previousHealth)
+        {
+            Debug.Log(
+                $"Enemy Melee: daño aplicado ({attackDamage} base). " +
+                $"Vida: {previousHealth} -> {playerHealth.CurrentHealth}"
+            );
+
+            // GAME-101: Activar reacción del Player
+            if (!playerHealth.IsDead)
+            {
+                PlayerController playerController =
+                    player.GetComponentInParent<PlayerController>();
+
+                if (playerController != null)
+                {
+                    playerController.ApplyHitReaction(transform.position);
+                }
+            }
         }
         else
         {
-            Debug.Log("Enemy Melee: ataque fallado");
+            Debug.Log(
+                "Enemy Melee: golpe bloqueado por invulnerabilidad"
+            );
         }
     }
 
