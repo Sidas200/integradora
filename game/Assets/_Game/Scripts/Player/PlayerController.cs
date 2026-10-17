@@ -130,6 +130,7 @@ public class PlayerController : MonoBehaviour
     private bool comboQueued; // clic guardado durante el 1er golpe
 
     private bool IsAttacking => attackState != AttackState.None;
+    private readonly System.Collections.Generic.HashSet<IDamageable> hitThisSwing = new System.Collections.Generic.HashSet<IDamageable>();
 
     // Capítulo 1: sin la espada carmesí Tsuki no puede atacar (lo controla PlayerStoryState)
     public bool AttackEnabled { get; set; } = true;
@@ -431,10 +432,13 @@ private void FixedUpdate()
 
         // Detección de golpes con el mismo cuadro que se dibuja
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, 0f, enemyLayer);
+        // HEX-03: un golpe daña una sola vez a cada objetivo, aunque tenga varios colliders
+        // (cuerpo + hurtbox). El IDamageable puede estar en el padre del collider.
+        hitThisSwing.Clear();
         foreach (var hit in hits)
         {
-            IDamageable damageable = hit.GetComponent<IDamageable>();
-            if (damageable != null)
+            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
+            if (damageable != null && hitThisSwing.Add(damageable))
                 damageable.TakeDamage(stats.Attack);
         }
 

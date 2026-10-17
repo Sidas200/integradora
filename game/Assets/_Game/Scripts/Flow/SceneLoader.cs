@@ -70,6 +70,7 @@ public class SceneLoader : MonoBehaviour
     {
         IsBusy = true;
         GameInput.Lock(this);
+        if (DialogueUI.Instance != null) DialogueUI.Instance.Cancel();
         yield return fader.FadeOut();
 
         Time.timeScale = 1f;

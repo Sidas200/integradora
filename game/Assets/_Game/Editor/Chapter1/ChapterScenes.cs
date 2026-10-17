@@ -65,7 +65,8 @@ namespace Game.EditorTools.Chapter1
                 new Exit("Exit_ToField", OpenField, "Spawn_FromCombat", "Llanura del Eco"),
                 new Exit("Exit_ToArena", GuardianArena, "Spawn_FromZone2", "Umbral del Guardián",
                     ChapterObjectives.SealOpened, "Un sello carmesí bloquea el paso."));
-            BuildZoneScene(GuardianArena, ArenaZone, "Spawn_FromZone2", SkyDusk, true, "Umbral del Guardián");
+            BuildZoneScene(GuardianArena, ArenaZone, "Spawn_FromZone2", SkyDusk, true, "Umbral del Guardián",
+                new Exit("Exit_Victory", DemoEnd, null, "Continuar", ChapterObjectives.PermitObtained, null));
 
             BuildNarrativeScene(DemoEnd, "demo_end", DialogueSequence.Then.ShowObject, true);
 
@@ -263,6 +264,8 @@ namespace Game.EditorTools.Chapter1
             z.Marker("Spawn_FromZone2", new V(-8, -8), 1);
             z.Marker("Guardian", new V(2, 2), 2);
             z.Marker("Arena_Center", V.zero, 0);
+            z.Marker("Arena_Intro", new V(-5, -5), 0);
+            z.Marker("Exit_Victory", new V(-2, -2), 0);
             for (int i = 0; i < 8; i++)
             {
                 float a = i * Mathf.PI / 4f + Mathf.PI / 8f;

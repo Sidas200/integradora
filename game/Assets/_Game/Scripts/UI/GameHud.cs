@@ -20,6 +20,12 @@ public class GameHud : MonoBehaviour
     [SerializeField] private CanvasGroup promptGroup;
     [SerializeField] private TMP_Text promptText;
 
+    [Header("Jefe")]
+    [SerializeField] private CanvasGroup bossGroup;
+    [SerializeField] private TMP_Text bossName;
+    [SerializeField] private Image bossFill;
+    [SerializeField] private TMP_Text bossState;
+
     [Header("Avisos")]
     [SerializeField] private CanvasGroup zoneTitleGroup;
     [SerializeField] private TMP_Text zoneTitleText;
@@ -31,6 +37,7 @@ public class GameHud : MonoBehaviour
     private Coroutine toastRoutine;
 
     private string lastObjective;
+    private GuardianBoss boss;
 
     private void Awake()
     {
@@ -38,6 +45,7 @@ public class GameHud : MonoBehaviour
         if (zoneTitleGroup != null) zoneTitleGroup.alpha = 0f;
         if (toastGroup != null) toastGroup.alpha = 0f;
         if (promptGroup != null) promptGroup.alpha = 0f;
+        if (bossGroup != null) bossGroup.alpha = 0f;
         StoryFlags.Changed += HandleFlagChanged;
     }
 
@@ -69,8 +77,58 @@ public class GameHud : MonoBehaviour
         if (show) promptText.text = text;
     }
 
+    // Barra de vida del guardián con su estado (legible sin sonido)
+    public void ShowBoss(GuardianBoss guardian)
+    {
+        HideBoss();
+        boss = guardian;
+        if (boss == null || bossGroup == null) return;
+        bossName.text = boss.DisplayName;
+        boss.Health.HealthChanged += UpdateBossHealth;
+        boss.StateChanged += UpdateBossState;
+        UpdateBossHealth(boss.Health.CurrentHealth, boss.Health.MaxHealth);
+        UpdateBossState(boss.Current);
+        bossGroup.alpha = 1f;
+    }
+
+    public void HideBoss()
+    {
+        if (boss != null)
+        {
+            boss.Health.HealthChanged -= UpdateBossHealth;
+            boss.StateChanged -= UpdateBossState;
+        }
+        boss = null;
+        if (bossGroup != null) bossGroup.alpha = 0f;
+    }
+
+    private void UpdateBossHealth(int current, int max)
+    {
+        bossFill.fillAmount = max > 0 ? (float)current / max : 0f;
+    }
+
+    private void UpdateBossState(GuardianBoss.State state)
+    {
+        switch (state)
+        {
+            case GuardianBoss.State.Vulnerable:
+                bossState.text = "¡Vulnerable! Ataca ahora";
+                bossState.color = new Color(0.6f, 1f, 0.7f);
+                break;
+            case GuardianBoss.State.Telegraph:
+                bossState.text = "¡Cuidado! Sal de la zona roja";
+                bossState.color = new Color(1f, 0.55f, 0.55f);
+                break;
+            default:
+                bossState.text = "Protegido por su armadura";
+                bossState.color = new Color(1f, 0.85f, 0.55f);
+                break;
+        }
+    }
+
     public void OnSceneReady(SceneContext context)
     {
+        HideBoss();
         SetVisible(context.ShowHud);
         Bind(SceneContext.FindPlayer());
         RefreshObjective();

@@ -147,6 +147,43 @@ namespace Game.EditorTools.Chapter1
                 L(Tsuki, "Hay algo vigilando entre las ruinas. Con cuidado."),
             });
 
+            Make("seal_reject", new[]
+            {
+                L(Narrator, "Un sello carmesí cubre el paso. Al tocarlo, la espada rebota sin dejar marca."),
+                L(Tsuki, "No es suficiente... Kaede dijo que había que mejorarla en la forja."),
+            });
+            Make("seal_open", new[]
+            {
+                L(Narrator, "La espada mejorada brilla. El sello se agrieta y se deshace en chispas rojas."),
+                L(Tsuki, "El camino está libre. Allá voy."),
+            });
+
+            // ---------------- Umbral del Guardián
+            Make("guardian_intro", new[]
+            {
+                L(Varn, "Alto. Un humano... con la marca de Rulebreaker."),
+                L(Varn, "Soy Varn, guardián del umbral. Ningún condenado pasa más allá de este punto."),
+                L(Tsuki, "No vine a pedir permiso. Vine por alguien a quien le hice una promesa."),
+                L(Varn, "Entonces demuestra que tu espada puede herir a un guardián."),
+                L(Narrator, "Sal de las zonas rojas antes del golpe. Ataca cuando Varn quede vulnerable."),
+            });
+            Make("guardian_again", new[]
+            {
+                L(Varn, "Volviste. Tu terquedad es casi digna de respeto."),
+                L(Narrator, "Sal de las zonas rojas antes del golpe. Ataca cuando Varn quede vulnerable."),
+            });
+            Make("guardian_defeat", new[]
+            {
+                L(Varn, "...Esa espada. No es una espada cualquiera."),
+                L(Varn, "Has vencido, humano. La ley del juicio me obliga a reconocerlo."),
+                L(Varn, "Toma mi permiso. Pero recuerda: el Gran Juzgado no perdona a quien rompe las reglas."),
+            });
+            Make("permit_get", new[]
+            {
+                L(Narrator, "Obtuviste el Permiso del Guardián (1 de 4)."),
+                L(Tsuki, "Uno menos. Hikari, ya voy."),
+            });
+
             // ---------------- Cierre
             Make("demo_end", new[]
             {

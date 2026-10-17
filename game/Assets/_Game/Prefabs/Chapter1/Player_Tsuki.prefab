@@ -329,7 +329,7 @@ MonoBehaviour:
   maxHealth: 100
   minDamage: 1
   destroyOnDeath: 0
-  invulnerableTime: 0
+  invulnerableTime: 0.6
   onHealthChanged:
     m_PersistentCalls:
       m_Calls: []

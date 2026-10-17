@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 using static Game.EditorTools.Chapter1.ChapterDialogues;
 
@@ -17,10 +19,15 @@ namespace Game.EditorTools.Chapter1
             switch (scene)
             {
                 case ChapterScenes.FlowerIsland: FlowerIsland(root, gridGo, markers, props); break;
-                case ChapterScenes.OpenField: OpenField(root, markers); break;
+                case ChapterScenes.OpenField: OpenField(root, markers); Enemies(root, markers); break;
                 case ChapterScenes.Camp: Camp(root, markers); break;
                 case ChapterScenes.Sanctuary: Sanctuary(root, props); break;
-                case ChapterScenes.CombatZone: OnStart(root, "zone2_enter", "zone2_seen"); break;
+                case ChapterScenes.CombatZone:
+                    OnStart(root, "zone2_enter", "zone2_seen");
+                    Enemies(root, markers);
+                    Seal(root, markers);
+                    break;
+                case ChapterScenes.GuardianArena: Arena(root, markers); break;
             }
         }
 
@@ -98,6 +105,92 @@ namespace Game.EditorTools.Chapter1
             var interact = statue.gameObject.AddComponent<MaidenStatue>();
             interact.Configure("Tocar la estatua", 0.6f, ChapterPrefabs.CreateMarker(statue, 0.7f));
             interact.Setup(Get("maiden_awaken"), Get("maiden_hint"), spirit, statue.GetComponent<SpriteRenderer>());
+        }
+
+        // Coloca enemigos en los marcadores "Enemy_Melee_*" y "Enemy_Ranged_*".
+        private static void Enemies(Transform root, Transform markers)
+        {
+            var parent = new GameObject("Enemies").transform;
+            parent.SetParent(root, false);
+            var melee = AssetDatabase.LoadAssetAtPath<GameObject>(ChapterEnemies.MeleePath);
+            var ranged = AssetDatabase.LoadAssetAtPath<GameObject>(ChapterEnemies.RangedPath);
+            foreach (Transform m in markers)
+            {
+                GameObject prefab = m.name.StartsWith("Enemy_Melee") ? melee : m.name.StartsWith("Enemy_Ranged") ? ranged : null;
+                if (prefab == null) continue;
+                var e = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+                e.name = m.name;
+                e.transform.position = m.position;
+            }
+        }
+
+        private static void Seal(Transform root, Transform markers)
+        {
+            var at = markers.Find("Seal_Gate").position;
+            var gate = new GameObject("SealGate");
+            gate.transform.SetParent(root, false);
+            gate.transform.position = at;
+            var sr = gate.AddComponent<SpriteRenderer>();
+            sr.sprite = PlaceholderArtGenerator.Load("placeholder_seal_gate");
+            sr.sortingLayerName = "Sprites";
+            sr.spriteSortPoint = SpriteSortPoint.Pivot;
+
+            var barrier = new GameObject("Barrier");
+            barrier.transform.SetParent(gate.transform, false);
+            barrier.transform.localPosition = new Vector3(0f, 0.04f, 0f);
+            var bsr = barrier.AddComponent<SpriteRenderer>();
+            bsr.sprite = PlaceholderArtGenerator.Load("placeholder_seal_barrier");
+            bsr.sortingLayerName = "Sprites";
+            bsr.sortingOrder = 1;
+            bsr.spriteSortPoint = SpriteSortPoint.Pivot;
+
+            var block = gate.AddComponent<BoxCollider2D>();
+            block.size = new Vector2(0.9f, 0.12f);
+            block.offset = new Vector2(0f, 0.04f);
+
+            var seal = gate.AddComponent<SealGate>();
+            seal.Configure("Examinar el sello", 0.6f, ChapterPrefabs.CreateMarker(gate.transform, 0.95f));
+            seal.Setup(bsr, block, Get("seal_reject"), Get("seal_open"));
+        }
+
+        private static void Arena(Transform root, Transform markers)
+        {
+            var guardianPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ChapterEnemies.GuardianPath);
+            var guardian = (GameObject)PrefabUtility.InstantiatePrefab(guardianPrefab, root);
+            guardian.transform.position = markers.Find("Guardian").position;
+            var boss = guardian.GetComponent<GuardianBoss>();
+            var so = new SerializedObject(boss);
+            so.FindProperty("arenaCenter").objectReferenceValue = markers.Find("Arena_Center");
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // Permiso (aparece al vencer)
+            var permitGo = new GameObject("GuardianPermit");
+            permitGo.transform.SetParent(root, false);
+            var visual = new GameObject("Visual");
+            visual.transform.SetParent(permitGo.transform, false);
+            visual.transform.localPosition = new Vector3(0f, 0.18f, 0f);
+            var psr = visual.AddComponent<SpriteRenderer>();
+            psr.sprite = PlaceholderArtGenerator.Load("placeholder_icon_permit");
+            psr.sortingLayerName = "Sprites";
+            visual.AddComponent<FloatBob>();
+            var permit = permitGo.AddComponent<PermitPickup>();
+            permit.Configure("Tomar el permiso del guardián", 0.5f, ChapterPrefabs.CreateMarker(permitGo.transform, 0.45f));
+            permit.Setup(Get("permit_get"));
+
+            // Encuentro: al acercarse empieza la presentación
+            var intro = markers.Find("Arena_Intro");
+            var encounter = new GameObject("GuardianArena");
+            encounter.transform.SetParent(root, false);
+            encounter.transform.position = intro.position;
+            var trigger = encounter.AddComponent<CircleCollider2D>();
+            trigger.isTrigger = true;
+            trigger.radius = 0.9f;
+            encounter.AddComponent<GuardianArena>().Setup(boss, permit, Get("guardian_intro"), Get("guardian_again"), Get("guardian_defeat"));
+
+            // La salida al cierre solo aparece con el permiso (al continuar una partida ya terminada)
+            var exitToggle = new GameObject("VictoryExitToggle");
+            exitToggle.transform.SetParent(root, false);
+            exitToggle.AddComponent<ActiveWhenFlag>().Setup(ChapterObjectives.PermitObtained, true, markers.Find("Exit_Victory").gameObject);
         }
 
         // ---------------------------------------------------------------- helpers

@@ -188,7 +188,8 @@ namespace Game.EditorTools.Chapter1
 
             if (rune)
             {
-                var glow = H("ff4d6d");
+                // Cian: el rojo queda reservado para los avisos de peligro (legibilidad)
+                var glow = H("5fd3ff");
                 c.Ellipse(15.5f, 7.5f, 7, 3.5f, glow);
                 c.Ellipse(15.5f, 7.5f, 5, 2.5f, top);
                 c.Rect(15, 4, 2, 8, glow);

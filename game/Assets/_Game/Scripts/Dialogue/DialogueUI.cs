@@ -27,6 +27,7 @@ public class DialogueUI : MonoBehaviour
     private Action onFinished;
     private Coroutine typeRoutine;
     private float inputReadyAt;
+    private float previousTimeScale = 1f;
 
     public bool IsOpen => panel != null && panel.activeSelf;
 
@@ -64,6 +65,9 @@ public class DialogueUI : MonoBehaviour
         lineIndex = 0;
         panel.SetActive(true);
         GameInput.Lock(this);
+        // El mundo se detiene durante la conversación (ningún enemigo ataca mientras se lee)
+        previousTimeScale = Time.timeScale;
+        Time.timeScale = 0f;
         inputReadyAt = Time.unscaledTime + 0.15f;
         ShowLine();
     }
@@ -134,12 +138,21 @@ public class DialogueUI : MonoBehaviour
         continueHint.SetActive(true);
     }
 
+    // Cierra sin ejecutar el callback (cambio de escena con un diálogo abierto).
+    public void Cancel()
+    {
+        if (!IsOpen) return;
+        onFinished = null;
+        Close();
+    }
+
     private void Close()
     {
         if (typeRoutine != null) StopCoroutine(typeRoutine);
         panel.SetActive(false);
         current = null;
         GameInput.Unlock(this);
+        Time.timeScale = previousTimeScale > 0f ? previousTimeScale : 1f;
         LastClosedTime = Time.unscaledTime;
 
         var callback = onFinished;

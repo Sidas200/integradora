@@ -98,6 +98,23 @@ namespace Game.EditorTools.Chapter1
             SetRef(hud, "promptGroup", promptGroup);
             SetRef(hud, "promptText", promptText);
 
+            // Barra del guardián (centro arriba)
+            var boss = Box(hudRt, "BossBar", new Vector2(0.5f, 1), new Vector2(-60, -28), new Vector2(720, 112));
+            var bossGroup = boss.gameObject.AddComponent<CanvasGroup>();
+            Image(boss, PanelColor);
+            var bossName = Label(boss, "Name", "", 28, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -6), new Vector2(690, 36));
+            bossName.fontStyle = FontStyles.Bold;
+            var bossBg = Box(boss, "BarBg", new Vector2(0.5f, 0.5f), new Vector2(0, -6), new Vector2(680, 22));
+            Image(bossBg, new Color(0.18f, 0.08f, 0.12f, 1f));
+            var bossFill = Image(Stretch(bossBg, "Fill"), new Color(0.95f, 0.75f, 0.3f));
+            bossFill.type = UnityEngine.UI.Image.Type.Filled;
+            bossFill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
+            var bossState = Label(boss, "State", "", 24, TextAlignmentOptions.Center, new Vector2(0.5f, 0), new Vector2(0, 6), new Vector2(690, 32));
+            SetRef(hud, "bossGroup", bossGroup);
+            SetRef(hud, "bossName", bossName);
+            SetRef(hud, "bossFill", bossFill);
+            SetRef(hud, "bossState", bossState);
+
             // Título de zona (centro arriba)
             var zone = Box(hudRt, "ZoneTitle", new Vector2(0.5f, 1), new Vector2(0, -150), new Vector2(1000, 90));
             var zoneGroup = zone.gameObject.AddComponent<CanvasGroup>();

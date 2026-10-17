@@ -20,6 +20,7 @@ namespace Game.EditorTools.Chapter1
             EnsureFolder();
             MoveSharedPrefabsToSpritesLayer();
             BuildPlayer();
+            ChapterEnemies.BuildAll();
             ChapterUi.BuildSystemsPrefab();
             AssetDatabase.SaveAssets();
             Debug.Log("[Chapter1] Prefabs listos.");
@@ -59,6 +60,10 @@ namespace Game.EditorTools.Chapter1
             AddBlobShadow(root.transform, 0.9f);
 
             root.AddComponent<PlayerStats>(); // agrega Health
+            // Invulnerabilidad breve tras un golpe: varios enemigos no encadenan daño
+            var healthSo = new SerializedObject(root.GetComponent<Health>());
+            healthSo.FindProperty("invulnerableTime").floatValue = 0.6f;
+            healthSo.ApplyModifiedPropertiesWithoutUndo();
             var controller = root.AddComponent<PlayerController>();
             root.AddComponent<Inventory>();
             var itemUser = root.AddComponent<ItemUser>();

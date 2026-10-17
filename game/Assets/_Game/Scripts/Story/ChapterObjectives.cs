@@ -13,7 +13,7 @@ public static class ChapterObjectives
         if (!StoryFlags.Has(IslandVanish.Flag)) return "Cruza el puente";
         if (!StoryFlags.Has(ResearcherFallEvent.Flag)) return "Busca a alguien que te explique dónde estás";
         if (!StoryFlags.Has(CampBriefing)) return "Ve al campamento de Kaede (oeste)";
-        if (!StoryFlags.Has(SwordUpgraded))
+        if (!StoryFlags.Has(SwordUpgraded) && !StoryFlags.Has(SealOpened))
         {
             string text = "Mejora la espada en la forja: " + MaterialProgress();
             if (!StoryFlags.Has(MaidenStatue.Flag)) text += "\n(Opcional: visita el santuario del norte)";
