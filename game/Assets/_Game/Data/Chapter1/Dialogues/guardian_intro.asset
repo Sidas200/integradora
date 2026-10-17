@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e4285355d7234af4a5c7418047c645c, type: 3}
+  m_Name: guardian_intro
+  m_EditorClassIdentifier: Game.Gameplay::DialogueData
+  lockedByDesigner: 0
+  lines:
+  - speaker: 
+    portrait: {fileID: 0}
+    text: "La Amrita cae sobre la piedra. Los ojos del guardi\xE1n se encienden."
+  - speaker: Varn
+    portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
+    text: "...\xBFQui\xE9n me despierta? Un humano... con la marca de Rulebreaker."
+  - speaker: Varn
+    portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
+    text: "Soy Varn, guardi\xE1n del umbral. Ning\xFAn condenado pasa m\xE1s all\xE1 de este punto."
+  - speaker: Tsuki
+    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
+    text: No vine a pedir permiso. Vine por alguien a quien le hice una promesa.
+  - speaker: Varn
+    portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
+    text: "Entonces demuestra que tu espada puede herir a un guardi\xE1n."
+  - speaker: 
+    portrait: {fileID: 0}
+    text: Sal de las zonas rojas antes del golpe. Ataca cuando Varn quede vulnerable.

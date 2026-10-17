@@ -28,6 +28,23 @@ public class SessionState : MonoBehaviour
     public bool sealOpened;
     public bool guardianPermission;
 
+    [Header("Historia (capítulo 1)")]
+    [Tooltip("Eventos de historia ya ocurridos (diálogos vistos, espada obtenida, etc.)")]
+    public List<string> flags = new List<string>();
+
+    [Header("Mundo (capítulo 1): fuentes ya usadas, para no duplicar recompensas")]
+    [Tooltip("Pickups y drops ya recogidos (PersistentId)")]
+    public List<string> collected = new List<string>();
+    [Tooltip("Enemigos ya vencidos (PersistentId)")]
+    public List<string> defeated = new List<string>();
+
+    [Header("Equipo (capítulo 1)")]
+    [Tooltip("Ids de inventario de las piezas equipadas (casco_cuero, pechera_cuero, botas_cuero)")]
+    public List<string> equipped = new List<string>();
+
+    // Punto de aparición pedido por una transición. Solo vive durante el cambio de escena.
+    [NonSerialized] public string pendingSpawnId;
+
     // 106.3: si es true, al cargar la escena el jugador aparece en el punto seguro.
     // No se guarda en el archivo; solo vive durante el cambio de escena.
     [NonSerialized] public bool respawnAtSafePoint;
@@ -121,18 +138,23 @@ public class SessionState : MonoBehaviour
         safePointY = 0f;
         sealOpened = false;
         guardianPermission = false;
+        flags.Clear();
+        collected.Clear();
+        defeated.Clear();
+        equipped.Clear();
         respawnAtSafePoint = false;
+        pendingSpawnId = null;
     }
 
     private void LoadSceneInternal(string scene)
     {
 #if UNITY_EDITOR
         // En el editor, si la escena no está en Build Profiles, la carga por ruta.
-        string path = scene.EndsWith(".unity") ? scene : SceneManager.GetActiveScene().path;
-        if (SceneUtility.GetBuildIndexByScenePath(path) < 0)
+        // Solo aplica a rutas: un nombre de escena se carga normal desde Build Profiles.
+        if (scene.EndsWith(".unity") && SceneUtility.GetBuildIndexByScenePath(scene) < 0)
         {
             UnityEditor.SceneManagement.EditorSceneManager.LoadSceneInPlayMode(
-                path, new LoadSceneParameters(LoadSceneMode.Single));
+                scene, new LoadSceneParameters(LoadSceneMode.Single));
             return;
         }
 #endif

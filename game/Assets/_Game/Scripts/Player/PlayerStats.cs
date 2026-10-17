@@ -32,9 +32,9 @@ public class PlayerStats : MonoBehaviour, IHealthProvider
     public event Action<int, int> OnHealthChanged; // (current, max)
 
     private Health health;
-    private EquipmentItem weapon;
-    private EquipmentItem armor;
-    private EquipmentItem accessory;
+    // Una pieza por ranura (arma, armadura, accesorio, cabeza, pecho, pies)
+    private readonly System.Collections.Generic.Dictionary<EquipmentSlot, EquipmentItem> equipped =
+        new System.Collections.Generic.Dictionary<EquipmentSlot, EquipmentItem>();
 
     private void Awake()
     {
@@ -59,25 +59,18 @@ public class PlayerStats : MonoBehaviour, IHealthProvider
     {
         if (item == null) return;
 
-        switch (item.slot)
-        {
-            case EquipmentSlot.Weapon: weapon = item; break;
-            case EquipmentSlot.Armor: armor = item; break;
-            case EquipmentSlot.Accessory: accessory = item; break;
-        }
+        equipped[item.slot] = item;
         RecalculateStats();
     }
 
     public void UnequipSlot(EquipmentSlot slot)
     {
-        switch (slot)
-        {
-            case EquipmentSlot.Weapon: weapon = null; break;
-            case EquipmentSlot.Armor: armor = null; break;
-            case EquipmentSlot.Accessory: accessory = null; break;
-        }
+        equipped.Remove(slot);
         RecalculateStats();
     }
+
+    public EquipmentItem GetEquipped(EquipmentSlot slot) =>
+        equipped.TryGetValue(slot, out var item) ? item : null;
 
         // Sube un nivel la espada. Devuelve false si ya está al máximo.
     public bool UpgradeSword()
@@ -109,7 +102,7 @@ public class PlayerStats : MonoBehaviour, IHealthProvider
         int bonusHealth = 0, bonusAttack = 0, bonusDefense = 0;
         float bonusSpeed = 0f;
 
-        foreach (var item in new[] { weapon, armor, accessory })
+        foreach (var item in equipped.Values)
         {
             if (item == null) continue;
             bonusHealth += item.bonusMaxHealth;

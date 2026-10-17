@@ -23,6 +23,8 @@ public class CraftingStation : MonoBehaviour
 
         if (keyboard.eKey.wasPressedThisFrame)
         {
+            // No abrir encima de la pausa, un diálogo o una transición
+            if (!panel.IsOpen && GameInput.Locked) return;
             if (panel.IsOpen) panel.Close();
             else panel.Open();
         }

@@ -32,7 +32,7 @@ public class ItemUser : MonoBehaviour
     private void Update()
     {
         // Con el juego en pausa (panel de crafteo, menú) no se usan items
-        if (Time.timeScale == 0f) return;
+        if (Time.timeScale == 0f || GameInput.Locked) return;
 
         var keyboard = Keyboard.current;
         if (keyboard == null) return;
@@ -72,6 +72,13 @@ public class ItemUser : MonoBehaviour
     public bool UseAmrita()
     {
         if (amritaDrop == null || health == null || health.IsDead) return false;
+
+        // Capítulo 1: solo tiene efecto frente a un guardián dormido; si no, no se gasta.
+        if (!GuardianArena.CanReceiveAmrita)
+        {
+            if (GameHud.Instance != null) GameHud.Instance.ShowToast("La Gota de Amrita solo tiene efecto ante un guardián dormido.");
+            return false;
+        }
 
         var inv = GetInventory();
         if (inv == null || !inv.TryConsume(amritaDrop.id, 1))

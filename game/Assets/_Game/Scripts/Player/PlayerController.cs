@@ -130,11 +130,16 @@ public class PlayerController : MonoBehaviour
     private bool comboQueued; // clic guardado durante el 1er golpe
 
     private bool IsAttacking => attackState != AttackState.None;
+    private readonly System.Collections.Generic.HashSet<IDamageable> hitThisSwing = new System.Collections.Generic.HashSet<IDamageable>();
+
+    // Capítulo 1: sin la espada carmesí Tsuki no puede atacar (lo controla PlayerStoryState)
+    public bool AttackEnabled { get; set; } = true;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
+        // El sprite puede estar en un hijo (raíz en los pies para el sorting isométrico)
+        sr = GetComponentInChildren<SpriteRenderer>();
         stats = GetComponent<PlayerStats>();
         cam = Camera.main;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -153,6 +158,14 @@ public class PlayerController : MonoBehaviour
     {
         if (Keyboard.current == null)
             return;
+
+        // Pausa, diálogo, forja o transición: el jugador se queda quieto
+        if (GameInput.Locked)
+        {
+            movement = Vector2.zero;
+            UpdateSpriteAnimation();
+            return;
+        }
 
         // Se sigue leyendo el teclado durante el ataque para que el dash
         // salga hacia donde el jugador está presionando
@@ -263,7 +276,7 @@ private void FixedUpdate()
     private void OnAttackPressed()
     {
         // No se puede atacar durante el dash
-        if (isDashing)
+        if (isDashing || !AttackEnabled)
             return;
 
         switch (attackState)
@@ -419,10 +432,13 @@ private void FixedUpdate()
 
         // Detección de golpes con el mismo cuadro que se dibuja
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, 0f, enemyLayer);
+        // HEX-03: un golpe daña una sola vez a cada objetivo, aunque tenga varios colliders
+        // (cuerpo + hurtbox). El IDamageable puede estar en el padre del collider.
+        hitThisSwing.Clear();
         foreach (var hit in hits)
         {
-            IDamageable damageable = hit.GetComponent<IDamageable>();
-            if (damageable != null)
+            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
+            if (damageable != null && hitThisSwing.Add(damageable))
                 damageable.TakeDamage(stats.Attack);
         }
 
@@ -524,7 +540,7 @@ private void FixedUpdate()
 
     private void OnDrawGizmosSelected()
     {
-        SpriteRenderer renderer = sr != null ? sr : GetComponent<SpriteRenderer>();
+        SpriteRenderer renderer = sr != null ? sr : GetComponentInChildren<SpriteRenderer>();
         GetAttackBox(renderer, attackDirection, out Vector2 center, out Vector2 size);
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(center, size);
@@ -669,7 +685,7 @@ private void FixedUpdate()
     private void SpawnGhost()
     {
         GameObject ghost = new GameObject("DashGhost");
-        ghost.transform.position = transform.position;
+        ghost.transform.position = sr.transform.position;
         ghost.transform.rotation = transform.rotation;
 
         DashGhost dashGhost = ghost.AddComponent<DashGhost>();

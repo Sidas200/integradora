@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MaterialData
   id: modulo_espada
   displayName: "M\xF3dulo de espada"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 5b0afac515ffa4bf7b17e4847e0e0b3c, type: 3}
   description: Mejora la espada. Aumenta el ataque.

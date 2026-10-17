@@ -102,6 +102,38 @@ public class SaveRepositoryTests
         Assert.IsNull(repo.Load());
     }
 
+    // Capítulo 1: los flags de historia se guardan y un guardado v2 sin el campo carga lista vacía.
+    [Test]
+    public void StoryFlags_RoundTrip_AndMissingFieldLoadsEmpty()
+    {
+        var data = CreateSample();
+        data.progress.flags.Add("met_researcher");
+        repo.Save(data);
+        CollectionAssert.AreEqual(new[] { "met_researcher" }, repo.Load().progress.flags);
+
+        string json = JsonUtility.ToJson(CreateSample()).Replace("\"flags\":[],", "");
+        File.WriteAllText(repo.FilePath, json);
+        var loaded = repo.Load();
+        Assert.IsNotNull(loaded);
+        Assert.IsNotNull(loaded.progress.flags);
+        Assert.AreEqual(0, loaded.progress.flags.Count);
+    }
+
+    // HEX-04 / HEX-08: las fuentes ya usadas se guardan para no duplicar recompensas al cargar.
+    [Test]
+    public void CollectedAndDefeated_RoundTrip()
+    {
+        var data = CreateSample();
+        data.progress.collected.Add("05_CombatZone/Pickup_Flor_A");
+        data.progress.defeated.Add("05_CombatZone/Enemy_Melee_A");
+        repo.Save(data);
+
+        var loaded = repo.Load();
+
+        CollectionAssert.AreEqual(new[] { "05_CombatZone/Pickup_Flor_A" }, loaded.progress.collected);
+        CollectionAssert.AreEqual(new[] { "05_CombatZone/Enemy_Melee_A" }, loaded.progress.defeated);
+    }
+
     [Test]
     public void Delete_RemovesFile()
     {

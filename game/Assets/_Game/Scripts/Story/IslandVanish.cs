@@ -1,0 +1,111 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+
+// Al cruzar el puente, la isla inicial se desvanece detrás de Tsuki (todo menos el puente).
+[RequireComponent(typeof(Collider2D))]
+public class IslandVanish : MonoBehaviour
+{
+    public const string Flag = "island_left";
+
+    [SerializeField] private Tilemap ground;
+    [SerializeField] private Tilemap elevations;
+    [SerializeField] private Transform props;
+    [SerializeField] private TileBase keepTile; // el puente
+    [SerializeField] private DialogueData dialogue;
+    [SerializeField] private float duration = 2.2f;
+    [Tooltip("Collider que se activa al final para no volver a la isla que ya no existe.")]
+    [SerializeField] private GameObject backBlocker;
+    [Tooltip("Otros objetos de la isla que también desaparecen (marcas de salida de la cabaña).")]
+    [SerializeField] private GameObject[] alsoHide;
+    [Tooltip("Tilemap de colisiones: las celdas de la isla se vuelven vacío infranqueable al desaparecer.")]
+    [SerializeField] private Tilemap collisions;
+    [SerializeField] private TileBase collisionTile;
+    [Tooltip("Dónde se coloca a Tsuki si al terminar no está sobre el puente.")]
+    [SerializeField] private Transform safeSpot;
+
+    private bool done;
+
+    public void Setup(Tilemap groundMap, Tilemap elevationMap, Transform propsRoot, TileBase bridge, DialogueData data, GameObject blocker, GameObject[] hide)
+    {
+        alsoHide = hide;
+        backBlocker = blocker;
+        if (backBlocker != null) backBlocker.SetActive(false);
+        ground = groundMap;
+        elevations = elevationMap;
+        props = propsRoot;
+        keepTile = bridge;
+        dialogue = data;
+    }
+
+    public void SetCollisions(Tilemap collisionMap, TileBase tile, Transform spot)
+    {
+        collisions = collisionMap;
+        collisionTile = tile;
+        safeSpot = spot;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (done || !StoryFlags.Has(SwordPickup.Flag)) return;
+        if (other.GetComponentInParent<PlayerController>() == null) return;
+        done = true;
+        StartCoroutine(Vanish());
+    }
+
+    private IEnumerator Vanish()
+    {
+        GameInput.Lock(this);
+        var cells = new System.Collections.Generic.List<Vector3Int>();
+        foreach (var p in ground.cellBounds.allPositionsWithin)
+        {
+            var tile = ground.GetTile(p);
+            if (tile == null || tile == keepTile) continue;
+            ground.SetTileFlags(p, TileFlags.None);
+            cells.Add(p);
+        }
+        var renderers = new System.Collections.Generic.List<SpriteRenderer>();
+        if (props != null) renderers.AddRange(props.GetComponentsInChildren<SpriteRenderer>());
+        if (alsoHide != null)
+            foreach (var go in alsoHide)
+                if (go != null) go.SetActive(false); // las marcas desaparecen al instante
+
+        for (float t = 0f; t < duration; t += Time.deltaTime)
+        {
+            float a = 1f - t / duration;
+            var c = new Color(1f, 1f, 1f, a);
+            foreach (var p in cells) ground.SetColor(p, c);
+            if (elevations != null) elevations.color = c;
+            foreach (var r in renderers) r.color = c;
+            yield return null;
+        }
+        foreach (var p in cells) ground.SetTile(p, null);
+        // La isla ya no existe: todas sus celdas bloquean, no solo la entrada del puente
+        if (collisions != null && collisionTile != null)
+            foreach (var p in cells) collisions.SetTile(p, collisionTile);
+        KeepPlayerOnBridge();
+        if (elevations != null) elevations.gameObject.SetActive(false);
+        if (props != null) props.gameObject.SetActive(false);
+        if (backBlocker != null) backBlocker.SetActive(true);
+        if (alsoHide != null) foreach (var go in alsoHide) if (go != null) go.SetActive(false);
+
+        GameInput.Unlock(this);
+        DialogueUI.Play(dialogue, () => StoryFlags.Set(Flag));
+    }
+
+    // Si Tsuki quedó fuera del puente (sobre la isla que desapareció), vuelve a su inicio.
+    private void KeepPlayerOnBridge()
+    {
+        var player = SceneContext.FindPlayer();
+        if (player == null || safeSpot == null) return;
+        var cell = ground.WorldToCell(player.transform.position - new Vector3(0f, 0.08f, 0f));
+        if (ground.GetTile(cell) == keepTile) return;
+        player.transform.position = safeSpot.position;
+        var rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.position = safeSpot.position;
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+}

@@ -38,6 +38,7 @@ public class CraftingPanel : MonoBehaviour
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
         paused = true;
+        GameInput.Lock(this); // evita que el clic en una receta haga atacar al jugador
         gameObject.SetActive(true);
     }
 
@@ -70,6 +71,7 @@ public class CraftingPanel : MonoBehaviour
     private void OnDisable()
     {
         if (inventory != null) inventory.OnAmountChanged -= HandleAmountChanged;
+        GameInput.Unlock(this);
 
         if (paused)
         {

@@ -22,6 +22,14 @@ public class MaterialPickup : MonoBehaviour
         ApplyVisual();
     }
 
+    // Capítulo 1: si ya se recogió en esta partida (o en el guardado), no vuelve a aparecer.
+    private void Start()
+    {
+        var pid = GetComponent<PersistentId>();
+        if (pid != null && WorldState.IsCollected(pid.Id))
+            Destroy(gameObject);
+    }
+
     // Lo usa EnemyDrop para configurar el pickup al soltarlo.
     public void Setup(MaterialData newMaterial, int newAmount)
     {
@@ -51,6 +59,8 @@ public class MaterialPickup : MonoBehaviour
         if (inventory == null) return; // solo el jugador (tiene Inventory)
 
         collected = true;
+        var pid = GetComponent<PersistentId>();
+        if (pid != null) WorldState.MarkCollected(pid.Id);
         inventory.Add(material, amount);
         Debug.Log($"Recogido: {material.displayName} x{amount} (total: {inventory.GetAmount(material.id)})");
         Destroy(gameObject);
