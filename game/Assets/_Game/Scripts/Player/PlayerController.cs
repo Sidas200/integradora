@@ -131,6 +131,9 @@ public class PlayerController : MonoBehaviour
 
     private bool IsAttacking => attackState != AttackState.None;
 
+    // Capítulo 1: sin la espada carmesí Tsuki no puede atacar (lo controla PlayerStoryState)
+    public bool AttackEnabled { get; set; } = true;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -272,7 +275,7 @@ private void FixedUpdate()
     private void OnAttackPressed()
     {
         // No se puede atacar durante el dash
-        if (isDashing)
+        if (isDashing || !AttackEnabled)
             return;
 
         switch (attackState)

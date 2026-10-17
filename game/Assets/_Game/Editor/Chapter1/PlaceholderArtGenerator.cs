@@ -108,6 +108,7 @@ namespace Game.EditorTools.Chapter1
                 new Entry { name = "placeholder_wall_left_stone", pivot = new Vector2(1f, 0f), draw = () => Wall(true, H("6f7891"), H("525a72")) },
                 new Entry { name = "placeholder_wall_right_stone", pivot = new Vector2(0f, 0f), draw = () => Wall(false, H("5d6680"), H("434a60")) },
                 new Entry { name = "placeholder_sword_rack", pivot = Feet(38, 3), draw = SwordRack },
+                new Entry { name = "placeholder_sword_rack_empty", pivot = Feet(38, 3), draw = SwordRackEmpty },
                 new Entry { name = "placeholder_save_crystal", pivot = Feet(34, 3), draw = SaveCrystal },
                 new Entry { name = "placeholder_pillar", pivot = Feet(50, 4), draw = () => IsoBox(16, 50, 7, 40, H("a9b1c4"), H("7d869e"), H("5b637a"), false) },
                 new Entry { name = "placeholder_brazier", pivot = Feet(28, 2), draw = Brazier },
@@ -527,6 +528,16 @@ namespace Game.EditorTools.Chapter1
             DrawCrimsonSword(c, 8, 2, 28);
             c.Poly(H("7d869e"), new Vector2(1, 36), new Vector2(3, 29), new Vector2(13, 29), new Vector2(15, 36));
             c.Rect(4, 29, 8, 2, H("a9b1c4"));
+            c.Outline(H("2a1218"));
+            return c;
+        }
+
+        private static PixelCanvas SwordRackEmpty()
+        {
+            var c = new PixelCanvas(16, 38);
+            c.Poly(H("7d869e"), new Vector2(1, 36), new Vector2(3, 29), new Vector2(13, 29), new Vector2(15, 36));
+            c.Rect(4, 29, 8, 2, H("a9b1c4"));
+            c.Rect(7, 29, 2, 1, H("3c3f4d")); // ranura vacía
             c.Outline(H("2a1218"));
             return c;
         }

@@ -38,6 +38,7 @@ namespace Game.EditorTools.Chapter1
             var canvas = canvasGo.transform;
 
             BuildHud(canvas);
+            BuildDialogue(canvas);
             var pause = BuildPause(canvas);
             var defeat = BuildDefeat(canvas);
             var fader = BuildFader(canvas);
@@ -79,6 +80,24 @@ namespace Game.EditorTools.Chapter1
             SetRef(hud, "healthFill", fillImg);
             SetRef(hud, "healthText", hpText);
 
+            // Objetivo actual (arriba a la derecha)
+            var objective = Box(hudRt, "Objective", new Vector2(1, 1), new Vector2(-32, -28), new Vector2(560, 150));
+            Image(objective, PanelColor);
+            Label(objective, "Header", "OBJETIVO", 22, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(18, -10), new Vector2(300, 30), new Color(1f, 0.55f, 0.62f));
+            var objectiveText = Label(objective, "Text", "", 26, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(18, -42), new Vector2(524, 98));
+            objectiveText.enableAutoSizing = true;
+            objectiveText.fontSizeMin = 18;
+            objectiveText.fontSizeMax = 26;
+            SetRef(hud, "objectiveText", objectiveText);
+
+            // Aviso de interacción "E: Hablar" (centro abajo)
+            var prompt = Box(hudRt, "Prompt", new Vector2(0.5f, 0), new Vector2(0, 120), new Vector2(560, 64));
+            var promptGroup = prompt.gameObject.AddComponent<CanvasGroup>();
+            Image(prompt, new Color(0.10f, 0.08f, 0.16f, 0.95f));
+            var promptText = Text(Stretch(prompt, "Text"), "", 30, TextAlignmentOptions.Center, new Color(1f, 0.92f, 0.7f));
+            SetRef(hud, "promptGroup", promptGroup);
+            SetRef(hud, "promptText", promptText);
+
             // Título de zona (centro arriba)
             var zone = Box(hudRt, "ZoneTitle", new Vector2(0.5f, 1), new Vector2(0, -150), new Vector2(1000, 90));
             var zoneGroup = zone.gameObject.AddComponent<CanvasGroup>();
@@ -95,6 +114,38 @@ namespace Game.EditorTools.Chapter1
             var toastText = Text(Stretch(toast, "Text"), "", 32, TextAlignmentOptions.Center);
             SetRef(hud, "toastGroup", toastGroup);
             SetRef(hud, "toastText", toastText);
+        }
+
+        // ---------------------------------------------------------------- diálogo
+
+        private static void BuildDialogue(Transform canvas)
+        {
+            var rootRt = Stretch(canvas, "Dialogue");
+            var ui = rootRt.gameObject.AddComponent<DialogueUI>();
+            var panel = Box(rootRt, "Panel", new Vector2(0.5f, 0), new Vector2(0, 40), new Vector2(1560, 280));
+            Image(panel, new Color(0.05f, 0.04f, 0.09f, 1f)).raycastTarget = true;
+
+            var frame = Box(panel, "PortraitFrame", new Vector2(0, 0.5f), new Vector2(30, 0), new Vector2(220, 220));
+            Image(frame, new Color(0.16f, 0.12f, 0.22f, 1f));
+            var portrait = Box(frame, "Portrait", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(192, 192));
+            var portraitImg = Image(portrait, Color.white, null);
+            portraitImg.preserveAspect = true;
+
+            var nameBox = Box(panel, "NameBox", new Vector2(0, 1), new Vector2(280, 30), new Vector2(360, 56));
+            Image(nameBox, Crimson);
+            var name = Text(Stretch(nameBox, "Name"), "", 32, TextAlignmentOptions.Center);
+            name.fontStyle = FontStyles.Bold;
+
+            var body = Label(panel, "Body", "", 36, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(280, -44), new Vector2(1240, 190));
+            var hint = Label(panel, "ContinueHint", "E / Clic: continuar", 24, TextAlignmentOptions.Right, new Vector2(1, 0), new Vector2(-24, 14), new Vector2(300, 34), MutedText);
+
+            SetRef(ui, "panel", panel.gameObject);
+            SetRef(ui, "portrait", portraitImg);
+            SetRef(ui, "portraitFrame", frame.gameObject);
+            SetRef(ui, "nameBox", nameBox.gameObject);
+            SetRef(ui, "speakerText", name);
+            SetRef(ui, "bodyText", body);
+            SetRef(ui, "continueHint", hint.gameObject);
         }
 
         // ---------------------------------------------------------------- pausa y derrota
@@ -209,21 +260,32 @@ namespace Game.EditorTools.Chapter1
             SetRef(controller, "confirmNo", no);
         }
 
-        // Pantalla de texto simple (intro provisional / cierre) que continúa con cualquier tecla.
-        public static void BuildTextScreen(Transform sceneRoot, string title, string body, ClickToContinue.Action action)
+        // Fondo de cielo para la intro y el cierre. Con endCard agrega la tarjeta final
+        // (oculta hasta que termina el diálogo) que vuelve al menú con cualquier tecla.
+        public static GameObject BuildNarrativeScreen(Transform sceneRoot, bool endCard)
         {
-            var go = new GameObject("TextCanvas", typeof(RectTransform));
+            var go = new GameObject("NarrativeCanvas", typeof(RectTransform));
             go.transform.SetParent(sceneRoot, false);
             Canvas(go, 10);
             var c = go.transform;
             Image(Stretch(c, "Background"), Color.white, PlaceholderArtGenerator.Load("placeholder_intro_sky"));
-            Image(Stretch(c, "Dim"), new Color(0f, 0f, 0.03f, 0.45f));
-            Label(c, "Title", title, 64, TextAlignmentOptions.Center, new Vector2(0.5f, 0.5f), new Vector2(0, 260), new Vector2(1500, 100));
-            Label(c, "Body", body, 34, TextAlignmentOptions.Center, new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(1400, 380));
-            Label(c, "Hint", "Pulsa cualquier tecla para continuar", 26, TextAlignmentOptions.Center,
-                new Vector2(0.5f, 0), new Vector2(0, 60), new Vector2(900, 40), MutedText);
-            var cont = go.AddComponent<ClickToContinue>();
-            SetEnum(cont, "onContinue", (int)action);
+            Image(Stretch(c, "Dim"), new Color(0f, 0f, 0.03f, 0.35f));
+            if (!endCard) return null;
+
+            var card = Stretch(c, "EndCard");
+            Image(card, new Color(0.02f, 0.02f, 0.06f, 0.85f));
+            Label(card, "Title", "Fin de la demo", 80, TextAlignmentOptions.Center, new Vector2(0.5f, 0.5f), new Vector2(0, 250), new Vector2(1400, 110));
+            Label(card, "Body",
+                "Capítulo 1 completado: obtuviste el permiso del primer guardián.\n\n" +
+                "Las otras tres zonas, sus guardianes y el Gran Juzgado esperan en la versión completa.\n\n" +
+                "Gracias por jugar The Day I Made That Promise.", 34, TextAlignmentOptions.Center,
+                new Vector2(0.5f, 0.5f), new Vector2(0, 20), new Vector2(1400, 320), MutedText);
+            Label(card, "Hint", "Pulsa cualquier tecla para volver al menú", 28, TextAlignmentOptions.Center,
+                new Vector2(0.5f, 0), new Vector2(0, 80), new Vector2(1000, 44));
+            var cont = card.gameObject.AddComponent<ClickToContinue>();
+            SetEnum(cont, "onContinue", (int)ClickToContinue.Action.ReturnToMenu);
+            card.gameObject.SetActive(false);
+            return card.gameObject;
         }
 
         private static Sprite LoadSprite(string path)

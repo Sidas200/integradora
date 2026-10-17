@@ -1,0 +1,206 @@
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
+namespace Game.EditorTools.Chapter1
+{
+    // Textos del capítulo 1. Genera un DialogueData por diálogo en Data/Chapter1/Dialogues.
+    // Para editar un diálogo a mano: márcalo como "Locked By Designer" y el builder no lo tocará.
+    public static class ChapterDialogues
+    {
+        public const string Folder = "Assets/_Game/Data/Chapter1/Dialogues";
+
+        // Nombres propuestos (ver docs/claude/pending-names.md)
+        public const string Tsuki = "Tsuki";
+        public const string Kaede = "Kaede";
+        public const string Unknown = "???";
+        public const string Aoi = "Aoi";
+        public const string Hikari = "Hikari";
+        public const string Varn = "Varn";
+        public const string Narrator = "";
+
+        private static readonly Dictionary<string, DialogueData> cache = new Dictionary<string, DialogueData>();
+
+        public static DialogueData Get(string id)
+        {
+            if (cache.TryGetValue(id, out var d) && d != null) return d;
+            d = AssetDatabase.LoadAssetAtPath<DialogueData>($"{Folder}/{id}.asset");
+            if (d == null) Debug.LogError("[Chapter1] Falta el diálogo " + id);
+            cache[id] = d;
+            return d;
+        }
+
+        [MenuItem("Tools/Claude/Chapter 1/3b - Generate Dialogues")]
+        public static void GenerateAll()
+        {
+            EnsureFolder();
+            cache.Clear();
+
+            // ---------------- Intro
+            Make("intro", new[]
+            {
+                L(Narrator, "Hace mil años, un rey desafió a los dioses para salvar a la humanidad."),
+                L(Narrator, "Lo acompañaron un pecador, una bestia y cuatro doncellas que daban poder a su espada."),
+                L(Narrator, "Al final, las doncellas quedaron selladas en la espada. Al rey lo llamaron Rulebreaker."),
+                L(Narrator, "Los humanos bendecidos fueron aislados en islas del cielo. Y el mundo siguió adelante."),
+                L(Narrator, "Mil años después..."),
+                L(Tsuki, "¡Te tengo! ...¿Estás bien? Caíste del cielo."),
+                L(Hikari, "Gracias por atraparme. Me llamo Hikari."),
+                L(Tsuki, "Esa marca en tu mano... ¿te duele?"),
+                L(Hikari, "Dicen que es una sentencia. Pero contigo cerca no tengo miedo."),
+                L(Tsuki, "Entonces no me voy a ir. Te lo prometo: vamos a estar juntos."),
+                L(Narrator, "Un rayo de luz cayó del cielo. Una figura sin rostro tomó a Hikari y subió con ella."),
+                L(Tsuki, "¡Hikari! ...No voy a romper mi promesa."),
+                L(Narrator, "Tsuki saltó hacia la luz."),
+            });
+
+            // ---------------- Isla de las Flores
+            Make("island_wake", new[]
+            {
+                L(Tsuki, "...¿Dónde estoy? Hay flores por todas partes."),
+                L(Tsuki, "Hikari... la luz se la llevó hacia arriba. Tengo que encontrarla."),
+                L(Tsuki, "Mi mano. Esta marca... es la misma que tenía ella."),
+                L(Narrator, "Muévete con WASD o las flechas. Pulsa E cerca de algo para interactuar."),
+            });
+            Make("cabin_inside", new[]
+            {
+                L(Tsuki, "Está abandonada. Nadie ha vivido aquí en mucho tiempo."),
+            });
+            Make("sword_pickup", new[]
+            {
+                L(Narrator, "Una espada carmesí, sin filo. Pesa menos de lo que parece."),
+                L(Tsuki, "Es como si me estuviera esperando... Me la llevo."),
+                L(Narrator, "Obtuviste la Espada carmesí. Clic izquierdo: atacar. Espacio: esquivar."),
+            });
+            Make("island_vanish", new[]
+            {
+                L(Tsuki, "La isla... ¡se está desvaneciendo!"),
+                L(Tsuki, "Ya no hay vuelta atrás. Solo hacia adelante."),
+            });
+
+            // ---------------- Llanura del Eco
+            Make("researcher_fall", new[]
+            {
+                L(Unknown, "¡Aaah! ...Auch. Esa rama no era tan firme como pensaba."),
+                L(Unknown, "Tú... no tienes alas de luz ni ojos de piedra. Eres humano. Un humano de verdad."),
+                L(Tsuki, "¿Tan raro es?"),
+                L(Unknown, "Aquí, sí. Y esa marca en tu mano es la de Rulebreaker. Si alguien más la ve, te ejecutan."),
+                L(Unknown, "Tranquilo, no voy a delatarte. Me da demasiada curiosidad."),
+                L(Kaede, "Soy Kaede. Investigo cosas que no debería. Tengo una base escondida entre los árboles, al oeste."),
+                L(Kaede, "Hay una forja. Te dejo usarla si me dejas estudiarte. ¿Trato?"),
+                L(Tsuki, "Busco a una chica que se llevaron con un rayo de luz. Si me ayudas, acepto."),
+                L(Kaede, "Trato hecho. Te veo en el campamento: sigue el camino hacia el oeste."),
+            });
+
+            // ---------------- Campamento
+            Make("camp_briefing", new[]
+            {
+                L(Kaede, "Bienvenido a mi escondite. Aquí no llegan los ojos del cielo."),
+                L(Kaede, "Escucha bien. Esta isla tiene cuatro zonas. En el centro está el Gran Juzgado: el dios de la justicia."),
+                L(Kaede, "Si se llevaron a tu amiga, seguro está ahí. Pero para entrar necesitas los permisos de los cuatro guardianes."),
+                L(Kaede, "En cada zona hay un santuario. En cada uno duerme una de las cuatro doncellas de la leyenda."),
+                L(Tsuki, "¿Las doncellas de la espada del rey?"),
+                L(Kaede, "Las mismas. Y creo que tu espada carmesí puede despertarlas."),
+                L(Kaede, "Otra cosa: las armas normales no hieren a un dios. Ni a sus guardianes."),
+                L(Kaede, "El guardián de esta zona espera al este, en el Bosque Quebrado, detrás de un sello."),
+                L(Kaede, "Tráeme 3 Cueros antiguos y 3 Flores destello. Con eso mejoramos tu espada en la forja."),
+                L(Kaede, "Y antes de salir, toca el cristal: guarda tu avance."),
+            });
+            Make("camp_materials", new[]
+            {
+                L(Kaede, "Necesitas 3 Cueros antiguos y 3 Flores destello."),
+                L(Kaede, "Los monstruos sueltan el cuero. Las flores destello brillan en el suelo de la llanura y del bosque."),
+            });
+            Make("camp_after_maiden", new[]
+            {
+                L(Kaede, "¿La doncella te habló? ¡Entonces la espada sí responde!"),
+                L(Kaede, "Mejórala en la forja y ese sello no te detendrá."),
+            });
+            Make("camp_upgraded", new[]
+            {
+                L(Kaede, "Esa espada ya puede herir a un guardián. Ve al Bosque Quebrado, al este."),
+                L(Kaede, "Y no te mueras. Todavía no termino de estudiarte."),
+            });
+            Make("camp_after_permit", new[]
+            {
+                L(Kaede, "¿Un permiso de guardián? ¿En tu primer intento?"),
+                L(Kaede, "Faltan tres zonas... pero ahora sé que se puede. Vamos por el siguiente."),
+            });
+
+            // ---------------- Santuario
+            Make("sanctuary_enter", new[] { L(Tsuki, "Hace frío aquí... y la espada vibra.") });
+            Make("maiden_awaken", new[]
+            {
+                L(Narrator, "La espada carmesí brilla. La piedra de la estatua se agrieta... y algo despierta."),
+                L(Aoi, "...Mil años. Ha pasado mucho tiempo, portador."),
+                L(Tsuki, "¿Eres una de las doncellas?"),
+                L(Aoi, "Soy Aoi, la primera. Mi poder sigue en esa espada, pero aún duerme."),
+                L(Aoi, "Fórjala con lo que da esta tierra. Solo así romperá el sello del guardián."),
+                L(Aoi, "Ve. Cuando la espada despierte del todo, yo despertaré contigo."),
+            });
+            Make("maiden_hint", new[] { L(Aoi, "La forja primero. Después, el sello del este. No lo olvides.") });
+
+            // ---------------- Bosque Quebrado
+            Make("zone2_enter", new[]
+            {
+                L(Tsuki, "Los árboles están secos... como si algo los hubiera quemado desde adentro."),
+                L(Tsuki, "Hay algo vigilando entre las ruinas. Con cuidado."),
+            });
+
+            // ---------------- Cierre
+            Make("demo_end", new[]
+            {
+                L(Narrator, "Tsuki obtuvo el primer permiso de guardián."),
+                L(Narrator, "Quedan tres zonas, tres guardianes y tres doncellas dormidas."),
+                L(Narrator, "En el centro de la isla, el Gran Juzgado espera. Y en algún lugar, Hikari también."),
+                L(Tsuki, "Espérame, Hikari. Voy a cumplir mi promesa."),
+            });
+
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Chapter1] Diálogos generados en " + Folder);
+        }
+
+        private static DialogueData.Line L(string speaker, string text) =>
+            new DialogueData.Line { speaker = speaker, text = text, portrait = PortraitFor(speaker) };
+
+        private static Sprite PortraitFor(string speaker)
+        {
+            switch (speaker)
+            {
+                case Tsuki: return PlaceholderArtGenerator.Load("placeholder_portrait_tsuki");
+                case Kaede:
+                case Unknown: return PlaceholderArtGenerator.Load("placeholder_portrait_researcher");
+                case Aoi: return PlaceholderArtGenerator.Load("placeholder_portrait_maiden");
+                case Hikari: return PlaceholderArtGenerator.Load("placeholder_portrait_hikari");
+                case Varn: return PlaceholderArtGenerator.Load("placeholder_portrait_guardian");
+                default: return null;
+            }
+        }
+
+        public static void Make(string id, DialogueData.Line[] lines)
+        {
+            string path = $"{Folder}/{id}.asset";
+            var data = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            if (data == null)
+            {
+                data = ScriptableObject.CreateInstance<DialogueData>();
+                AssetDatabase.CreateAsset(data, path);
+            }
+            else if (data.lockedByDesigner)
+            {
+                cache[id] = data;
+                return;
+            }
+            data.lines = new List<DialogueData.Line>(lines);
+            EditorUtility.SetDirty(data);
+            cache[id] = data;
+        }
+
+        private static void EnsureFolder()
+        {
+            if (!AssetDatabase.IsValidFolder("Assets/_Game/Data")) AssetDatabase.CreateFolder("Assets/_Game", "Data");
+            if (!AssetDatabase.IsValidFolder("Assets/_Game/Data/Chapter1")) AssetDatabase.CreateFolder("Assets/_Game/Data", "Chapter1");
+            if (!AssetDatabase.IsValidFolder(Folder)) AssetDatabase.CreateFolder("Assets/_Game/Data/Chapter1", "Dialogues");
+        }
+    }
+}

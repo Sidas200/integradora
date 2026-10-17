@@ -15,6 +15,11 @@ public class GameHud : MonoBehaviour
     [SerializeField] private Image healthFill;
     [SerializeField] private TMP_Text healthText;
 
+    [Header("Objetivo e interacción")]
+    [SerializeField] private TMP_Text objectiveText;
+    [SerializeField] private CanvasGroup promptGroup;
+    [SerializeField] private TMP_Text promptText;
+
     [Header("Avisos")]
     [SerializeField] private CanvasGroup zoneTitleGroup;
     [SerializeField] private TMP_Text zoneTitleText;
@@ -25,23 +30,50 @@ public class GameHud : MonoBehaviour
     private Coroutine zoneRoutine;
     private Coroutine toastRoutine;
 
+    private string lastObjective;
+
     private void Awake()
     {
         Instance = this;
         if (zoneTitleGroup != null) zoneTitleGroup.alpha = 0f;
         if (toastGroup != null) toastGroup.alpha = 0f;
+        if (promptGroup != null) promptGroup.alpha = 0f;
+        StoryFlags.Changed += HandleFlagChanged;
     }
 
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
+        StoryFlags.Changed -= HandleFlagChanged;
         Unbind();
+    }
+
+    private void HandleFlagChanged(string flag) => RefreshObjective(true);
+
+    // Actualiza el objetivo; si cambió, lo anuncia con un aviso (legible sin sonido).
+    public void RefreshObjective(bool announce = false)
+    {
+        if (objectiveText == null) return;
+        string current = ChapterObjectives.Current();
+        objectiveText.text = current;
+        if (announce && lastObjective != null && current != lastObjective)
+            ShowToast("Nuevo objetivo: " + current.Split('\n')[0]);
+        lastObjective = current;
+    }
+
+    public void SetPrompt(string text)
+    {
+        if (promptGroup == null) return;
+        bool show = !string.IsNullOrEmpty(text);
+        promptGroup.alpha = show ? 1f : 0f;
+        if (show) promptText.text = text;
     }
 
     public void OnSceneReady(SceneContext context)
     {
         SetVisible(context.ShowHud);
         Bind(SceneContext.FindPlayer());
+        RefreshObjective();
         if (context.ShowHud && !string.IsNullOrEmpty(context.ZoneName)) ShowZoneTitle(context.ZoneName);
     }
 

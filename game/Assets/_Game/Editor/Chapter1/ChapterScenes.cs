@@ -43,17 +43,20 @@ namespace Game.EditorTools.Chapter1
             ChapterTiles.ClearCache();
 
             BuildMainMenuScene();
-            BuildTextScene(Intro, "Hace mil años...",
-                "(Intro provisional: la secuencia con diálogos llega en la fase 3)", ClickToContinue.Action.StartChapter);
+            BuildNarrativeScene(Intro, "intro", DialogueSequence.Then.StartChapter, false);
 
             BuildZoneScene(FlowerIsland, FlowerIslandZone, "Spawn_Wake", SkyDay, true, "Isla de las Flores",
                 new Exit("Door_Cabin", null, "Spawn_CabinInside", "Cabaña"),
                 new Exit("Exit_CabinInside", null, "Spawn_CabinDoor", "Salir"),
-                new Exit("Exit_Bridge", OpenField, "Spawn_FromIsland", "Cruzar el puente"));
+                new Exit("Exit_Bridge", OpenField, "Spawn_FromIsland", "Cruzar el puente",
+                    SwordPickup.Flag, "Antes de irte, revisa la cabaña."));
             BuildZoneScene(OpenField, OpenFieldZone, "Spawn_FromIsland", SkyDay, true, "Llanura del Eco",
-                new Exit("Exit_ToCamp", Camp, "Spawn_FromField", "Campamento"),
-                new Exit("Exit_ToSanctuary", Sanctuary, "Spawn_FromField", "Santuario"),
-                new Exit("Exit_ToCombat", CombatZone, "Spawn_FromField", "Bosque Quebrado"));
+                new Exit("Exit_ToCamp", Camp, "Spawn_FromField", "Campamento",
+                    ResearcherFallEvent.Flag, "El bosque es muy espeso. Mejor explora la llanura primero."),
+                new Exit("Exit_ToSanctuary", Sanctuary, "Spawn_FromField", "Santuario",
+                    ChapterObjectives.CampBriefing, "Kaede dijo que primero fueras a su campamento (oeste)."),
+                new Exit("Exit_ToCombat", CombatZone, "Spawn_FromField", "Bosque Quebrado",
+                    ChapterObjectives.CampBriefing, "Kaede dijo que primero fueras a su campamento (oeste)."));
             BuildZoneScene(Camp, CampZone, "Spawn_FromField", SkyDay, true, "Campamento oculto",
                 new Exit("Exit_ToField", OpenField, "Spawn_FromCamp", "Llanura del Eco"));
             BuildZoneScene(Sanctuary, SanctuaryZone, "Spawn_FromField", Interior, false, "Santuario",
@@ -61,11 +64,10 @@ namespace Game.EditorTools.Chapter1
             BuildZoneScene(CombatZone, CombatZoneDef, "Spawn_FromField", SkyDusk, true, "Bosque Quebrado",
                 new Exit("Exit_ToField", OpenField, "Spawn_FromCombat", "Llanura del Eco"),
                 new Exit("Exit_ToArena", GuardianArena, "Spawn_FromZone2", "Umbral del Guardián",
-                    "seal_opened", "Un sello carmesí bloquea el paso."));
+                    ChapterObjectives.SealOpened, "Un sello carmesí bloquea el paso."));
             BuildZoneScene(GuardianArena, ArenaZone, "Spawn_FromZone2", SkyDusk, true, "Umbral del Guardián");
 
-            BuildTextScene(DemoEnd, "Fin de la demo",
-                "(Cierre provisional: el texto final llega en la fase 3)", ClickToContinue.Action.ReturnToMenu);
+            BuildNarrativeScene(DemoEnd, "demo_end", DialogueSequence.Then.ShowObject, true);
 
             AssetDatabase.SaveAssets();
             Debug.Log("[Chapter1] Escenas generadas en " + Folder);
@@ -312,6 +314,8 @@ namespace Game.EditorTools.Chapter1
             foreach (var exit in exits)
                 AddExit(markers.Find(exit.marker), exit);
 
+            ChapterStory.Populate(name, gridGo);
+
             var spawn = markers.Find(defaultSpawn);
             var playerPrefab = ChapterPrefabs.LoadPlayer();
             var player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
@@ -350,7 +354,7 @@ namespace Game.EditorTools.Chapter1
 
             var label = new GameObject("ExitLabel");
             label.transform.SetParent(marker, false);
-            label.transform.localPosition = new Vector3(0f, 0.32f, 0f);
+            label.transform.localPosition = new Vector3(0f, 0.62f, 0f);
             var tmp = label.AddComponent<TMPro.TextMeshPro>();
             tmp.text = exit.label;
             tmp.fontSize = 0.9f;
@@ -372,14 +376,17 @@ namespace Game.EditorTools.Chapter1
             SaveScene(scene, MainMenu);
         }
 
-        private static void BuildTextScene(string name, string title, string body, ClickToContinue.Action action)
+        // Intro y cierre: fondo de cielo + diálogo. El cierre muestra una tarjeta final con "volver al menú".
+        private static void BuildNarrativeScene(string name, string dialogueId, DialogueSequence.Then then, bool endCard)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             CreateCamera(new Color(0.04f, 0.05f, 0.12f));
             CreateGlobalLight(1f);
             var context = new GameObject("SceneContext").AddComponent<SceneContext>();
             context.Configure("", "", false, false, false);
-            ChapterUi.BuildTextScreen(context.transform, title, body, action);
+            var card = ChapterUi.BuildNarrativeScreen(context.transform, endCard);
+            var sequence = context.gameObject.AddComponent<DialogueSequence>();
+            sequence.Setup(ChapterDialogues.Get(dialogueId), then, card, name == Intro ? "intro_seen" : "demo_complete");
             SaveScene(scene, name);
         }
 

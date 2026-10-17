@@ -63,6 +63,8 @@ namespace Game.EditorTools.Chapter1
             root.AddComponent<Inventory>();
             var itemUser = root.AddComponent<ItemUser>();
             root.AddComponent<SessionSync>();
+            root.AddComponent<PlayerInteractor>();
+            root.AddComponent<PlayerStoryState>();
 
             // Mismos valores que el jugador de Test_Inventory_Emmanuel, con la capa Enemy ya asignada.
             var so = new SerializedObject(controller);
@@ -90,6 +92,44 @@ namespace Game.EditorTools.Chapter1
 
             PrefabUtility.SaveAsPrefabAsset(root, PlayerPath);
             Object.DestroyImmediate(root);
+        }
+
+        // NPC con la raíz en los pies, sprite en "Visual", sombra, obstáculo pequeño y marcador "!".
+        public static GameObject CreateNpc(string name, string sprite, Vector3 position, Transform parent, out GameObject marker)
+        {
+            var root = new GameObject(name);
+            root.transform.SetParent(parent, false);
+            root.transform.position = position;
+            var group = root.AddComponent<SortingGroup>();
+            group.sortingLayerName = "Sprites";
+
+            var visual = new GameObject("Visual");
+            visual.transform.SetParent(root.transform, false);
+            var sr = visual.AddComponent<SpriteRenderer>();
+            sr.sprite = PlaceholderArtGenerator.Load(sprite);
+            sr.sortingLayerName = "Sprites";
+            AddBlobShadow(root.transform, 0.9f);
+
+            var col = root.AddComponent<BoxCollider2D>();
+            col.size = new Vector2(0.14f, 0.07f);
+            col.offset = new Vector2(0f, 0.035f);
+
+            marker = CreateMarker(root.transform, sr.sprite != null ? sr.sprite.bounds.size.y + 0.08f : 0.6f);
+            return root;
+        }
+
+        // Icono "!" que flota sobre lo que se puede usar con E.
+        public static GameObject CreateMarker(Transform parent, float height)
+        {
+            var marker = new GameObject("InteractMarker");
+            marker.transform.SetParent(parent, false);
+            marker.transform.localPosition = new Vector3(0f, height, 0f);
+            var sr = marker.AddComponent<SpriteRenderer>();
+            sr.sprite = PlaceholderArtGenerator.Load("placeholder_interact_marker");
+            sr.sortingLayerName = "UI";
+            marker.AddComponent<FloatBob>();
+            marker.SetActive(false);
+            return marker;
         }
 
         // Sombra "blob" bajo los pies para leer la profundidad.

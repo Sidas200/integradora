@@ -46,6 +46,7 @@ Escala de referencia: Tsuki mide 19×50 px; un tile isométrico mide 32×32 px (
 | `placeholder_wall_left_*` / `_right_*` (`wood`, `stone`) | 16×44 | Muros de interiores, 1 por celda de borde |
 | `placeholder_bed`, `placeholder_table`, `placeholder_barrel`, `placeholder_crate` | — | Interior de la cabaña y campamento |
 | `placeholder_sword_rack` | 16×38 | Espada carmesí sin filo en su soporte |
+| `placeholder_sword_rack_empty` | 16×38 | El mismo soporte sin espada (después de tomarla) |
 | `placeholder_tent` | 48×40 | Tiendas del campamento |
 | `placeholder_forge` | 44×44 | Forja (CraftingStation) |
 | `placeholder_campfire` | 18×18 | Fogata del campamento |

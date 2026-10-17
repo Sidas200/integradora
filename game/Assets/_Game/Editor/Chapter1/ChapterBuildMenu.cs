@@ -14,6 +14,7 @@ namespace Game.EditorTools.Chapter1
             VerifyProjectSettings();
             PlaceholderArtGenerator.GenerateAll();
             ChapterPrefabs.BuildAll();
+            ChapterDialogues.GenerateAll();
             ChapterScenes.BuildAll();
             ConfigureBuildSettings();
             EditorSceneManagerOpenFirstPlayable();
