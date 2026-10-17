@@ -20,6 +20,11 @@ public class GameHud : MonoBehaviour
     [SerializeField] private CanvasGroup promptGroup;
     [SerializeField] private TMP_Text promptText;
 
+    [Header("Materiales (HEX-04)")]
+    [SerializeField] private MaterialData[] trackedMaterials;
+    [SerializeField] private int[] materialGoals;
+    [SerializeField] private TMP_Text[] materialTexts;
+
     [Header("Jefe")]
     [SerializeField] private CanvasGroup bossGroup;
     [SerializeField] private TMP_Text bossName;
@@ -33,6 +38,7 @@ public class GameHud : MonoBehaviour
     [SerializeField] private TMP_Text toastText;
 
     private Health playerHealth;
+    private Inventory inventory;
     private Coroutine zoneRoutine;
     private Coroutine toastRoutine;
 
@@ -47,6 +53,7 @@ public class GameHud : MonoBehaviour
         if (promptGroup != null) promptGroup.alpha = 0f;
         if (bossGroup != null) bossGroup.alpha = 0f;
         StoryFlags.Changed += HandleFlagChanged;
+        ChapterObjectives.MaterialProgressProvider = MaterialProgress;
     }
 
     private void OnDestroy()
@@ -144,6 +151,14 @@ public class GameHud : MonoBehaviour
     private void Bind(GameObject player)
     {
         Unbind();
+        inventory = player != null ? player.GetComponent<Inventory>() : null;
+        knownAmounts.Clear();
+        if (inventory != null)
+        {
+            foreach (var e in inventory.ExportEntries()) knownAmounts[e.id] = e.amount;
+            inventory.OnAmountChanged += HandleAmountChanged;
+            RefreshMaterials();
+        }
         playerHealth = player != null ? player.GetComponent<Health>() : null;
         if (playerHealth == null) return;
         playerHealth.HealthChanged += UpdateHealth;
@@ -154,6 +169,62 @@ public class GameHud : MonoBehaviour
     {
         if (playerHealth != null) playerHealth.HealthChanged -= UpdateHealth;
         playerHealth = null;
+        if (inventory != null) inventory.OnAmountChanged -= HandleAmountChanged;
+        inventory = null;
+    }
+
+    private readonly System.Collections.Generic.Dictionary<string, int> knownAmounts = new System.Collections.Generic.Dictionary<string, int>();
+
+    private int AmountOf(string id) => inventory != null ? inventory.GetAmount(id) : 0;
+
+    private void HandleAmountChanged(string id, int amount)
+    {
+        knownAmounts.TryGetValue(id, out int before);
+        knownAmounts[id] = amount;
+        RefreshMaterials();
+        RefreshObjective(false);
+        if (trackedMaterials == null) return;
+        for (int i = 0; i < trackedMaterials.Length; i++)
+        {
+            var m = trackedMaterials[i];
+            if (m == null || m.id != id || amount <= before) continue; // solo al recoger
+            int goal = GoalOf(i);
+            ShowToast(goal > 0 ? $"{m.displayName}: {amount}/{goal}" : $"{m.displayName}: {amount}", 1.6f);
+        }
+    }
+
+    private int GoalOf(int i) => materialGoals != null && i < materialGoals.Length ? materialGoals[i] : 0;
+
+    private void RefreshMaterials()
+    {
+        if (trackedMaterials == null || materialTexts == null) return;
+        for (int i = 0; i < trackedMaterials.Length && i < materialTexts.Length; i++)
+        {
+            var m = trackedMaterials[i];
+            if (m == null || materialTexts[i] == null) continue;
+            int have = AmountOf(m.id);
+            int goal = GoalOf(i);
+            materialTexts[i].text = goal > 0 ? $"{have}/{goal}" : have.ToString();
+            materialTexts[i].color = goal > 0 && have >= goal ? new Color(0.6f, 1f, 0.7f) : Color.white;
+        }
+    }
+
+    // Texto para el objetivo: "Cuero antiguo 1/3 · Flor destello 0/3"
+    private string MaterialProgress()
+    {
+        if (trackedMaterials == null) return "Cuero antiguo y Flor destello";
+        var parts = new System.Collections.Generic.List<string>();
+        bool ready = true;
+        for (int i = 0; i < trackedMaterials.Length; i++)
+        {
+            int goal = GoalOf(i);
+            if (goal <= 0 || trackedMaterials[i] == null) continue;
+            int have = AmountOf(trackedMaterials[i].id);
+            if (have < goal) ready = false;
+            parts.Add($"{trackedMaterials[i].displayName} {Mathf.Min(have, goal)}/{goal}");
+        }
+        string text = string.Join(" · ", parts);
+        return ready ? text + "\n¡Listo! Vuelve a la forja del campamento" : text;
     }
 
     private void UpdateHealth(int current, int max)

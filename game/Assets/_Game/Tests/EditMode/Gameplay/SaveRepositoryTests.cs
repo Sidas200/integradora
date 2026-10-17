@@ -119,6 +119,21 @@ public class SaveRepositoryTests
         Assert.AreEqual(0, loaded.progress.flags.Count);
     }
 
+    // HEX-04 / HEX-08: las fuentes ya usadas se guardan para no duplicar recompensas al cargar.
+    [Test]
+    public void CollectedAndDefeated_RoundTrip()
+    {
+        var data = CreateSample();
+        data.progress.collected.Add("05_CombatZone/Pickup_Flor_A");
+        data.progress.defeated.Add("05_CombatZone/Enemy_Melee_A");
+        repo.Save(data);
+
+        var loaded = repo.Load();
+
+        CollectionAssert.AreEqual(new[] { "05_CombatZone/Pickup_Flor_A" }, loaded.progress.collected);
+        CollectionAssert.AreEqual(new[] { "05_CombatZone/Enemy_Melee_A" }, loaded.progress.defeated);
+    }
+
     [Test]
     public void Delete_RemovesFile()
     {

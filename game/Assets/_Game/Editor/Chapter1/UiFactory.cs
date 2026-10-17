@@ -8,8 +8,9 @@ namespace Game.EditorTools.Chapter1
     // Helpers para construir UI (uGUI + TextMeshPro) por código con el estilo del capítulo.
     public static class UiFactory
     {
-        public static readonly Color PanelColor = new Color(0.06f, 0.05f, 0.10f, 0.94f);
-        public static readonly Color DimColor = new Color(0.02f, 0.02f, 0.05f, 0.72f);
+        // Opacos: el sprite de UI por defecto ya trae borde suave y con alfa < 1 el fondo distrae
+        public static readonly Color PanelColor = new Color(0.06f, 0.05f, 0.10f, 1f);
+        public static readonly Color DimColor = new Color(0.02f, 0.02f, 0.05f, 0.8f);
         public static readonly Color Crimson = new Color(0.72f, 0.14f, 0.24f, 1f);
         public static readonly Color TextColor = new Color(0.95f, 0.93f, 0.90f, 1f);
         public static readonly Color MutedText = new Color(0.72f, 0.70f, 0.78f, 1f);

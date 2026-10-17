@@ -19,13 +19,19 @@ namespace Game.EditorTools.Chapter1
             switch (scene)
             {
                 case ChapterScenes.FlowerIsland: FlowerIsland(root, gridGo, markers, props); break;
-                case ChapterScenes.OpenField: OpenField(root, markers); Enemies(root, markers); break;
-                case ChapterScenes.Camp: Camp(root, markers); break;
+                case ChapterScenes.OpenField: OpenField(root, markers); Enemies(root, markers, scene); Pickups(root, markers, scene); break;
+                case ChapterScenes.Camp:
+                    Camp(root, markers);
+                    Forge(props, markers);
+                    SaveCrystal(props, markers, "base", "SavePoint_Base");
+                    break;
                 case ChapterScenes.Sanctuary: Sanctuary(root, props); break;
                 case ChapterScenes.CombatZone:
                     OnStart(root, "zone2_enter", "zone2_seen");
-                    Enemies(root, markers);
+                    Enemies(root, markers, scene);
+                    Pickups(root, markers, scene);
                     Seal(root, markers);
+                    SaveCrystal(props, markers, "boss", "SavePoint_Boss");
                     break;
                 case ChapterScenes.GuardianArena: Arena(root, markers); break;
             }
@@ -108,8 +114,9 @@ namespace Game.EditorTools.Chapter1
         }
 
         // Coloca enemigos en los marcadores "Enemy_Melee_*" y "Enemy_Ranged_*".
-        private static void Enemies(Transform root, Transform markers)
+        private static void Enemies(Transform root, Transform markers, string scene)
         {
+            var dropPrefab = AssetDatabase.LoadAssetAtPath<MaterialPickup>("Assets/_Game/Prefabs/Pickup_FlorDestello.prefab");
             var parent = new GameObject("Enemies").transform;
             parent.SetParent(root, false);
             var melee = AssetDatabase.LoadAssetAtPath<GameObject>(ChapterEnemies.MeleePath);
@@ -121,7 +128,54 @@ namespace Game.EditorTools.Chapter1
                 var e = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
                 e.name = m.name;
                 e.transform.position = m.position;
+
+                // HEX-04: botín garantizado y persistente (cada enemigo es una fuente única)
+                var loot = e.AddComponent<EnemyLoot>();
+                e.GetComponent<PersistentId>().SetId($"{scene}/{m.name}");
+                loot.Setup(dropPrefab, new List<EnemyLoot.Drop> { new EnemyLoot.Drop { material = ChapterData.LootForEnemy(m.name), amount = 1 } });
             }
+        }
+
+        // Pickups en los marcadores "Pickup_*": cada uno tiene su id y se recoge una sola vez.
+        private static void Pickups(Transform root, Transform markers, string scene)
+        {
+            var parent = new GameObject("Pickups").transform;
+            parent.SetParent(root, false);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Game/Prefabs/Pickup_FlorDestello.prefab");
+            foreach (Transform m in markers)
+            {
+                if (!m.name.StartsWith("Pickup_")) continue;
+                var material = ChapterData.MaterialForMarker(m.name);
+                if (material == null) continue;
+                var p = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+                p.name = m.name;
+                p.transform.position = m.position + new Vector3(0f, 0.06f, 0f);
+                var so = new SerializedObject(p.GetComponent<MaterialPickup>());
+                so.FindProperty("material").objectReferenceValue = material;
+                so.FindProperty("amount").intValue = 1;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                var sr = p.GetComponent<SpriteRenderer>();
+                sr.sprite = material.icon;
+                sr.color = Color.white;
+                p.AddComponent<FloatBob>();
+                p.AddComponent<PersistentId>().SetId($"{scene}/{m.name}");
+                ChapterPrefabs.AddBlobShadow(p.transform, 0.5f);
+            }
+        }
+
+        private static void Forge(Transform props, Transform markers)
+        {
+            var forge = props.Find("Forge");
+            var station = forge.gameObject.AddComponent<ForgeStation>();
+            station.Configure("Usar la forja", 0.75f, ChapterPrefabs.CreateMarker(forge, 0.5f));
+        }
+
+        private static void SaveCrystal(Transform props, Transform markers, string id, string respawnMarker)
+        {
+            var crystal = props.Find("SaveCrystal");
+            var save = crystal.gameObject.AddComponent<SavePoint>();
+            save.Configure("Guardar partida", 0.55f, ChapterPrefabs.CreateMarker(crystal, 0.42f));
+            save.Setup(id, markers.Find(respawnMarker), crystal.GetComponent<SpriteRenderer>());
         }
 
         private static void Seal(Transform root, Transform markers)

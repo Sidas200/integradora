@@ -38,6 +38,7 @@ namespace Game.EditorTools.Chapter1
             var canvas = canvasGo.transform;
 
             BuildHud(canvas);
+            BuildCrafting(canvas);
             BuildDialogue(canvas);
             var pause = BuildPause(canvas);
             var defeat = BuildDefeat(canvas);
@@ -98,6 +99,35 @@ namespace Game.EditorTools.Chapter1
             SetRef(hud, "promptGroup", promptGroup);
             SetRef(hud, "promptText", promptText);
 
+            // Materiales (abajo a la izquierda): HEX-04, visibles siempre
+            var mats = Box(hudRt, "Materials", new Vector2(0, 0), new Vector2(32, 32), new Vector2(380, 170));
+            Image(mats, PanelColor);
+            Label(mats, "Header", "INVENTARIO", 22, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(18, -10), new Vector2(300, 30), new Color(1f, 0.55f, 0.62f));
+            var tracked = new[] { ChapterPrefabs.LoadMaterial("CueroAntiguo"), ChapterPrefabs.LoadMaterial("FlorDestello"), ChapterPrefabs.LoadMaterial("Pocion") };
+            string[] labels = { "Cuero antiguo", "Flor destello", "Poción  (Q: usar)" };
+            var counts = new TMP_Text[tracked.Length];
+            for (int i = 0; i < tracked.Length; i++)
+            {
+                float y = -48 - i * 38;
+                var icon = Box(mats, "Icon" + i, new Vector2(0, 1), new Vector2(18, y), new Vector2(32, 32));
+                Image(icon, Color.white, tracked[i] != null ? tracked[i].icon : null).preserveAspect = true;
+                Label(mats, "Name" + i, labels[i], 24, TextAlignmentOptions.Left, new Vector2(0, 1), new Vector2(60, y), new Vector2(230, 32));
+                counts[i] = Label(mats, "Count" + i, "0", 24, TextAlignmentOptions.Right, new Vector2(1, 1), new Vector2(-18, y), new Vector2(90, 32));
+            }
+            var hudSo = new SerializedObject(hud);
+            var matsProp = hudSo.FindProperty("trackedMaterials");
+            var goalsProp = hudSo.FindProperty("materialGoals");
+            var textsProp = hudSo.FindProperty("materialTexts");
+            matsProp.arraySize = goalsProp.arraySize = textsProp.arraySize = tracked.Length;
+            int[] goals = { 3, 3, 0 };
+            for (int i = 0; i < tracked.Length; i++)
+            {
+                matsProp.GetArrayElementAtIndex(i).objectReferenceValue = tracked[i];
+                goalsProp.GetArrayElementAtIndex(i).intValue = goals[i];
+                textsProp.GetArrayElementAtIndex(i).objectReferenceValue = counts[i];
+            }
+            hudSo.ApplyModifiedPropertiesWithoutUndo();
+
             // Barra del guardián (centro arriba)
             var boss = Box(hudRt, "BossBar", new Vector2(0.5f, 1), new Vector2(-60, -28), new Vector2(720, 112));
             var bossGroup = boss.gameObject.AddComponent<CanvasGroup>();
@@ -131,6 +161,37 @@ namespace Game.EditorTools.Chapter1
             var toastText = Text(Stretch(toast, "Text"), "", 32, TextAlignmentOptions.Center);
             SetRef(hud, "toastGroup", toastGroup);
             SetRef(hud, "toastText", toastText);
+        }
+
+        // ---------------------------------------------------------------- forja
+
+        // Panel de crafteo existente (CraftingPanel de Emmanuel) con la receta del capítulo.
+        private static void BuildCrafting(Transform canvas)
+        {
+            var rootRt = Stretch(canvas, "Crafting");
+            var panel = Stretch(rootRt, "CraftingPanel");
+            Image(panel, DimColor).raycastTarget = true;
+            var box = Box(panel, "Box", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(980, 560));
+            Image(box, PanelColor);
+            Label(box, "Title", "Forja de Kaede", 56, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -30), new Vector2(900, 70));
+            Label(box, "Help", "Mejora la espada con materiales de la isla. Si te falta algo, no se gasta nada.", 26,
+                TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -105), new Vector2(900, 70), MutedText);
+            var content = Box(box, "Content", new Vector2(0.5f, 1), new Vector2(0, -190), new Vector2(880, 220));
+            var close = Button(box, "Close", "Cerrar  (E / Esc)", new Vector2(420, 70));
+            var closeRt = (RectTransform)close.transform;
+            closeRt.anchorMin = closeRt.anchorMax = closeRt.pivot = new Vector2(0.5f, 0);
+            closeRt.anchoredPosition = new Vector2(0, 30);
+
+            var crafting = panel.gameObject.AddComponent<CraftingPanel>();
+            var so = new SerializedObject(crafting);
+            var recipes = so.FindProperty("recipes");
+            recipes.arraySize = 1;
+            recipes.GetArrayElementAtIndex(0).objectReferenceValue = ChapterData.SwordRecipe();
+            so.FindProperty("content").objectReferenceValue = content;
+            so.FindProperty("closeButton").objectReferenceValue = close;
+            so.FindProperty("rowHeight").floatValue = 110f;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            panel.gameObject.SetActive(false);
         }
 
         // ---------------------------------------------------------------- diálogo

@@ -153,8 +153,9 @@ namespace Game.EditorTools.Chapter1
             z.Marker("Enemy_Melee_B", new V(8, 4));
             z.Marker("Pickup_Flor_A", new V(5, 7));
             z.Marker("Pickup_Flor_B", new V(-3, -8));
-            z.Marker("Pickup_Flor_C", new V(9, -3));
-            z.Marker("Pickup_Cuero_A", new V(-8, 6));
+            // Zona 1: 2 flores + 2 cueros (de los melee) + 1 poción. No alcanza para la receta (3/3):
+            // hay que visitar la zona 2 y volver a la base (HEX-02).
+            z.Marker("Pickup_Pocion_A", new V(9, -3));
 
             z.RaiseRect(new V(2, 10), new V(4, 11), ChapterTiles.Grass(34));
             z.RaiseRect(new V(-2, -12), new V(0, -11), ChapterTiles.Grass(19));
@@ -238,6 +239,7 @@ namespace Game.EditorTools.Chapter1
             z.Marker("Enemy_Ranged_B", new V(9, 0));
             z.Marker("Pickup_Cuero_A", new V(-6, -6));
             z.Marker("Pickup_Flor_A", new V(10, -6));
+            z.Marker("Pickup_Pocion_A", new V(8, 7));
 
             var stone = ChapterTiles.Stone;
             z.RaiseRect(new V(-2, -8), new V(-1, -7), stone);

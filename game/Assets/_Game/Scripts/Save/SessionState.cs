@@ -32,6 +32,12 @@ public class SessionState : MonoBehaviour
     [Tooltip("Eventos de historia ya ocurridos (diálogos vistos, espada obtenida, etc.)")]
     public List<string> flags = new List<string>();
 
+    [Header("Mundo (capítulo 1): fuentes ya usadas, para no duplicar recompensas")]
+    [Tooltip("Pickups y drops ya recogidos (PersistentId)")]
+    public List<string> collected = new List<string>();
+    [Tooltip("Enemigos ya vencidos (PersistentId)")]
+    public List<string> defeated = new List<string>();
+
     // Punto de aparición pedido por una transición. Solo vive durante el cambio de escena.
     [NonSerialized] public string pendingSpawnId;
 
@@ -129,6 +135,8 @@ public class SessionState : MonoBehaviour
         sealOpened = false;
         guardianPermission = false;
         flags.Clear();
+        collected.Clear();
+        defeated.Clear();
         respawnAtSafePoint = false;
         pendingSpawnId = null;
     }
