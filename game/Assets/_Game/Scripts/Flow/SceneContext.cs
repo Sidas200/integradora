@@ -18,11 +18,15 @@ public class SceneContext : MonoBehaviour
     [SerializeField] private bool allowPause = true;
     [Tooltip("Las escenas jugables guardan una foto de entrada para reintentar si aún no hay punto seguro.")]
     [SerializeField] private bool isGameplayZone = true;
+    [Tooltip("Global Light 2D de la escena. Se guarda apagada y se enciende al entrar (ver GlobalLightEditorPreview).")]
+    [SerializeField] private UnityEngine.Rendering.Universal.Light2D sceneGlobalLight;
 
     public string ZoneName => zoneName;
     public bool ShowHud => showHud;
     public bool AllowPause => allowPause;
     public bool IsGameplayZone => isGameplayZone;
+
+    public void SetGlobalLight(UnityEngine.Rendering.Universal.Light2D light) => sceneGlobalLight = light;
 
     public void Configure(string zone, string spawn, bool hud, bool pause, bool gameplay)
     {
@@ -36,6 +40,8 @@ public class SceneContext : MonoBehaviour
     private void Awake()
     {
         Current = this;
+        DisableOtherGlobalLights();
+        if (sceneGlobalLight != null) sceneGlobalLight.enabled = true;
         EnsureSystems();
 
         var session = SessionState.Instance;
@@ -62,6 +68,17 @@ public class SceneContext : MonoBehaviour
     private void OnDestroy()
     {
         if (Current == this) Current = null;
+    }
+
+    // Al cambiar de escena, la anterior sigue viva un instante: se apaga su luz global antes de que
+    // se registre la de esta escena (URP no admite dos luces globales en el mismo layer).
+    private void DisableOtherGlobalLights()
+    {
+        foreach (var light in FindObjectsByType<UnityEngine.Rendering.Universal.Light2D>(FindObjectsInactive.Exclude))
+        {
+            if (light.lightType == UnityEngine.Rendering.Universal.Light2D.LightType.Global && light.gameObject.scene != gameObject.scene)
+                light.enabled = false;
+        }
     }
 
     public static void EnsureSystems()

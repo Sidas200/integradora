@@ -340,6 +340,7 @@ namespace Game.EditorTools.Chapter1
 
             var global = CreateGlobalLight(1f);
             ChapterLighting.ApplyToScene(name, gridGo, global);
+            context.SetGlobalLight(global);
             SaveScene(scene, name);
         }
 
@@ -378,9 +379,10 @@ namespace Game.EditorTools.Chapter1
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             CreateCamera(new Color(0.04f, 0.05f, 0.12f));
-            CreateGlobalLight(1f);
+            var global = CreateGlobalLight(1f);
             var context = new GameObject("SceneContext").AddComponent<SceneContext>();
             context.Configure("", "", false, false, false);
+            context.SetGlobalLight(global);
             ChapterUi.BuildMainMenu(context.transform);
             SaveScene(scene, MainMenu);
         }
@@ -390,9 +392,10 @@ namespace Game.EditorTools.Chapter1
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             CreateCamera(new Color(0.04f, 0.05f, 0.12f));
-            CreateGlobalLight(1f);
+            var global = CreateGlobalLight(1f);
             var context = new GameObject("SceneContext").AddComponent<SceneContext>();
             context.Configure("", "", false, false, false);
+            context.SetGlobalLight(global);
             var card = ChapterUi.BuildNarrativeScreen(context.transform, endCard);
             var sequence = context.gameObject.AddComponent<DialogueSequence>();
             sequence.Setup(ChapterDialogues.Get(dialogueId), then, card, name == Intro ? "intro_seen" : "demo_complete");
@@ -427,6 +430,8 @@ namespace Game.EditorTools.Chapter1
             var light = go.AddComponent<Light2D>();
             light.lightType = Light2D.LightType.Global;
             light.intensity = intensity;
+            // Se guarda apagada; ver GlobalLightEditorPreview y SceneContext
+            go.AddComponent<GlobalLightEditorPreview>();
             return light;
         }
 
