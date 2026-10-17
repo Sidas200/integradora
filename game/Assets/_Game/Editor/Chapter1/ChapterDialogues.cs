@@ -48,9 +48,11 @@ namespace Game.EditorTools.Chapter1
                 L(Hikari, "Gracias por atraparme. Me llamo Hikari."),
                 L(Tsuki, "Esa marca en tu mano... ¿te duele?"),
                 L(Hikari, "Dicen que es una sentencia. Pero contigo cerca no tengo miedo."),
-                L(Tsuki, "Entonces no me voy a ir. Te lo prometo: vamos a estar juntos."),
+                L(Tsuki, "Entonces no me voy a ir. Te lo prometo: siempre vamos a estar juntos."),
                 L(Narrator, "Un rayo de luz cayó del cielo. Una figura sin rostro tomó a Hikari y subió con ella."),
-                L(Tsuki, "¡Hikari! ...No voy a romper mi promesa."),
+                L(Tsuki, "¡Hikari!"),
+                L(Tsuki, "Te hice una promesa... y si para cumplirla tengo que desafiar al mismo cielo, lo haré."),
+                L(Narrator, "Hay promesas tan importantes que obligan a desafiar al mismo cielo."),
                 L(Narrator, "Tsuki saltó hacia la luz."),
             });
 
@@ -190,7 +192,7 @@ namespace Game.EditorTools.Chapter1
                 L(Narrator, "Tsuki obtuvo el primer permiso de guardián."),
                 L(Narrator, "Quedan tres zonas, tres guardianes y tres doncellas dormidas."),
                 L(Narrator, "En el centro de la isla, el Gran Juzgado espera. Y en algún lugar, Hikari también."),
-                L(Tsuki, "Espérame, Hikari. Voy a cumplir mi promesa."),
+                L(Tsuki, "Espérame, Hikari. Aunque tenga que desafiar al cielo entero, voy a cumplir mi promesa."),
             });
 
             AssetDatabase.SaveAssets();

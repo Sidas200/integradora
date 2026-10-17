@@ -59,8 +59,12 @@ public class SealGate : Interactable
         }
         SetOpen();
         GameInput.Unlock(this);
+        // El flag se marca ya (no al cerrar el diálogo) y se guarda: si el jugador sale al
+        // menú justo después, el sello sigue abierto al continuar.
         if (SessionState.Instance != null) SessionState.Instance.sealOpened = true;
-        DialogueUI.Play(openDialogue, () => StoryFlags.Set(ChapterObjectives.SealOpened));
+        StoryFlags.Set(ChapterObjectives.SealOpened);
+        if (GameFlow.Instance != null) GameFlow.Instance.SaveProgress();
+        DialogueUI.Play(openDialogue);
     }
 
     private IEnumerator Flash(int times)

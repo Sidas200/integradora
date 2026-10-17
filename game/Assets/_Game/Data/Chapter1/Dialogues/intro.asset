@@ -43,13 +43,19 @@ MonoBehaviour:
     text: Dicen que es una sentencia. Pero contigo cerca no tengo miedo.
   - speaker: Tsuki
     portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
-    text: 'Entonces no me voy a ir. Te lo prometo: vamos a estar juntos.'
+    text: 'Entonces no me voy a ir. Te lo prometo: siempre vamos a estar juntos.'
   - speaker: 
     portrait: {fileID: 0}
     text: "Un rayo de luz cay\xF3 del cielo. Una figura sin rostro tom\xF3 a Hikari y subi\xF3 con ella."
   - speaker: Tsuki
     portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
-    text: "\xA1Hikari! ...No voy a romper mi promesa."
+    text: "\xA1Hikari!"
+  - speaker: Tsuki
+    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
+    text: "Te hice una promesa... y si para cumplirla tengo que desafiar al mismo cielo, lo har\xE9."
+  - speaker: 
+    portrait: {fileID: 0}
+    text: Hay promesas tan importantes que obligan a desafiar al mismo cielo.
   - speaker: 
     portrait: {fileID: 0}
     text: "Tsuki salt\xF3 hacia la luz."

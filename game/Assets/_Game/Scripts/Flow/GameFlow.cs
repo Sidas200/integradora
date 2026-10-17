@@ -127,6 +127,28 @@ public class GameFlow : MonoBehaviour
         return true;
     }
 
+    // Guarda el avance de un hito (sello, forja, santuario...) sin mover el punto seguro:
+    // al cargar se reaparece en el último cristal, pero con ese progreso conservado.
+    // Sin él, salir al menú después de abrir el sello lo dejaba cerrado otra vez.
+    public bool SaveProgress()
+    {
+        var session = SessionState.Instance;
+        if (session == null || !session.HasSafePoint) return false;
+        session.SyncFromPlayer();
+        try
+        {
+            repository.Save(SaveData.FromSession(session));
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"No se pudo guardar el progreso: {e.Message}");
+            return false;
+        }
+        entrySnapshot = null;
+        Debug.Log("Progreso guardado (hito).");
+        return true;
+    }
+
     // ---------------------------------------------------------------- derrota
 
     // HEX-07: reintento desde el último punto seguro con el estado que tenía al guardar.
