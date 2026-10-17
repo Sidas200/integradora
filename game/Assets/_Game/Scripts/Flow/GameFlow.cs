@@ -43,7 +43,22 @@ public class GameFlow : MonoBehaviour
 
     // ---------------------------------------------------------------- menú
 
-    public bool HasValidSave() => repository.Load() != null;
+    public bool HasValidSave() => LoadUsableSave() != null;
+
+    // Un guardado que apunta a una escena que ya no está en el build (p. ej. la antigua 03_Camp)
+    // se trata como inválido: nunca debe romper "Continuar" ni bloquear la nueva partida (SRS).
+    private SaveData LoadUsableSave()
+    {
+        var data = repository.Load();
+        if (data == null) return null;
+        string scene = data.checkpoint.scene;
+        if (!string.IsNullOrEmpty(scene) && UnityEngine.SceneManagement.SceneUtility.GetBuildIndexByScenePath(scene) < 0)
+        {
+            Debug.LogWarning($"El guardado apunta a una escena que ya no existe ({scene}); se ignora.");
+            return null;
+        }
+        return data;
+    }
 
     public void NewGame()
     {
@@ -63,7 +78,7 @@ public class GameFlow : MonoBehaviour
 
     public bool Continue()
     {
-        var data = repository.Load();
+        var data = LoadUsableSave();
         if (data == null) return false;
         entrySnapshot = null;
         SceneLoader.Instance.LoadFromSave(data);
@@ -118,7 +133,7 @@ public class GameFlow : MonoBehaviour
     public void Retry()
     {
         Time.timeScale = 1f;
-        var data = repository.Load();
+        var data = LoadUsableSave();
         if (data != null && !string.IsNullOrEmpty(data.checkpoint.scene))
         {
             data.match.health = -1; // reaparece con vida completa
@@ -166,6 +181,7 @@ public class GameFlow : MonoBehaviour
 
     private void HandlePlayerDied()
     {
+        if (InventoryScreen.Instance != null) InventoryScreen.Instance.Close();
         GameInput.Lock(this);
         StartCoroutine(ShowDefeat());
     }

@@ -9,6 +9,11 @@ public static class GameInput
 
     public static bool Locked => owners.Count > 0;
 
+    // Frame en que un panel usó Esc para cerrarse: la pausa no debe abrirse en ese mismo frame.
+    public static int EscapeConsumedFrame { get; private set; } = -1;
+
+    public static void ConsumeEscape() => EscapeConsumedFrame = UnityEngine.Time.frameCount;
+
     public static void Lock(object owner)
     {
         if (owner != null) owners.Add(owner);

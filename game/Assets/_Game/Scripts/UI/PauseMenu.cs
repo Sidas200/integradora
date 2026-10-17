@@ -27,6 +27,7 @@ public class PauseMenu : MonoBehaviour
     {
         var kb = Keyboard.current;
         if (kb == null || !kb.escapeKey.wasPressedThisFrame) return;
+        if (GameInput.EscapeConsumedFrame == Time.frameCount) return; // otro panel ya cerró con Esc
 
         if (IsOpen)
         {

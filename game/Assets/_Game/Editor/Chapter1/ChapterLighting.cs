@@ -32,8 +32,6 @@ namespace Game.EditorTools.Chapter1
                 case ChapterScenes.FlowerIsland: return new Profile { ambient = new Color(1f, 0.94f, 0.82f), intensity = 1f, playerLight = 0.2f, projectedShadows = true };
                 // Campo abierto: de día
                 case ChapterScenes.OpenField: return new Profile { ambient = new Color(1f, 1f, 0.96f), intensity = 1f, playerLight = 0.15f, projectedShadows = true };
-                // Campamento: atardecer, la fogata y la forja iluminan
-                case ChapterScenes.Camp: return new Profile { ambient = new Color(1f, 0.82f, 0.68f), intensity = 0.72f, playerLight = 0.3f, projectedShadows = true };
                 // Santuario: frío y místico
                 case ChapterScenes.Sanctuary: return new Profile { ambient = new Color(0.5f, 0.6f, 0.95f), intensity = 0.42f, playerLight = 0.5f, projectedShadows = false };
                 // Bosque Quebrado: crepúsculo

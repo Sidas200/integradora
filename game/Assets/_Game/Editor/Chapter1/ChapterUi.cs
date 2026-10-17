@@ -16,7 +16,7 @@ namespace Game.EditorTools.Chapter1
         public const string SystemsPath = ResourcesFolder + "/GameSystems.prefab";
 
         public const string Controls =
-            "WASD / flechas: mover   ·   Clic: atacar   ·   Espacio: esquivar   ·   E: interactuar   ·   Q: poción   ·   Esc: pausa";
+            "WASD / flechas: mover   ·   Clic: atacar   ·   Espacio: esquivar   ·   E: interactuar   ·   Q: poción   ·   Tab: inventario   ·   Esc: pausa";
 
         public static void BuildSystemsPrefab()
         {
@@ -39,13 +39,14 @@ namespace Game.EditorTools.Chapter1
 
             BuildHud(canvas);
             BuildCrafting(canvas);
+            BuildInventory(canvas);
             BuildDialogue(canvas);
             var pause = BuildPause(canvas);
             var defeat = BuildDefeat(canvas);
             var fader = BuildFader(canvas);
 
             // F3: contador de FPS (RNF ≥ 30 FPS)
-            var fpsLabel = Label(canvas, "FpsLabel", "", 26, TextAlignmentOptions.Left, new Vector2(0, 1), new Vector2(36, -130), new Vector2(200, 36));
+            var fpsLabel = Label(canvas, "FpsLabel", "", 26, TextAlignmentOptions.Left, new Vector2(0, 1), new Vector2(36, -160), new Vector2(200, 36));
             root.AddComponent<FpsCounter>().Setup(fpsLabel);
 
             // -smoketest: recorre las escenas del build, mide FPS y cierra
@@ -108,34 +109,24 @@ namespace Game.EditorTools.Chapter1
             SetRef(hud, "promptGroup", promptGroup);
             SetRef(hud, "promptText", promptText);
 
-            // Materiales (abajo a la izquierda): HEX-04, visibles siempre
-            var mats = Box(hudRt, "Materials", new Vector2(0, 0), new Vector2(32, 32), new Vector2(380, 170));
-            Image(mats, PanelColor);
-            Label(mats, "Header", "INVENTARIO", 22, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(18, -10), new Vector2(300, 30), new Color(1f, 0.55f, 0.62f));
+            // Materiales que siguen los avisos y el objetivo (el detalle está en el inventario con Tab)
             var tracked = new[] { ChapterPrefabs.LoadMaterial("CueroAntiguo"), ChapterPrefabs.LoadMaterial("FlorDestello"), ChapterPrefabs.LoadMaterial("Pocion") };
-            string[] labels = { "Cuero antiguo", "Flor destello", "Poción  (Q: usar)" };
-            var counts = new TMP_Text[tracked.Length];
-            for (int i = 0; i < tracked.Length; i++)
-            {
-                float y = -48 - i * 38;
-                var icon = Box(mats, "Icon" + i, new Vector2(0, 1), new Vector2(18, y), new Vector2(32, 32));
-                Image(icon, Color.white, tracked[i] != null ? tracked[i].icon : null).preserveAspect = true;
-                Label(mats, "Name" + i, labels[i], 24, TextAlignmentOptions.Left, new Vector2(0, 1), new Vector2(60, y), new Vector2(230, 32));
-                counts[i] = Label(mats, "Count" + i, "0", 24, TextAlignmentOptions.Right, new Vector2(1, 1), new Vector2(-18, y), new Vector2(90, 32));
-            }
             var hudSo = new SerializedObject(hud);
             var matsProp = hudSo.FindProperty("trackedMaterials");
             var goalsProp = hudSo.FindProperty("materialGoals");
-            var textsProp = hudSo.FindProperty("materialTexts");
-            matsProp.arraySize = goalsProp.arraySize = textsProp.arraySize = tracked.Length;
+            matsProp.arraySize = goalsProp.arraySize = tracked.Length;
             int[] goals = { 3, 3, 0 };
             for (int i = 0; i < tracked.Length; i++)
             {
                 matsProp.GetArrayElementAtIndex(i).objectReferenceValue = tracked[i];
                 goalsProp.GetArrayElementAtIndex(i).intValue = goals[i];
-                textsProp.GetArrayElementAtIndex(i).objectReferenceValue = counts[i];
             }
+            hudSo.FindProperty("materialTexts").arraySize = 0;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Pista del inventario bajo la vida
+            Label(hudRt, "InventoryHint", "Tab: Inventario   ·   Esc: Pausa", 22, TextAlignmentOptions.Left,
+                new Vector2(0, 1), new Vector2(36, -126), new Vector2(460, 30), MutedText);
 
             // Barra del guardián (centro arriba)
             var boss = Box(hudRt, "BossBar", new Vector2(0.5f, 1), new Vector2(-60, -28), new Vector2(720, 112));
@@ -203,6 +194,75 @@ namespace Game.EditorTools.Chapter1
             panel.gameObject.SetActive(false);
         }
 
+        // ---------------------------------------------------------------- inventario (Tab)
+
+        private static void BuildInventory(Transform canvas)
+        {
+            var rootRt = Stretch(canvas, "Inventory");
+            var screen = rootRt.gameObject.AddComponent<InventoryScreen>();
+            var panel = Stretch(rootRt, "Panel");
+            Image(panel, DimColor).raycastTarget = true;
+            var box = Box(panel, "Box", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1280, 760));
+            Image(box, PanelColor);
+            Label(box, "Title", "Inventario", 56, TextAlignmentOptions.Left, new Vector2(0, 1), new Vector2(40, -24), new Vector2(500, 70));
+            Label(box, "Hint", "Tab / Esc: cerrar   ·   1 / 2: cambiar pestaña", 22, TextAlignmentOptions.Right,
+                new Vector2(1, 1), new Vector2(-40, -44), new Vector2(600, 32), MutedText);
+
+            // Pestañas
+            var itemsTab = Button(box, "TabItems", "Objetos", new Vector2(260, 64));
+            Anchor(itemsTab, new Vector2(0, 1), new Vector2(40, -110));
+            var statsTab = Button(box, "TabStats", "Estadísticas", new Vector2(260, 64));
+            Anchor(statsTab, new Vector2(0, 1), new Vector2(316, -110));
+
+            // Página de objetos: lista a la izquierda, detalle a la derecha
+            var itemsPage = Rect(box, "ItemsPage", Vector2.zero, Vector2.one, new Vector2(40, 40), new Vector2(-40, -196));
+            var list = Rect(itemsPage, "List", new Vector2(0, 0), new Vector2(0.55f, 1), Vector2.zero, new Vector2(-16, 0));
+            var layout = list.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.spacing = 8; layout.childControlWidth = true; layout.childControlHeight = true;
+            layout.childForceExpandWidth = true; layout.childForceExpandHeight = false;
+            var detail = Rect(itemsPage, "Detail", new Vector2(0.55f, 0), Vector2.one, new Vector2(16, 0), Vector2.zero);
+            Image(detail, new Color(0.10f, 0.08f, 0.15f, 1f));
+            var icon = Box(detail, "Icon", new Vector2(0.5f, 1), new Vector2(0, -30), new Vector2(120, 120));
+            var iconImg = Image(icon, Color.white, null);
+            iconImg.preserveAspect = true;
+            var dName = Label(detail, "Name", "", 36, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -160), new Vector2(480, 50));
+            dName.fontStyle = FontStyles.Bold;
+            var dText = Label(detail, "Description", "", 28, TextAlignmentOptions.Top, new Vector2(0.5f, 1), new Vector2(0, -220), new Vector2(480, 260), MutedText);
+
+            // Página de estadísticas
+            var statsPage = Rect(box, "StatsPage", Vector2.zero, Vector2.one, new Vector2(40, 40), new Vector2(-40, -196));
+            Image(statsPage, new Color(0.10f, 0.08f, 0.15f, 1f));
+            var stats = Text(Rect(statsPage, "Text", Vector2.zero, Vector2.one, new Vector2(40, 30), new Vector2(-40, -30)), "", 34, TextAlignmentOptions.TopLeft);
+            stats.lineSpacing = 12;
+
+            var so = new SerializedObject(screen);
+            so.FindProperty("panel").objectReferenceValue = panel.gameObject;
+            so.FindProperty("itemsTab").objectReferenceValue = itemsTab;
+            so.FindProperty("statsTab").objectReferenceValue = statsTab;
+            so.FindProperty("itemsPage").objectReferenceValue = itemsPage.gameObject;
+            so.FindProperty("statsPage").objectReferenceValue = statsPage.gameObject;
+            so.FindProperty("itemList").objectReferenceValue = list;
+            so.FindProperty("detailIcon").objectReferenceValue = iconImg;
+            so.FindProperty("detailName").objectReferenceValue = dName;
+            so.FindProperty("detailText").objectReferenceValue = dText;
+            so.FindProperty("statsText").objectReferenceValue = stats;
+            so.FindProperty("swordIcon").objectReferenceValue = PlaceholderArtGenerator.Load("placeholder_icon_sword");
+            so.FindProperty("permitIcon").objectReferenceValue = PlaceholderArtGenerator.Load("placeholder_icon_permit");
+            var names = new[] { "CueroAntiguo", "FlorDestello", "Pocion", "GotaAmrita", "AlmaAntigua", "AlmaPequena",
+                                "CircuitoAntiguo", "ConcentradoSlime", "RestoSlime", "ModuloEspada", "BotasCuero", "CascoCuero", "PecheraCuero" };
+            var catalog = so.FindProperty("catalog");
+            catalog.arraySize = names.Length;
+            for (int i = 0; i < names.Length; i++) catalog.GetArrayElementAtIndex(i).objectReferenceValue = ChapterPrefabs.LoadMaterial(names[i]);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void Anchor(UnityEngine.UI.Button b, Vector2 anchor, Vector2 pos)
+        {
+            var rt = (RectTransform)b.transform;
+            rt.anchorMin = rt.anchorMax = rt.pivot = anchor;
+            rt.anchoredPosition = pos;
+        }
+
         // ---------------------------------------------------------------- diálogo
 
         private static void BuildDialogue(Transform canvas)
@@ -244,7 +304,7 @@ namespace Game.EditorTools.Chapter1
             var panel = Stretch(rootRt, "Panel");
             Image(panel, DimColor).raycastTarget = true;
 
-            var box = Box(panel, "Box", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(720, 700));
+            var box = Box(panel, "Box", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(720, 860));
             Image(box, PanelColor);
             Label(box, "Title", "Pausa", 64, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -40), new Vector2(600, 90));
 
@@ -256,7 +316,7 @@ namespace Game.EditorTools.Chapter1
             var quit = Button(col, "Quit", "Salir del juego", new Vector2(520, 74));
 
             Label(box, "Controls", Controls.Replace("   ·   ", "\n"), 24, TextAlignmentOptions.Center,
-                new Vector2(0.5f, 0), new Vector2(0, 24), new Vector2(660, 170), MutedText);
+                new Vector2(0.5f, 0), new Vector2(0, 24), new Vector2(660, 290), MutedText);
 
             SetRef(menu, "panel", panel.gameObject);
             SetRef(menu, "resumeButton", resume);

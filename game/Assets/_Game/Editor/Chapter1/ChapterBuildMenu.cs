@@ -49,6 +49,7 @@ namespace Game.EditorTools.Chapter1
             foreach (var s in EditorBuildSettings.scenes)
             {
                 if (scenes.Any(x => x.path == s.path)) continue;
+                if (!System.IO.File.Exists(s.path)) continue; // escenas borradas (p. ej. la antigua 03_Camp)
                 scenes.Add(new EditorBuildSettingsScene(s.path, false));
             }
             EditorBuildSettings.scenes = scenes.ToArray();

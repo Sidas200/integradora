@@ -32,6 +32,9 @@ public class ForgeStation : Interactable
         if (panel == null || !panel.IsOpen || Time.unscaledTime - openedAt < 0.2f) return;
         var kb = Keyboard.current;
         if (kb != null && (kb.eKey.wasPressedThisFrame || kb.escapeKey.wasPressedThisFrame))
+        {
+            if (kb.escapeKey.wasPressedThisFrame) GameInput.ConsumeEscape();
             panel.Close();
+        }
     }
 }

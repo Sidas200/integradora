@@ -15,7 +15,8 @@ public class GuardianBoss : MonoBehaviour
 
     [SerializeField] private string displayName = "Varn, Guardián del Umbral";
     [SerializeField] private Transform arenaCenter;
-    [SerializeField] private float arenaRadius = 2.3f;
+    [Tooltip("Semiejes de la arena en el mundo: un círculo de celdas se ve como elipse en isométrico")]
+    [SerializeField] private Vector2 arenaRadii = new Vector2(2.1f, 1.05f);
 
     [Header("Movimiento")]
     [SerializeField] private float walkSpeed = 0.65f;
@@ -58,6 +59,12 @@ public class GuardianBoss : MonoBehaviour
     private bool enraged;
     private bool warnedWeakSword;
     private int patternIndex;
+
+    public void SetArena(Transform center, Vector2 radii)
+    {
+        arenaCenter = center;
+        arenaRadii = radii;
+    }
 
     public void Setup(Transform center, Sprite circle, Sprite line, SpriteRenderer bodyRenderer)
     {
@@ -194,16 +201,17 @@ public class GuardianBoss : MonoBehaviour
         body.transform.localPosition = basePos;
     }
 
-    // Mueve sin salir del círculo de la arena. Devuelve false si chocó con el borde.
+    // Mueve sin salir de la elipse de la arena. Devuelve false si chocó con el borde.
     private bool MoveTo(Vector2 target)
     {
         if (arenaCenter != null)
         {
             Vector2 c = arenaCenter.position;
             Vector2 offset = target - c;
-            if (offset.magnitude > arenaRadius)
+            float k = (offset.x * offset.x) / (arenaRadii.x * arenaRadii.x) + (offset.y * offset.y) / (arenaRadii.y * arenaRadii.y);
+            if (k > 1f)
             {
-                rb.MovePosition(c + offset.normalized * arenaRadius);
+                rb.MovePosition(c + offset / Mathf.Sqrt(k));
                 return false;
             }
         }

@@ -43,6 +43,8 @@ namespace Game.EditorTools.Chapter1
         private readonly List<(Vector2Int min, Vector2Int max, bool stone)> walls = new List<(Vector2Int, Vector2Int, bool)>();
 
         public Color GroundTint = Color.white;
+        // Suelo con el que se rellenan los bordes de un camino que cruza el vacío
+        public Ground Fill = Ground.Grass;
 
         public ZoneBuilder(string name, int seed)
         {
@@ -89,19 +91,105 @@ namespace Game.EditorTools.Chapter1
             return this;
         }
 
-        // Camino de 1–2 celdas de ancho que también crea tierra si pasa por el vacío.
-        public ZoneBuilder Path(Ground kind, int width, params Vector2Int[] points)
+        // Camino que también crea tierra si pasa por el vacío. Con widen, el terreno alrededor
+        // queda de al menos 3 celdas de ancho: un camino de 1 celda en escalera atora al jugador.
+        public ZoneBuilder Path(Ground kind, int width, params Vector2Int[] points) => Path(kind, width, true, points);
+
+        public ZoneBuilder Path(Ground kind, int width, bool widen, params Vector2Int[] points)
         {
             for (int i = 0; i < points.Length - 1; i++)
                 foreach (var c in Line(points[i], points[i + 1]))
                     for (int w = 0; w < width; w++)
                     {
-                        Set(c + new Vector2Int(0, w), kind);
-                        keepClear.Add(c + new Vector2Int(0, w));
-                        keepClear.Add(c + new Vector2Int(1, w));
-                        keepClear.Add(c + new Vector2Int(-1, w));
+                        var cell = c + new Vector2Int(0, w);
+                        Set(cell, kind);
+                        for (int y = -1; y <= 1; y++)
+                            for (int x = -1; x <= 1; x++)
+                            {
+                                var n = cell + new Vector2Int(x, y);
+                                keepClear.Add(n);
+                                if (widen && !IsLand(n)) Set(n, Fill);
+                            }
                     }
             return this;
+        }
+
+        // Bosque denso en un área (p. ej. para esconder el campamento); respeta caminos y marcadores.
+        public ZoneBuilder Forest(Vector2Int center, float rx, float ry, float density, params string[] kinds)
+        {
+            var used = new HashSet<Vector2Int>();
+            for (int y = Mathf.FloorToInt(-ry); y <= ry; y++)
+                for (int x = Mathf.FloorToInt(-rx); x <= rx; x++)
+                {
+                    if ((x * x) / (rx * rx) + (y * y) / (ry * ry) > 1f) continue;
+                    var c = center + new Vector2Int(x, y);
+                    if (!AcceptsProp(c) || keepClear.Contains(c) || blocked.Contains(c)) continue;
+                    if (HasNeighbor(used, c) || rng.NextDouble() > density) continue;
+                    used.Add(c);
+                    Prop(kinds[rng.Next(kinds.Length)], c);
+                }
+            return this;
+        }
+
+        // ------------------------------------------------------------ validación
+
+        // Celda transitable con holgura: forma parte de algún bloque 2x2 de celdas libres.
+        // Así se detectan pasillos de 1 celda (en escalera) donde el jugador se atora.
+        private bool Walkable(Vector2Int c) => IsLand(c) && !blocked.Contains(c);
+
+        private bool Roomy(Vector2Int c)
+        {
+            if (!Walkable(c)) return false;
+            for (int dy = -1; dy <= 0; dy++)
+                for (int dx = -1; dx <= 0; dx++)
+                {
+                    bool ok = true;
+                    for (int y = 0; y <= 1 && ok; y++)
+                        for (int x = 0; x <= 1 && ok; x++)
+                            ok = Walkable(c + new Vector2Int(dx + x, dy + y));
+                    if (ok) return true;
+                }
+            return false;
+        }
+
+        // Devuelve los marcadores objetivo a los que NO se llega caminando desde los orígenes.
+        public List<string> Unreachable(IEnumerable<string> sources, IEnumerable<string> targets)
+        {
+            var visited = new HashSet<Vector2Int>();
+            var queue = new Queue<Vector2Int>();
+            foreach (var s in sources)
+            {
+                if (!markers.TryGetValue(s, out var start)) continue;
+                foreach (var n in Around(start))
+                    if (Roomy(n) && visited.Add(n)) queue.Enqueue(n);
+            }
+            var dirs = new[] { Vector2Int.right, Vector2Int.left, Vector2Int.up, Vector2Int.down };
+            while (queue.Count > 0)
+            {
+                var c = queue.Dequeue();
+                foreach (var d in dirs)
+                {
+                    var n = c + d;
+                    if (Roomy(n) && visited.Add(n)) queue.Enqueue(n);
+                }
+            }
+
+            var missing = new List<string>();
+            foreach (var t in targets)
+            {
+                if (!markers.TryGetValue(t, out var cell)) continue;
+                bool reached = false;
+                foreach (var n in Around(cell)) reached |= visited.Contains(n);
+                if (!reached) missing.Add(t);
+            }
+            return missing;
+        }
+
+        private static IEnumerable<Vector2Int> Around(Vector2Int c)
+        {
+            for (int y = -1; y <= 1; y++)
+                for (int x = -1; x <= 1; x++)
+                    yield return c + new Vector2Int(x, y);
         }
 
         public ZoneBuilder Bridge(Vector2Int from, Vector2Int direction, int length, int width = 2)

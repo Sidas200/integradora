@@ -19,13 +19,13 @@ namespace Game.EditorTools.Chapter1
         public const string Intro = "00_Intro";
         public const string FlowerIsland = "01_FlowerIsland";
         public const string OpenField = "02_OpenField";
-        public const string Camp = "03_Camp";
         public const string Sanctuary = "04_Sanctuary";
         public const string CombatZone = "05_CombatZone";
         public const string GuardianArena = "06_GuardianArena";
         public const string DemoEnd = "07_DemoEnd";
 
-        public static readonly string[] Order = { MainMenu, Intro, FlowerIsland, OpenField, Camp, Sanctuary, CombatZone, GuardianArena, DemoEnd };
+        // El campamento vive dentro de la Llanura del Eco (claro escondido al oeste); ya no hay escena 03_Camp.
+        public static readonly string[] Order = { MainMenu, Intro, FlowerIsland, OpenField, Sanctuary, CombatZone, GuardianArena, DemoEnd };
 
         public static string PathOf(string scene) => $"{Folder}/{scene}.unity";
 
@@ -51,14 +51,10 @@ namespace Game.EditorTools.Chapter1
                 new Exit("Exit_Bridge", OpenField, "Spawn_FromIsland", "Cruzar el puente",
                     SwordPickup.Flag, "Antes de irte, revisa la cabaña."));
             BuildZoneScene(OpenField, OpenFieldZone, "Spawn_FromIsland", SkyDay, true, "Llanura del Eco",
-                new Exit("Exit_ToCamp", Camp, "Spawn_FromField", "Campamento",
-                    ResearcherFallEvent.Flag, "El bosque es muy espeso. Mejor explora la llanura primero."),
                 new Exit("Exit_ToSanctuary", Sanctuary, "Spawn_FromField", "Santuario",
                     ChapterObjectives.CampBriefing, "Kaede dijo que primero fueras a su campamento (oeste)."),
                 new Exit("Exit_ToCombat", CombatZone, "Spawn_FromField", "Bosque Quebrado",
                     ChapterObjectives.CampBriefing, "Kaede dijo que primero fueras a su campamento (oeste)."));
-            BuildZoneScene(Camp, CampZone, "Spawn_FromField", SkyDay, true, "Campamento oculto",
-                new Exit("Exit_ToField", OpenField, "Spawn_FromCamp", "Llanura del Eco"));
             BuildZoneScene(Sanctuary, SanctuaryZone, "Spawn_FromField", Interior, false, "Santuario",
                 new Exit("Exit_ToField", OpenField, "Spawn_FromSanctuary", "Llanura del Eco"));
             BuildZoneScene(CombatZone, CombatZoneDef, "Spawn_FromField", SkyDusk, true, "Bosque Quebrado",
@@ -75,34 +71,39 @@ namespace Game.EditorTools.Chapter1
         }
 
         // ------------------------------------------------------------ zonas
+        // Coordenadas en celdas. En pantalla: +x = arriba-derecha, +y = arriba-izquierda.
+        // Cada zona se valida al construir (ver CheckZone): todo se alcanza caminando y ningún
+        // enemigo detecta un punto de aparición.
 
         private static ZoneBuilder FlowerIslandZone()
         {
             var z = new ZoneBuilder(FlowerIsland, 101);
-            z.Blob(new V(10, 6), 9, 8);
-            z.Patch(new V(11, 7), 4.5f, Ground.Flower, 0.9f);
-            z.Patch(new V(6, 11), 3f, Ground.Flower, 0.9f);
-            z.Patch(new V(15, 2), 3f, Ground.Flower, 0.85f);
-            z.Patch(new V(8, 3), 2.5f, Ground.Flower, 0.9f);
+            z.Blob(new V(12, 8), 12, 10);
+            z.Patch(new V(13, 9), 5.5f, Ground.Flower, 0.9f);
+            z.Patch(new V(7, 14), 3.5f, Ground.Flower, 0.9f);
+            z.Patch(new V(18, 3), 3.5f, Ground.Flower, 0.85f);
+            z.Patch(new V(9, 4), 3f, Ground.Flower, 0.9f);
+            z.Patch(new V(18, 13), 3f, Ground.Flower, 0.85f);
 
             // Isla de Omar (chore/isometric-sorting-setting) como núcleo del escenario
             var island = AssetDatabase.LoadAssetAtPath<GameObject>(IslandSource);
             if (island != null) z.Stamp(island, V.zero);
             else Debug.LogWarning("[Chapter1] No se encontró " + IslandSource);
 
-            z.Marker("Spawn_Wake", new V(9, 5), 2);
-            z.Prop("placeholder_cabin", new V(13, 11), true, "Cabin", Square(2));
-            z.Marker("Door_Cabin", new V(12, 11));
-            z.Marker("Spawn_CabinDoor", new V(10, 9));
-            z.Path(Ground.Sand, 1, new V(9, 5), new V(11, 10));
-            z.Path(Ground.Sand, 1, new V(9, 5), new V(17, 3));
-            z.Bridge(new V(18, 3), new V(1, 0), 9);
-            z.Marker("Bridge_Start", new V(19, 3), 0);
-            z.Marker("Exit_Bridge", new V(25, 3), 0);
+            z.Marker("Spawn_Wake", new V(10, 6), 2);
+            z.Prop("placeholder_cabin", new V(15, 13), true, "Cabin", Square(2));
+            z.Path(Ground.Sand, 1, new V(10, 6), new V(13, 11));
+            z.Marker("Door_Cabin", new V(14, 13));
+            z.Marker("Spawn_CabinDoor", new V(12, 11));
+            z.Path(Ground.Sand, 1, new V(10, 6), new V(22, 4));
+            z.Bridge(new V(23, 4), new V(1, 0), 9);
+            z.Marker("Bridge_Start", new V(24, 4), 0);
+            z.Marker("Exit_Bridge", new V(30, 4), 0);
 
             z.TreeRing(0.45f, "placeholder_tree_tall", "placeholder_tree_short");
-            z.Scatter(5, false, "placeholder_bush");
-            z.Scatter(3, true, "placeholder_rock_small", "placeholder_rock_large");
+            z.Scatter(7, false, "placeholder_bush");
+            z.Scatter(5, true, "placeholder_rock_small", "placeholder_rock_large");
+            z.Scatter(4, true, "placeholder_tree_short");
 
             // Interior de la cabaña (área aparte en la misma escena)
             var min = new V(58, -2); var max = new V(63, 2);
@@ -117,164 +118,164 @@ namespace Game.EditorTools.Chapter1
             return z;
         }
 
+        // Llanura del Eco (zona 1) con el campamento de Kaede escondido entre los árboles al oeste.
+        public static readonly V CampCenter = new V(-17, 17);
+
         private static ZoneBuilder OpenFieldZone()
         {
             var z = new ZoneBuilder(OpenField, 202);
-            z.Blob(V.zero, 15, 13);
-            z.Blob(new V(-9, 10), 6, 5);
-            z.Blob(new V(11, 9), 5, 5);
-            z.Blob(new V(12, -9), 5, 4);
-            z.Blob(new V(-13, -5), 4, 3);
-            z.Patch(new V(5, 6), 3f, Ground.Flower, 0.8f);
-            z.Patch(new V(-3, -8), 3f, Ground.Flower, 0.8f);
-            z.Patch(new V(8, -3), 2.5f, Ground.Flower, 0.8f);
+            var C = CampCenter;
+            z.Blob(V.zero, 21, 18);
+            z.Blob(new V(16, 15), 5, 5);    // ala del santuario (arriba)
+            z.Blob(new V(17, -13), 5, 5);   // ala hacia el Bosque Quebrado (derecha)
+            z.Blob(new V(-19, -8), 4, 4);   // llegada desde el puente
+            z.Blob(C, 8, 7, Ground.Grass, 0.12f); // claro del campamento
+            z.Patch(new V(7, 8), 4f, Ground.Flower, 0.8f);
+            z.Patch(new V(-5, -12), 4f, Ground.Flower, 0.8f);
+            z.Patch(new V(11, -4), 3f, Ground.Flower, 0.8f);
+            z.Patch(new V(-12, 0), 3f, Ground.Flower, 0.8f);
+            z.Patch(new V(3, 14), 3f, Ground.Flower, 0.8f);
 
-            z.Bridge(new V(-24, -6), new V(1, 0), 8);
-            z.Marker("Spawn_FromIsland", new V(-15, -5), 2);
-            z.Path(Ground.Sand, 1, new V(-16, -5), new V(-5, -2), V.zero);
-            z.Path(Ground.Sand, 1, V.zero, new V(-9, 10), new V(-12, 14));
-            z.Path(Ground.Sand, 1, V.zero, new V(11, 9), new V(14, 13));
-            z.Path(Ground.Sand, 1, V.zero, new V(12, -9), new V(16, -12));
+            z.Bridge(new V(-31, -8), new V(1, 0), 9);
+            z.Marker("Spawn_FromIsland", new V(-19, -8), 2);
+            z.Path(Ground.Sand, 1, new V(-21, -8), new V(-8, -3), V.zero);
+            z.Path(Ground.Sand, 1, V.zero, new V(-8, 8), new V(-11, 11), C + new V(3, -3));
+            z.Path(Ground.Sand, 1, V.zero, new V(13, 12), new V(19, 18));
+            z.Path(Ground.Sand, 1, V.zero, new V(13, -10), new V(19, -15));
 
-            z.Prop("placeholder_tree_tall", new V(-4, 1), true, "Tree_Researcher");
-            z.Marker("Researcher_Land", new V(-5, -1), 1);
+            z.Prop("placeholder_tree_tall", new V(-6, 1), true, "Tree_Researcher");
+            z.Marker("Researcher_Land", new V(-7, -1), 1);
 
-            z.Marker("Exit_ToCamp", new V(-12, 14), 1);
-            z.Marker("Spawn_FromCamp", new V(-10, 12), 1);
-            z.Marker("Exit_ToSanctuary", new V(14, 13), 1);
-            z.Marker("Spawn_FromSanctuary", new V(12, 11), 1);
-            z.Marker("Exit_ToCombat", new V(16, -12), 1);
-            z.Marker("Spawn_FromCombat", new V(14, -10), 1);
-            z.Rect(new V(13, 12), new V(15, 14), Ground.Stone);
-            z.Prop("placeholder_pillar", new V(13, 14), true, "Pillar_L");
-            z.Prop("placeholder_pillar", new V(15, 12), true, "Pillar_R");
+            z.Rect(new V(17, 16), new V(21, 20), Ground.Stone);
+            z.Marker("Exit_ToSanctuary", new V(19, 18), 1);
+            z.Marker("Spawn_FromSanctuary", new V(15, 14), 1);
+            z.Prop("placeholder_pillar", new V(18, 20), true, "Pillar_L");
+            z.Prop("placeholder_pillar", new V(20, 17), true, "Pillar_R");
+            z.Marker("Exit_ToCombat", new V(19, -15), 1);
+            z.Marker("Spawn_FromCombat", new V(15, -11), 1);
 
-            // Lejos de los 4 puntos de aparición (verificado en unidades del mundo)
-            z.Marker("Enemy_Melee_A", new V(2, -8));
-            z.Marker("Enemy_Melee_B", new V(-4, -8));
-            z.Marker("Pickup_Flor_A", new V(5, 7));
-            z.Marker("Pickup_Flor_B", new V(-3, -8));
+            // Campamento oculto (antes era la escena 03_Camp)
+            z.Marker("Camp_Area", C, 0);
+            z.Marker("Camp_Gate", new V(-9, 9), 1);
+            z.Prop("placeholder_campfire", C, true, "Campfire");
+            z.Prop("placeholder_tent", C + new V(-4, 3), true, "Tent_A", new[] { V.zero, new V(1, 0) });
+            z.Prop("placeholder_tent", C + new V(1, 5), true, "Tent_B", new[] { V.zero, new V(1, 0) });
+            z.Prop("placeholder_forge", C + new V(-5, -2), true, "Forge", Square(2));
+            z.Marker("Forge_Front", C + new V(-3, -3), 1);
+            z.Prop("placeholder_desk", C + new V(4, 3), true, "Desk", new[] { V.zero, new V(1, 0) });
+            z.Marker("NPC_Researcher", C + new V(3, 2), 1);
+            z.Prop("placeholder_save_crystal", C + new V(-1, -4), true, "SaveCrystal");
+            z.Marker("SavePoint_Base", C + new V(0, -3), 0);
+            z.Prop("placeholder_crate", C + new V(-6, 1), true);
+            z.Prop("placeholder_crate", C + new V(-6, 2), true);
+            z.Prop("placeholder_barrel", C + new V(3, 6), true);
+
             // Zona 1: 2 flores + 2 cueros (de los melee) + 1 poción. No alcanza para la receta (3/3):
             // hay que visitar la zona 2 y volver a la base (HEX-02).
-            z.Marker("Pickup_Pocion_A", new V(9, -3));
+            z.Marker("Enemy_Melee_A", new V(0, -12));
+            z.Marker("Enemy_Melee_B", new V(8, -2));
+            z.Marker("Pickup_Flor_A", new V(8, 11));
+            z.Marker("Pickup_Flor_B", new V(-5, -13));
+            z.Marker("Pickup_Pocion_A", new V(13, -3));
 
-            z.RaiseRect(new V(2, 10), new V(4, 11), ChapterTiles.Grass(34));
-            z.RaiseRect(new V(-2, -12), new V(0, -11), ChapterTiles.Grass(19));
-            z.TreeRing(0.5f, "placeholder_tree_tall", "placeholder_tree_short");
-            z.Scatter(10, true, "placeholder_tree_tall", "placeholder_tree_short");
-            z.Scatter(5, true, "placeholder_rock_small", "placeholder_rock_large");
-            z.Scatter(8, false, "placeholder_bush");
-            return z;
-        }
+            z.RaiseRect(new V(3, 13), new V(5, 14), ChapterTiles.Grass(34));
+            z.RaiseRect(new V(-2, -16), new V(0, -15), ChapterTiles.Grass(19));
+            z.RaiseRect(new V(10, 1), new V(11, 2), ChapterTiles.Grass(19));
 
-        private static ZoneBuilder CampZone()
-        {
-            var z = new ZoneBuilder(Camp, 303);
-            z.Blob(V.zero, 8, 7, Ground.Grass, 0.12f);
-            z.Path(Ground.Sand, 1, V.zero, new V(7, -5), new V(10, -8));
-            z.Marker("Spawn_FromField", new V(7, -5), 1);
-            z.Marker("Exit_ToField", new V(10, -8), 1);
-
-            z.Prop("placeholder_campfire", V.zero, true, "Campfire");
-            z.Prop("placeholder_tent", new V(-4, 3), true, "Tent_A", new[] { V.zero, new V(1, 0) });
-            z.Prop("placeholder_tent", new V(1, 5), true, "Tent_B", new[] { V.zero, new V(1, 0) });
-            z.Prop("placeholder_forge", new V(-5, -2), true, "Forge", Square(2));
-            z.Marker("Forge_Front", new V(-3, -3), 1);
-            z.Prop("placeholder_desk", new V(4, 3), true, "Desk", new[] { V.zero, new V(1, 0) });
-            z.Marker("NPC_Researcher", new V(3, 2), 1);
-            z.Prop("placeholder_save_crystal", new V(-1, -4), true, "SaveCrystal");
-            z.Marker("SavePoint_Base", new V(0, -3), 0);
-            z.Prop("placeholder_crate", new V(-6, 1), true);
-            z.Prop("placeholder_crate", new V(-6, 2), true);
-            z.Prop("placeholder_barrel", new V(3, 6), true);
-
-            z.TreeRing(0.85f, "placeholder_tree_tall", "placeholder_tree_short");
-            z.Scatter(4, false, "placeholder_bush");
+            z.Clear(C, 6); // el claro del campamento queda libre de árboles sueltos
+            // Bosque denso que esconde el campamento (el camino lo atraviesa)
+            z.Forest(new V(-10, 10), 5f, 5f, 0.8f, "placeholder_tree_tall", "placeholder_tree_short");
+            z.TreeRing(0.55f, "placeholder_tree_tall", "placeholder_tree_short");
+            z.Scatter(22, true, "placeholder_tree_tall", "placeholder_tree_short");
+            z.Scatter(8, true, "placeholder_rock_small", "placeholder_rock_large");
+            z.Scatter(16, false, "placeholder_bush");
             return z;
         }
 
         private static ZoneBuilder SanctuaryZone()
         {
-            var z = new ZoneBuilder(Sanctuary, 404);
-            var min = V.zero; var max = new V(8, 10);
+            var z = new ZoneBuilder(Sanctuary, 404) { Fill = Ground.Stone };
+            var min = V.zero; var max = new V(10, 12);
             z.Rect(min, max, Ground.Stone);
-            z.Rect(new V(3, 4), new V(5, 6), Ground.Rune);
+            z.Rect(new V(4, 5), new V(6, 7), Ground.Rune);
             z.Walls(min, max, true);
-            z.Rect(new V(-2, 1), new V(-1, 2), Ground.Stone);
+            z.Rect(new V(-2, 1), new V(-1, 3), Ground.Stone);
 
-            z.Prop("placeholder_maiden_statue", new V(4, 9), true, "Maiden_Statue");
-            z.Marker("Maiden_Front", new V(4, 7), 0);
-            z.Prop("placeholder_pillar", new V(1, 8), true, "Pillar_1");
-            z.Prop("placeholder_pillar", new V(7, 8), true, "Pillar_2");
-            z.Prop("placeholder_pillar", new V(1, 3), true, "Pillar_3");
-            z.Prop("placeholder_pillar", new V(7, 3), true, "Pillar_4");
-            z.Prop("placeholder_crystal", new V(2, 10), true, "Crystal_L");
-            z.Prop("placeholder_crystal", new V(6, 10), true, "Crystal_R");
-            z.Marker("Spawn_FromField", new V(1, 1), 0);
-            z.Marker("Exit_ToField", new V(-2, 1), 0);
+            z.Prop("placeholder_maiden_statue", new V(5, 11), true, "Maiden_Statue");
+            z.Marker("Maiden_Front", new V(5, 9), 0);
+            z.Prop("placeholder_pillar", new V(1, 10), true, "Pillar_1");
+            z.Prop("placeholder_pillar", new V(9, 10), true, "Pillar_2");
+            z.Prop("placeholder_pillar", new V(1, 4), true, "Pillar_3");
+            z.Prop("placeholder_pillar", new V(9, 4), true, "Pillar_4");
+            z.Prop("placeholder_crystal", new V(2, 12), true, "Crystal_L");
+            z.Prop("placeholder_crystal", new V(8, 12), true, "Crystal_R");
+            z.Marker("Spawn_FromField", new V(1, 2), 0);
+            z.Marker("Exit_ToField", new V(-2, 2), 0);
             return z;
         }
 
         private static ZoneBuilder CombatZoneDef()
         {
-            var z = new ZoneBuilder(CombatZone, 505) { GroundTint = new Color(0.82f, 0.9f, 0.86f) };
-            z.Blob(V.zero, 16, 12, Ground.Ruin);
-            z.Blob(new V(-14, -4), 4, 3, Ground.Ruin);
-            z.Blob(new V(11, 10), 5, 4, Ground.Ruin);
+            var z = new ZoneBuilder(CombatZone, 505) { GroundTint = new Color(0.82f, 0.9f, 0.86f), Fill = Ground.Ruin };
+            z.Blob(V.zero, 22, 17, Ground.Ruin);
+            z.Blob(new V(-20, -5), 4.5f, 4, Ground.Ruin);
+            z.Blob(new V(15, 13), 6, 5, Ground.Ruin);
 
-            z.Marker("Spawn_FromField", new V(-15, -4), 1);
-            z.Marker("Exit_ToField", new V(-18, -4), 1);
-            z.Path(Ground.Sand, 1, new V(-18, -4), V.zero, new V(11, 10));
+            z.Marker("Spawn_FromField", new V(-20, -5), 1);
+            z.Marker("Exit_ToField", new V(-23, -5), 1);
+            z.Path(Ground.Sand, 1, new V(-23, -5), V.zero, new V(15, 13));
             // Pasillo único hacia la arena: el sello lo bloquea
-            z.Path(Ground.Stone, 3, new V(12, 11), new V(18, 17));
-            z.Blob(new V(20, 19), 2.5f, 2.5f, Ground.Stone, 0.05f);
-            z.Marker("SavePoint_Boss", new V(10, 9), 1);
-            z.Prop("placeholder_save_crystal", new V(9, 10), true, "SaveCrystal");
-            z.Marker("Seal_Gate", new V(16, 16), 0);
-            z.Marker("Seal_Front", new V(14, 14), 0);
-            z.Marker("Exit_ToArena", new V(20, 19), 0);
+            z.Path(Ground.Stone, 3, false, new V(17, 15), new V(24, 22));
+            z.Blob(new V(26, 24), 3, 3, Ground.Stone, 0.05f);
+            z.Marker("SavePoint_Boss", new V(14, 12), 1);
+            z.Prop("placeholder_save_crystal", new V(13, 13), true, "SaveCrystal");
+            z.Marker("Seal_Gate", new V(21, 19), 0);
+            z.Marker("Seal_Front", new V(19, 17), 0);
+            z.Marker("Exit_ToArena", new V(26, 24), 0);
 
-            // Fuera del rango de detección desde la entrada (en isométrico la distancia
-            // en celdas engaña: se verificó en unidades del mundo, ≥ 2.8 desde Spawn_FromField)
-            z.Marker("Enemy_Melee_A", new V(4, 3));
-            z.Marker("Enemy_Melee_B", new V(6, -5));
-            z.Marker("Enemy_Ranged_A", new V(11, 4));
-            z.Marker("Enemy_Ranged_B", new V(9, 0));
-            z.Marker("Pickup_Cuero_A", new V(-6, -6));
-            z.Marker("Pickup_Flor_A", new V(10, -6));
-            z.Marker("Pickup_Pocion_A", new V(8, 7));
+            // Lejos del cristal y de la entrada (validado por CheckZone)
+            z.Marker("Enemy_Melee_A", new V(8, -6));
+            z.Marker("Enemy_Melee_B", new V(-4, 8));
+            z.Marker("Enemy_Ranged_A", new V(16, -8));
+            z.Marker("Enemy_Ranged_B", new V(-4, -14));
+            z.Marker("Pickup_Cuero_A", new V(-9, -9));
+            z.Marker("Pickup_Flor_A", new V(14, -9));
+            z.Marker("Pickup_Pocion_A", new V(11, 10));
 
             var stone = ChapterTiles.Stone;
-            z.RaiseRect(new V(-2, -8), new V(-1, -7), stone);
-            z.RaiseRect(new V(5, 2), new V(5, 4), stone);
-            z.RaiseRect(new V(-9, 6), new V(-8, 6), stone);
+            z.RaiseRect(new V(-3, -11), new V(-2, -10), stone);
+            z.RaiseRect(new V(5, 0), new V(5, 2), stone);
+            z.RaiseRect(new V(-12, 8), new V(-11, 8), stone);
+            z.RaiseRect(new V(2, 12), new V(3, 13), stone);
             z.TreeRing(0.6f, "placeholder_tree_dark", "placeholder_tree_dead");
-            z.Scatter(6, true, "placeholder_tree_dead", "placeholder_tree_dark");
-            z.Scatter(6, true, "placeholder_rock_small", "placeholder_rock_large");
-            z.Scatter(3, true, "placeholder_crystal");
+            z.Scatter(10, true, "placeholder_tree_dead", "placeholder_tree_dark");
+            z.Scatter(9, true, "placeholder_rock_small", "placeholder_rock_large");
+            z.Scatter(5, true, "placeholder_crystal");
             return z;
         }
 
+        public const int ArenaRadius = 11;
+
         private static ZoneBuilder ArenaZone()
         {
-            var z = new ZoneBuilder(GuardianArena, 606);
-            z.Blob(V.zero, 9, 9, Ground.Stone, 0.04f);
-            for (int y = -9; y <= 9; y++)
-                for (int x = -9; x <= 9; x++)
+            var z = new ZoneBuilder(GuardianArena, 606) { Fill = Ground.Stone };
+            z.Blob(V.zero, ArenaRadius, ArenaRadius, Ground.Stone, 0.04f);
+            for (int y = -ArenaRadius; y <= ArenaRadius; y++)
+                for (int x = -ArenaRadius; x <= ArenaRadius; x++)
                 {
                     float d = Mathf.Sqrt(x * x + y * y);
-                    if (d >= 6.4f && d <= 7.1f) z.Set(new V(x, y), Ground.Rune);
+                    if (d >= 7.6f && d <= 8.4f) z.Set(new V(x, y), Ground.Rune);
                 }
-            z.Path(Ground.Stone, 2, new V(-12, -12), new V(-6, -6));
-            z.Marker("Spawn_FromZone2", new V(-8, -8), 1);
+            z.Path(Ground.Stone, 2, new V(-15, -15), new V(-9, -9));
+            z.Marker("Spawn_FromZone2", new V(-11, -11), 1);
             z.Marker("Guardian", new V(2, 2), 2);
             z.Marker("Arena_Center", V.zero, 0);
-            z.Marker("Arena_Intro", new V(-5, -5), 0);
-            z.Marker("Exit_Victory", new V(-2, -2), 0);
+            z.Marker("Arena_Intro", new V(-7, -7), 0);
+            z.Marker("Exit_Victory", new V(-3, -3), 0);
             for (int i = 0; i < 8; i++)
             {
                 float a = i * Mathf.PI / 4f + Mathf.PI / 8f;
-                z.Prop("placeholder_brazier", new V(Mathf.RoundToInt(Mathf.Cos(a) * 8.2f), Mathf.RoundToInt(Mathf.Sin(a) * 8.2f)), true, $"Brazier_{i}");
+                z.Prop("placeholder_brazier", new V(Mathf.RoundToInt(Mathf.Cos(a) * 10f), Mathf.RoundToInt(Mathf.Sin(a) * 10f)), true, $"Brazier_{i}");
             }
             return z;
         }
@@ -323,6 +324,7 @@ namespace Game.EditorTools.Chapter1
                 AddExit(markers.Find(exit.marker), exit);
 
             ChapterStory.Populate(name, gridGo);
+            CheckZone(name, zone, markers);
 
             var spawn = markers.Find(defaultSpawn);
             var playerPrefab = ChapterPrefabs.LoadPlayer();
@@ -342,6 +344,40 @@ namespace Game.EditorTools.Chapter1
             ChapterLighting.ApplyToScene(name, gridGo, global);
             context.SetGlobalLight(global);
             SaveScene(scene, name);
+        }
+
+        // Validación del layout: (1) todo punto de interés se alcanza caminando con holgura
+        // (sin pasillos de 1 celda donde el jugador se atora) y (2) ningún enemigo detecta
+        // un punto de aparición. Se reporta como error en la consola al construir.
+        private static void CheckZone(string scene, ZoneBuilder zone, Transform markers)
+        {
+            var sources = new List<string>();
+            var targets = new List<string>();
+            foreach (var name in zone.Markers.Keys)
+            {
+                if (name.StartsWith("Spawn_")) sources.Add(name);
+                else if (!name.StartsWith("Enemy_") && name != "Guardian" && name != "Seal_Gate") targets.Add(name);
+            }
+            var missing = zone.Unreachable(sources, targets);
+            foreach (var m in missing)
+                Debug.LogError($"[Chapter1] {scene}: no se llega caminando a '{m}' (pasillo estrecho o aislado)");
+
+            foreach (var health in Object.FindObjectsByType<EnemyHealth>(FindObjectsInactive.Include))
+            {
+                float range = 0f;
+                var melee = health.GetComponent<EnemyMeleeController>();
+                var ranged = health.GetComponent<EnemyRangedController>();
+                if (melee != null) range = new SerializedObject(melee).FindProperty("detectionRange").floatValue;
+                if (ranged != null) range = new SerializedObject(ranged).FindProperty("detectionRange").floatValue;
+                foreach (Transform m in markers)
+                {
+                    if (!m.name.StartsWith("Spawn_") && !m.name.StartsWith("SavePoint_")) continue;
+                    float d = Vector2.Distance(m.position, health.transform.position);
+                    if (d <= range + 0.3f)
+                        Debug.LogError($"[Chapter1] {scene}: {health.name} detecta '{m.name}' ({d:0.00} ≤ {range} + margen)");
+                }
+            }
+            Debug.Log($"[Chapter1] {scene}: validación de layout {(missing.Count == 0 ? "OK" : "con problemas")}");
         }
 
         private static void AddExit(Transform marker, Exit exit)

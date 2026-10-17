@@ -19,8 +19,11 @@ namespace Game.EditorTools.Chapter1
             switch (scene)
             {
                 case ChapterScenes.FlowerIsland: FlowerIsland(root, gridGo, markers, props); break;
-                case ChapterScenes.OpenField: OpenField(root, markers); Enemies(root, markers, scene); Pickups(root, markers, scene); break;
-                case ChapterScenes.Camp:
+                case ChapterScenes.OpenField:
+                    OpenField(root, markers);
+                    Enemies(root, markers, scene);
+                    Pickups(root, markers, scene);
+                    // El campamento de Kaede está dentro de la Llanura (claro escondido al oeste)
                     Camp(root, markers);
                     Forge(props, markers);
                     SaveCrystal(props, markers, "base", "SavePoint_Base");
@@ -59,7 +62,10 @@ namespace Game.EditorTools.Chapter1
             var grid = gridGo.GetComponent<Grid>();
             var blocker = new GameObject("BridgeBackBlocker");
             blocker.transform.SetParent(root, false);
-            foreach (var cell in new[] { new Vector2Int(17, 3), new Vector2Int(17, 4), new Vector2Int(16, 3), new Vector2Int(16, 4) })
+            // Las dos celdas de tierra justo antes del puente (el puente mide 2 de ancho)
+            var startCell = (Vector2Int)grid.WorldToCell(bridgeStart.position - ZoneBuilder.SurfaceOffset);
+            foreach (var cell in new[] { startCell + new Vector2Int(-2, 0), startCell + new Vector2Int(-2, 1),
+                                         startCell + new Vector2Int(-3, 0), startCell + new Vector2Int(-3, 1) })
             {
                 var c = blocker.AddComponent<CircleCollider2D>();
                 c.offset = ZoneBuilder.SurfaceWorld(cell, grid);
@@ -86,6 +92,23 @@ namespace Game.EditorTools.Chapter1
 
         private static void Camp(Transform root, Transform markers)
         {
+            // Camino del bosque cerrado hasta conocer a Kaede
+            var gateAt = markers.Find("Camp_Gate").position;
+            var gate = new GameObject("CampGate");
+            gate.transform.SetParent(root, false);
+            gate.transform.position = gateAt;
+            var box = gate.AddComponent<BoxCollider2D>();
+            box.size = new Vector2(0.3f, 0.9f); // el camino corre hacia la izquierda: barrera vertical
+            gate.AddComponent<FlagGate>().Setup(ResearcherFallEvent.Flag, "El bosque es muy espeso. Mejor explora la llanura primero.");
+
+            var area = new GameObject("CampAreaTitle");
+            area.transform.SetParent(root, false);
+            area.transform.position = markers.Find("Camp_Area").position;
+            var trigger = area.AddComponent<CircleCollider2D>();
+            trigger.isTrigger = true;
+            trigger.radius = 1.2f;
+            area.AddComponent<AreaTitle>().Setup("Campamento oculto");
+
             var npc = ChapterPrefabs.CreateNpc("Kaede", "placeholder_npc_researcher", markers.Find("NPC_Researcher").position, root, out var marker);
             var talk = npc.AddComponent<NpcDialogue>();
             talk.Configure("Hablar con Kaede", 0.5f, marker);
@@ -214,9 +237,9 @@ namespace Game.EditorTools.Chapter1
             var guardian = (GameObject)PrefabUtility.InstantiatePrefab(guardianPrefab, root);
             guardian.transform.position = markers.Find("Guardian").position;
             var boss = guardian.GetComponent<GuardianBoss>();
-            var so = new SerializedObject(boss);
-            so.FindProperty("arenaCenter").objectReferenceValue = markers.Find("Arena_Center");
-            so.ApplyModifiedPropertiesWithoutUndo();
+            // Elipse de la arena en el mundo (un círculo de R celdas mide 0.2263R x 0.1131R), con margen
+            float r = ChapterScenes.ArenaRadius - 1.5f;
+            boss.SetArena(markers.Find("Arena_Center"), new Vector2(0.2263f * r, 0.1131f * r));
 
             // Permiso (aparece al vencer)
             var permitGo = new GameObject("GuardianPermit");
