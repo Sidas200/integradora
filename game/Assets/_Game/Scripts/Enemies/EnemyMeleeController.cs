@@ -6,6 +6,9 @@ public class EnemyMeleeController : MonoBehaviour
 {
     [Header("Referencias")]
     [SerializeField] private Transform player;
+    [Header("Orientación del enemigo")]
+[SerializeField] private SpriteRenderer enemySprite;
+    [SerializeField] private bool spriteFacesRight = true;
 
     [Header("Detección")]
     [SerializeField] private float detectionRange = 5f;
@@ -83,6 +86,7 @@ private Vector2 knockbackDirection;
     {
         DetectPlayer();
         UpdateAttackPoint();
+        FacePlayer();
         HandleAttack();
     }
 
@@ -102,6 +106,23 @@ private Vector2 knockbackDirection;
         ChasePlayer();
     }
 
+    private void FacePlayer()
+    {
+        if (!PlayerDetected || player == null || enemySprite == null)
+            return;
+
+        float differenceX = player.position.x - transform.position.x;
+
+        if (Mathf.Abs(differenceX) < 0.05f)
+            return;
+
+        bool playerIsToTheRight = differenceX > 0f;
+
+        enemySprite.flipX = spriteFacesRight
+            ? !playerIsToTheRight
+            : playerIsToTheRight;
+    }
+    
     // GAME-101: Empuje y pausa al recibir un golpe
     public void ApplyHitReaction()
     {
