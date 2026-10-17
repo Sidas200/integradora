@@ -192,6 +192,7 @@ namespace Game.EditorTools.Chapter1
             Make("guardian_no_amrita", new[]
             {
                 L(Tsuki, "No tengo ninguna Gota de Amrita. Kaede puede forjarla: 5 Flores destello y 3 Almas antiguas."),
+                L(Narrator, "Puedes volver al Bosque Quebrado por el camino de entrada (abajo a la izquierda)."),
             });
             Make("guardian_intro", new[]
             {

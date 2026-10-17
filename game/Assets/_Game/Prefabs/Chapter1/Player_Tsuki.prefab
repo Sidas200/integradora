@@ -142,7 +142,7 @@ MonoBehaviour:
   m_Light2DProvider:
     rid: -2
   m_SelectionSources:
-    rid: 8748772642779038232
+    rid: 8748772644707893802
   m_FalloffIntensity: 0.6
   m_Color: {r: 1, g: 0.93, b: 0.82, a: 1}
   m_Intensity: 0.3
@@ -188,7 +188,7 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8748772642779038232
+    - rid: 8748772644707893802
       type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 3
@@ -246,7 +246,7 @@ MonoBehaviour:
   m_Light2DProvider:
     rid: -2
   m_SelectionSources:
-    rid: 8748772642779038233
+    rid: 8748772644707893803
   m_FalloffIntensity: 0.6
   m_Color: {r: 0.95, g: 0.18, b: 0.3, a: 1}
   m_Intensity: 0.35
@@ -292,7 +292,7 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8748772642779038233
+    - rid: 8748772644707893803
       type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 3
@@ -839,10 +839,10 @@ MonoBehaviour:
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 6093655468394480120}
   m_ShadowShape2DProvider:
-    rid: 8748772642779038229
+    rid: 8748772644707893799
   m_ShadowCastingSource: 1
   m_ShadowMesh:
-    rid: 8748772642779038230
+    rid: 8748772644707893800
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: -1
@@ -850,16 +850,16 @@ MonoBehaviour:
   m_PreviousShadowShape2DSource: {fileID: 0}
   m_PreviousShadowShape2DProviderHash: 0
   m_SelectionSources:
-    rid: 8748772642779038231
+    rid: 8748772644707893801
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8748772642779038229
+    - rid: 8748772644707893799
       type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
-    - rid: 8748772642779038230
+    - rid: 8748772644707893800
       type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Vertices: []
@@ -873,7 +873,7 @@ MonoBehaviour:
         m_FlipX: 0
         m_FlipY: 0
         m_InitialTrim: 0
-    - rid: 8748772642779038231
+    - rid: 8748772644707893801
       type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 0

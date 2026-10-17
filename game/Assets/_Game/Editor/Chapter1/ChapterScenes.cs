@@ -62,7 +62,9 @@ namespace Game.EditorTools.Chapter1
                 new Exit("Exit_ToArena", GuardianArena, "Spawn_FromZone2", "Umbral del Guardián",
                     ChapterObjectives.SealOpened, "Un sello carmesí bloquea el paso."));
             BuildZoneScene(GuardianArena, ArenaZone, "Spawn_FromZone2", SkyDusk, true, "Umbral del Guardián",
-                new Exit("Exit_Victory", DemoEnd, null, "Continuar", ChapterObjectives.PermitObtained, null));
+                new Exit("Exit_Victory", DemoEnd, null, "Continuar", ChapterObjectives.PermitObtained, null),
+                // Regreso al bosque (p. ej. para forjar la Gota de Amrita); se cierra durante la pelea
+                new Exit("Exit_ToZone2", CombatZone, "Spawn_FromArena", "Bosque Quebrado"));
 
             BuildNarrativeScene(DemoEnd, "demo_end", DialogueSequence.Then.ShowObject, true);
 
@@ -245,6 +247,7 @@ namespace Game.EditorTools.Chapter1
             z.Marker("Seal_Gate", new V(21, 19), 0);
             z.Marker("Seal_Front", new V(19, 17), 0);
             z.Marker("Exit_ToArena", new V(26, 24), 0);
+            z.Marker("Spawn_FromArena", new V(23, 21), 0);
 
             // Lejos del cristal y de la entrada (validado por CheckZone)
             z.Marker("Enemy_Melee_A", new V(8, -6));
@@ -283,6 +286,7 @@ namespace Game.EditorTools.Chapter1
                 }
             z.Path(Ground.Stone, 2, new V(-15, -15), new V(-9, -9));
             z.Marker("Spawn_FromZone2", new V(-11, -11), 1);
+            z.Marker("Exit_ToZone2", new V(-15, -15), 1);
             z.Marker("Guardian", new V(2, 2), 2);
             z.Marker("Arena_Center", V.zero, 0);
             z.Marker("Arena_Intro", new V(-7, -7), 0);

@@ -332,6 +332,7 @@ namespace Game.EditorTools.Chapter1
             trigger.radius = 0.9f;
             var arena = encounter.AddComponent<GuardianArena>();
             arena.Setup(boss, permit, Get("guardian_sleeping"), Get("guardian_intro"), Get("guardian_again"), Get("guardian_defeat"));
+            arena.SetRetreatExit(markers.Find("Exit_ToZone2").gameObject);
 
             // Ofrenda de la Gota de Amrita frente al guardián dormido
             var altarGo = new GameObject("AmritaAltar");

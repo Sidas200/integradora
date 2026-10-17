@@ -16,6 +16,8 @@ public class GuardianArena : MonoBehaviour
     [SerializeField] private DialogueData introDialogue;
     [SerializeField] private DialogueData againDialogue;
     [SerializeField] private DialogueData defeatDialogue;
+    [Tooltip("Salida de regreso al bosque: se cierra mientras dura la pelea.")]
+    [SerializeField] private GameObject retreatExit;
 
     private static GuardianArena current;
     private bool started;
@@ -35,6 +37,8 @@ public class GuardianArena : MonoBehaviour
         againDialogue = again;
         defeatDialogue = defeat;
     }
+
+    public void SetRetreatExit(GameObject exit) => retreatExit = exit;
 
     private void OnEnable() => current = this;
 
@@ -97,6 +101,7 @@ public class GuardianArena : MonoBehaviour
     private void StartFight(DialogueData dialogue)
     {
         started = true;
+        if (retreatExit != null) retreatExit.SetActive(false);
         DialogueUI.Play(dialogue, () =>
         {
             StoryFlags.Set(MetFlag);
