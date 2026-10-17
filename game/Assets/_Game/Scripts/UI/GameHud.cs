@@ -53,7 +53,7 @@ public class GameHud : MonoBehaviour
         if (promptGroup != null) promptGroup.alpha = 0f;
         if (bossGroup != null) bossGroup.alpha = 0f;
         StoryFlags.Changed += HandleFlagChanged;
-        ChapterObjectives.MaterialProgressProvider = MaterialProgress;
+        ChapterObjectives.AmountProvider = AmountOf;
     }
 
     private void OnDestroy()
@@ -207,24 +207,6 @@ public class GameHud : MonoBehaviour
             materialTexts[i].text = goal > 0 ? $"{have}/{goal}" : have.ToString();
             materialTexts[i].color = goal > 0 && have >= goal ? new Color(0.6f, 1f, 0.7f) : Color.white;
         }
-    }
-
-    // Texto para el objetivo: "Cuero antiguo 1/3 · Flor destello 0/3"
-    private string MaterialProgress()
-    {
-        if (trackedMaterials == null) return "Cuero antiguo y Flor destello";
-        var parts = new System.Collections.Generic.List<string>();
-        bool ready = true;
-        for (int i = 0; i < trackedMaterials.Length; i++)
-        {
-            int goal = GoalOf(i);
-            if (goal <= 0 || trackedMaterials[i] == null) continue;
-            int have = AmountOf(trackedMaterials[i].id);
-            if (have < goal) ready = false;
-            parts.Add($"{trackedMaterials[i].displayName} {Mathf.Min(have, goal)}/{goal}");
-        }
-        string text = string.Join(" · ", parts);
-        return ready ? text + "\n¡Listo! Vuelve a la forja del campamento" : text;
     }
 
     private void UpdateHealth(int current, int max)

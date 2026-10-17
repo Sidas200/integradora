@@ -19,4 +19,4 @@ MonoBehaviour:
     text: "Un sello carmes\xED cubre el paso. Al tocarlo, la espada rebota sin dejar marca."
   - speaker: Tsuki
     portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
-    text: "No es suficiente... Kaede dijo que hab\xEDa que mejorarla en la forja."
+    text: "No es suficiente... Kaede dijo que necesita el M\xF3dulo de espada de la forja."

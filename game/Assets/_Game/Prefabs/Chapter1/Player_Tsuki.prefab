@@ -142,7 +142,7 @@ MonoBehaviour:
   m_Light2DProvider:
     rid: -2
   m_SelectionSources:
-    rid: 8748772642666053659
+    rid: 8748772642779038232
   m_FalloffIntensity: 0.6
   m_Color: {r: 1, g: 0.93, b: 0.82, a: 1}
   m_Intensity: 0.3
@@ -188,7 +188,7 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8748772642666053659
+    - rid: 8748772642779038232
       type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 3
@@ -246,7 +246,7 @@ MonoBehaviour:
   m_Light2DProvider:
     rid: -2
   m_SelectionSources:
-    rid: 8748772642666053660
+    rid: 8748772642779038233
   m_FalloffIntensity: 0.6
   m_Color: {r: 0.95, g: 0.18, b: 0.3, a: 1}
   m_Intensity: 0.35
@@ -292,7 +292,7 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8748772642666053660
+    - rid: 8748772642779038233
       type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 3
@@ -412,6 +412,7 @@ GameObject:
   - component: {fileID: 2189028085873953281}
   - component: {fileID: 8794011882841583798}
   - component: {fileID: 1789794347336565577}
+  - component: {fileID: 8055502935628108552}
   - component: {fileID: 8480663217450872852}
   - component: {fileID: 9051175136444452874}
   m_Layer: 6
@@ -769,6 +770,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24069666451ab4b03aa8b484fb2f97aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::PlayerStoryState
+--- !u!114 &8055502935628108552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7302313558755629832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cca8453e4e3bb459195c603aec7da9ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::PlayerEquipment
+  catalog:
+  - {fileID: 11400000, guid: 5c03c44942b9e4202951ac72125ed4b3, type: 2}
+  - {fileID: 11400000, guid: a820da144b9694ee4951fcc49bf47104, type: 2}
+  - {fileID: 11400000, guid: 5fe24fd91b55946368176d5708ac1ac4, type: 2}
 --- !u!114 &8480663217450872852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -822,10 +839,10 @@ MonoBehaviour:
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 6093655468394480120}
   m_ShadowShape2DProvider:
-    rid: 8748772642666053656
+    rid: 8748772642779038229
   m_ShadowCastingSource: 1
   m_ShadowMesh:
-    rid: 8748772642666053657
+    rid: 8748772642779038230
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: -1
@@ -833,16 +850,16 @@ MonoBehaviour:
   m_PreviousShadowShape2DSource: {fileID: 0}
   m_PreviousShadowShape2DProviderHash: 0
   m_SelectionSources:
-    rid: 8748772642666053658
+    rid: 8748772642779038231
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8748772642666053656
+    - rid: 8748772642779038229
       type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
-    - rid: 8748772642666053657
+    - rid: 8748772642779038230
       type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Vertices: []
@@ -856,7 +873,7 @@ MonoBehaviour:
         m_FlipX: 0
         m_FlipY: 0
         m_InitialTrim: 0
-    - rid: 8748772642666053658
+    - rid: 8748772642779038231
       type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 0

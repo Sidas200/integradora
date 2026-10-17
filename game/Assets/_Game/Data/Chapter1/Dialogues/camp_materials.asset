@@ -16,7 +16,7 @@ MonoBehaviour:
   lines:
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: Necesitas 3 Cueros antiguos y 3 Flores destello.
+    text: "El santuario est\xE1 al norte de la llanura. Su puerta pide un Alma peque\xF1a."
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: Los monstruos sueltan el cuero. Las flores destello brillan en el suelo de la llanura y del bosque.
+    text: Los Custodios de ruinas la guardan. Los slimes sueltan flores y restos para pociones y armadura.

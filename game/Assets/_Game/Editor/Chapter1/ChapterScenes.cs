@@ -52,7 +52,7 @@ namespace Game.EditorTools.Chapter1
                     SwordPickup.Flag, "Antes de irte, revisa la cabaña."));
             BuildZoneScene(OpenField, OpenFieldZone, "Spawn_FromIsland", SkyDay, true, "Llanura del Eco",
                 new Exit("Exit_ToSanctuary", Sanctuary, "Spawn_FromField", "Santuario",
-                    ChapterObjectives.CampBriefing, "Kaede dijo que primero fueras a su campamento (oeste)."),
+                    ChapterObjectives.SanctuaryUnlocked, "La puerta está sellada. Tiene un hueco con forma de alma."),
                 new Exit("Exit_ToCombat", CombatZone, "Spawn_FromField", "Bosque Quebrado",
                     ChapterObjectives.CampBriefing, "Kaede dijo que primero fueras a su campamento (oeste)."));
             BuildZoneScene(Sanctuary, SanctuaryZone, "Spawn_FromField", Interior, false, "Santuario",
@@ -148,6 +148,7 @@ namespace Game.EditorTools.Chapter1
 
             z.Rect(new V(17, 16), new V(21, 20), Ground.Stone);
             z.Marker("Exit_ToSanctuary", new V(19, 18), 1);
+            z.Marker("Sanctuary_Door", new V(18, 17), 0);
             z.Marker("Spawn_FromSanctuary", new V(15, 14), 1);
             z.Prop("placeholder_pillar", new V(18, 20), true, "Pillar_L");
             z.Prop("placeholder_pillar", new V(20, 17), true, "Pillar_R");
@@ -170,10 +171,13 @@ namespace Game.EditorTools.Chapter1
             z.Prop("placeholder_crate", C + new V(-6, 2), true);
             z.Prop("placeholder_barrel", C + new V(3, 6), true);
 
-            // Zona 1: 2 flores + 2 cueros (de los melee) + 1 poción. No alcanza para la receta (3/3):
-            // hay que visitar la zona 2 y volver a la base (HEX-02).
-            z.Marker("Enemy_Melee_A", new V(0, -12));
+            // Zona 1: 2 Custodios (uno guarda el Alma pequeña del Santuario), 3 slimes, 2 flores y
+            // 1 poción. Las almas y circuitos para el Módulo de espada salen de la prueba del Santuario.
+            z.Marker("Enemy_Melee_Soul_A", new V(0, -12));
             z.Marker("Enemy_Melee_B", new V(8, -2));
+            z.Marker("Enemy_Slime_A", new V(-6, -6));
+            z.Marker("Enemy_Slime_B", new V(4, -6));
+            z.Marker("Enemy_Slime_C", new V(-4, 12));
             z.Marker("Pickup_Flor_A", new V(8, 11));
             z.Marker("Pickup_Flor_B", new V(-5, -13));
             z.Marker("Pickup_Pocion_A", new V(13, -3));
@@ -192,25 +196,34 @@ namespace Game.EditorTools.Chapter1
             return z;
         }
 
+        // Santuario de Aoi: sala amplia para la prueba de la espada (dos oleadas que aparecen
+        // en círculos de invocación alrededor del círculo rúnico).
         private static ZoneBuilder SanctuaryZone()
         {
             var z = new ZoneBuilder(Sanctuary, 404) { Fill = Ground.Stone };
-            var min = V.zero; var max = new V(10, 12);
+            var min = V.zero; var max = new V(14, 14);
             z.Rect(min, max, Ground.Stone);
-            z.Rect(new V(4, 5), new V(6, 7), Ground.Rune);
+            z.Rect(new V(6, 6), new V(8, 8), Ground.Rune);
             z.Walls(min, max, true);
             z.Rect(new V(-2, 1), new V(-1, 3), Ground.Stone);
 
-            z.Prop("placeholder_maiden_statue", new V(5, 11), true, "Maiden_Statue");
-            z.Marker("Maiden_Front", new V(5, 9), 0);
-            z.Prop("placeholder_pillar", new V(1, 10), true, "Pillar_1");
-            z.Prop("placeholder_pillar", new V(9, 10), true, "Pillar_2");
-            z.Prop("placeholder_pillar", new V(1, 4), true, "Pillar_3");
-            z.Prop("placeholder_pillar", new V(9, 4), true, "Pillar_4");
-            z.Prop("placeholder_crystal", new V(2, 12), true, "Crystal_L");
-            z.Prop("placeholder_crystal", new V(8, 12), true, "Crystal_R");
+            z.Prop("placeholder_maiden_statue", new V(7, 13), true, "Maiden_Statue");
+            z.Marker("Maiden_Front", new V(7, 11), 0);
+            z.Prop("placeholder_pillar", new V(2, 12), true, "Pillar_1");
+            z.Prop("placeholder_pillar", new V(12, 12), true, "Pillar_2");
+            z.Prop("placeholder_pillar", new V(2, 6), true, "Pillar_3");
+            z.Prop("placeholder_pillar", new V(12, 6), true, "Pillar_4");
+            z.Prop("placeholder_crystal", new V(3, 14), true, "Crystal_L");
+            z.Prop("placeholder_crystal", new V(11, 14), true, "Crystal_R");
             z.Marker("Spawn_FromField", new V(1, 2), 0);
             z.Marker("Exit_ToField", new V(-2, 2), 0);
+
+            // Prueba de la espada: Trial_W<oleada>_<tipo>_<letra>
+            z.Marker("Trial_W1_Melee_A", new V(10, 6));
+            z.Marker("Trial_W1_Melee_B", new V(5, 10));
+            z.Marker("Trial_W2_Melee_C", new V(10, 10));
+            z.Marker("Trial_W2_Ranged_A", new V(12, 3));
+            z.Marker("Trial_W2_Ranged_B", new V(3, 12));
             return z;
         }
 
@@ -238,6 +251,8 @@ namespace Game.EditorTools.Chapter1
             z.Marker("Enemy_Melee_B", new V(-4, 8));
             z.Marker("Enemy_Ranged_A", new V(16, -8));
             z.Marker("Enemy_Ranged_B", new V(-4, -14));
+            z.Marker("Enemy_Slime_A", new V(0, 0));
+            z.Marker("Enemy_Slime_B", new V(-12, -10));
             z.Marker("Pickup_Cuero_A", new V(-9, -9));
             z.Marker("Pickup_Flor_A", new V(14, -9));
             z.Marker("Pickup_Pocion_A", new V(11, 10));
@@ -364,6 +379,8 @@ namespace Game.EditorTools.Chapter1
 
             foreach (var health in Object.FindObjectsByType<EnemyHealth>(FindObjectsInactive.Include))
             {
+                // Las oleadas de la prueba aparecen a propósito cerca del jugador
+                if (health.GetComponentInParent<SanctuaryTrial>(true) != null) continue;
                 float range = 0f;
                 var melee = health.GetComponent<EnemyMeleeController>();
                 var ranged = health.GetComponent<EnemyRangedController>();

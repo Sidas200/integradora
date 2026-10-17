@@ -46,6 +46,7 @@ public class SaveData
         data.progress.flags = new List<string>(session.flags);
         data.progress.collected = new List<string>(session.collected);
         data.progress.defeated = new List<string>(session.defeated);
+        data.progress.equipped = new List<string>(session.equipped);
 
         // inventario.cantidad debe ser > 0 en la base de datos.
         foreach (var m in session.materials)
@@ -76,6 +77,8 @@ public class SaveData
         if (progress.collected != null) session.collected.AddRange(progress.collected);
         session.defeated.Clear();
         if (progress.defeated != null) session.defeated.AddRange(progress.defeated);
+        session.equipped.Clear();
+        if (progress.equipped != null) session.equipped.AddRange(progress.equipped);
 
         session.materials.Clear();
         foreach (var e in inventory)
@@ -115,6 +118,8 @@ public class ProgressData
     // Capítulo 1: fuentes de recompensa ya usadas (HEX-04 / HEX-08: sin duplicados al cargar)
     public List<string> collected = new List<string>();
     public List<string> defeated = new List<string>();
+    // Capítulo 1: piezas equipadas (ids de inventario). Las piezas siguen contando en el inventario.
+    public List<string> equipped = new List<string>();
 }
 
 // inventario: item_id, cantidad

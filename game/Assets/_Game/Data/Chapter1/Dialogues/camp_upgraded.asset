@@ -19,4 +19,7 @@ MonoBehaviour:
     text: "Esa espada ya puede herir a un guardi\xE1n. Ve al Bosque Quebrado, al este."
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "No olvides la Gota de Amrita: 5 Flores destello y 3 Almas antiguas. Sin ella, Varn no despertar\xE1."
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: "Y no te mueras. Todav\xEDa no termino de estudiarte."

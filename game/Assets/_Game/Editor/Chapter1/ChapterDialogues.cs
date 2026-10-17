@@ -105,22 +105,28 @@ namespace Game.EditorTools.Chapter1
                 L(Kaede, "Las mismas. Y creo que tu espada carmesí puede despertarlas."),
                 L(Kaede, "Otra cosa: las armas normales no hieren a un dios. Ni a sus guardianes."),
                 L(Kaede, "El guardián de esta zona espera al este, en el Bosque Quebrado, detrás de un sello."),
-                L(Kaede, "Tráeme 3 Cueros antiguos y 3 Flores destello. Con eso mejoramos tu espada en la forja."),
-                L(Kaede, "Y antes de salir, toca el cristal: guarda tu avance."),
+                L(Kaede, "Primero, el santuario del norte. Su puerta solo se abre con un Alma pequeña."),
+                L(Kaede, "Los Custodios de ruinas guardan almas dentro. Vence a uno y la tendrás."),
+                L(Kaede, "Con las Almas antiguas y los Circuitos que sueltan los golems forjamos un Módulo de espada."),
+                L(Kaede, "Y el guardián duerme. Para despertarlo necesitarás una Gota de Amrita: también sale de la forja."),
+                L(Kaede, "Si te sobra cuero y restos de slime, fórjate una armadura. La vas a necesitar."),
+                L(Kaede, "Antes de salir, toca el cristal: guarda tu avance."),
             });
             Make("camp_materials", new[]
             {
-                L(Kaede, "Necesitas 3 Cueros antiguos y 3 Flores destello."),
-                L(Kaede, "Los monstruos sueltan el cuero. Las flores destello brillan en el suelo de la llanura y del bosque."),
+                L(Kaede, "El santuario está al norte de la llanura. Su puerta pide un Alma pequeña."),
+                L(Kaede, "Los Custodios de ruinas la guardan. Los slimes sueltan flores y restos para pociones y armadura."),
             });
             Make("camp_after_maiden", new[]
             {
                 L(Kaede, "¿La doncella te habló? ¡Entonces la espada sí responde!"),
-                L(Kaede, "Mejórala en la forja y ese sello no te detendrá."),
+                L(Kaede, "Ahora forja el Módulo de espada: 10 Almas antiguas y 5 Circuitos antiguos."),
+                L(Kaede, "Con él despierta la espada, y ese sello no te detendrá."),
             });
             Make("camp_upgraded", new[]
             {
                 L(Kaede, "Esa espada ya puede herir a un guardián. Ve al Bosque Quebrado, al este."),
+                L(Kaede, "No olvides la Gota de Amrita: 5 Flores destello y 3 Almas antiguas. Sin ella, Varn no despertará."),
                 L(Kaede, "Y no te mueras. Todavía no termino de estudiarte."),
             });
             Make("camp_after_permit", new[]
@@ -130,17 +136,33 @@ namespace Game.EditorTools.Chapter1
             });
 
             // ---------------- Santuario
+            Make("sanctuary_door_locked", new[]
+            {
+                L(Narrator, "Una puerta de cristal azul. En el centro hay un hueco con forma de alma."),
+                L(Tsuki, "Kaede dijo que los Custodios de ruinas guardan almas pequeñas..."),
+            });
+            Make("sanctuary_door_open", new[]
+            {
+                L(Narrator, "El Alma pequeña encaja en el hueco. La puerta se disuelve en luz azul."),
+            });
             Make("sanctuary_enter", new[] { L(Tsuki, "Hace frío aquí... y la espada vibra.") });
+            Make("trial_intro", new[]
+            {
+                L(Narrator, "La espada carmesí brilla al acercarse a la estatua. Una voz resuena en la sala."),
+                L(Unknown, "Portador... muchos trajeron espadas. Ninguna era digna."),
+                L(Unknown, "Demuestra que la tuya lo es. Sobrevive a la prueba."),
+                L(Narrator, "La entrada se sella. Algo despierta en los círculos del suelo."),
+            });
             Make("maiden_awaken", new[]
             {
                 L(Narrator, "La espada carmesí brilla. La piedra de la estatua se agrieta... y algo despierta."),
                 L(Aoi, "...Mil años. Ha pasado mucho tiempo, portador."),
                 L(Tsuki, "¿Eres una de las doncellas?"),
                 L(Aoi, "Soy Aoi, la primera. Mi poder sigue en esa espada, pero aún duerme."),
-                L(Aoi, "Fórjala con lo que da esta tierra. Solo así romperá el sello del guardián."),
+                L(Aoi, "Fórjale un Módulo con las almas de los golems. Solo así romperá el sello del guardián."),
                 L(Aoi, "Ve. Cuando la espada despierte del todo, yo despertaré contigo."),
             });
-            Make("maiden_hint", new[] { L(Aoi, "La forja primero. Después, el sello del este. No lo olvides.") });
+            Make("maiden_hint", new[] { L(Aoi, "El Módulo de espada primero. Después, el sello del este. No lo olvides.") });
 
             // ---------------- Bosque Quebrado
             Make("zone2_enter", new[]
@@ -152,7 +174,7 @@ namespace Game.EditorTools.Chapter1
             Make("seal_reject", new[]
             {
                 L(Narrator, "Un sello carmesí cubre el paso. Al tocarlo, la espada rebota sin dejar marca."),
-                L(Tsuki, "No es suficiente... Kaede dijo que había que mejorarla en la forja."),
+                L(Tsuki, "No es suficiente... Kaede dijo que necesita el Módulo de espada de la forja."),
             });
             Make("seal_open", new[]
             {
@@ -161,9 +183,20 @@ namespace Game.EditorTools.Chapter1
             });
 
             // ---------------- Umbral del Guardián
+            Make("guardian_sleeping", new[]
+            {
+                L(Narrator, "Un gigante de piedra duerme en el centro del umbral, sobre su arma."),
+                L(Tsuki, "Así que este es el guardián... Kaede dijo que solo la Amrita lo despierta."),
+                L(Narrator, "Acércate y ofrécele la Gota de Amrita (E frente a él, o G)."),
+            });
+            Make("guardian_no_amrita", new[]
+            {
+                L(Tsuki, "No tengo ninguna Gota de Amrita. Kaede puede forjarla: 5 Flores destello y 3 Almas antiguas."),
+            });
             Make("guardian_intro", new[]
             {
-                L(Varn, "Alto. Un humano... con la marca de Rulebreaker."),
+                L(Narrator, "La Amrita cae sobre la piedra. Los ojos del guardián se encienden."),
+                L(Varn, "...¿Quién me despierta? Un humano... con la marca de Rulebreaker."),
                 L(Varn, "Soy Varn, guardián del umbral. Ningún condenado pasa más allá de este punto."),
                 L(Tsuki, "No vine a pedir permiso. Vine por alguien a quien le hice una promesa."),
                 L(Varn, "Entonces demuestra que tu espada puede herir a un guardián."),

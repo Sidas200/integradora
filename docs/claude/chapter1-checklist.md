@@ -24,7 +24,7 @@ WASD/flechas: mover · Clic izquierdo: atacar (combo de 2) · Espacio: esquivar 
 
 ## Recorrido del capítulo (20–30 min)
 
-Menú → Intro (leyenda, Hikari, la promesa) → **Isla de las Flores** (despertar, cabaña, espada carmesí, la isla se desvanece al cruzar el puente) → **Llanura del Eco** (Kaede cae del árbol; 2 melee, 2 flores, 1 poción) → **Campamento oculto** dentro de la Llanura, al oeste entre los árboles (explicación de zonas, guardianes, santuarios y Gran Juzgado; forja; cristal de guardado) → *opcional* **Santuario** (despierta Aoi) → **Bosque Quebrado** (2 melee, 2 Centinelas, 1 cuero, 1 flor, 1 poción; cristal antes del jefe; sello) → regresar a la forja con 3/3 → romper el sello → **Umbral del Guardián** (Varn) → permiso → **Fin de la demo**.
+Menú → Intro (leyenda, Hikari, la promesa de desafiar al cielo) → **Isla de las Flores** (despertar, cabaña, espada carmesí, la isla se desvanece al cruzar el puente) → **Llanura del Eco** (Kaede cae del árbol; 2 Custodios, 3 slimes, 2 flores, 1 poción) → **Campamento oculto** al oeste (Kaede explica zonas, guardianes, santuarios, Alma pequeña, Módulo de espada y Gota de Amrita; forja; cristal) → vencer al Custodio que guarda el **Alma pequeña** → ofrecerla en la **puerta del Santuario** (norte) → **prueba de la espada** (2 oleadas) → despierta Aoi → forjar el **Módulo de espada** (10 Almas antiguas + 5 Circuitos) → **Bosque Quebrado** (2 Custodios, 2 Centinelas, 2 slimes; cristal antes del jefe; sello) → romper el sello → forjar la **Gota de Amrita** (5 Flores + 3 Almas) → **Umbral del Guardián**: despertar a Varn con la Amrita → vencerlo → permiso → **Fin de la demo**. Opcional: armadura de cuero (casco, pechera, botas).
 
 ## Checklist de requisitos
 
@@ -40,12 +40,12 @@ Leyenda: ✅ verificado en Play Mode o en el build · 🧪 cubierto por test Edi
 | HEX-02 | Volver a la base sin perder progreso | Ir y volver con materiales y vida: se conservan (SessionState persistente) | ✅ |
 | HEX-03 | 2 arquetipos con aviso, salud y derrota | Enemy_Melee (círculo rojo 0.6 s) y Centinela (círculo en el suelo 0.9 s + orbe) | ✅ |
 | HEX-03 | Daño una vez por golpe | Enemigo con 2 colliders: 40 → 25 con ataque 15 (deduplicado por golpe) | ✅ |
-| HEX-04 | 2 materiales visibles en inventario | Tab abre el inventario: pestaña **Objetos** (espada, permiso, materiales y pociones con descripción) y **Estadísticas** (vida, ataque, defensa, velocidad, espada, permisos, doncellas). Pausa el juego; Tab/Esc cierran; 1/2 cambian de pestaña. El objetivo sigue mostrando Cuero x/3 y Flor x/3 | ✅ |
+| HEX-04 | 2 materiales visibles en inventario | Tab abre el inventario (pausa): **Objetos** (cuadrícula con detalle, Usar/Equipar), **Equipo** (muñeco que se viste con casco, pechera y botas; defensa) y **Estadísticas**. Tab/Esc cierran; 1/2/3 o A/D cambian de pestaña. El objetivo muestra el avance (p. ej. Alma antigua 4/10 · Circuito 2/5) | ✅ |
 | HEX-04 | Cada fuente una sola vez; persiste entre zonas | Pickups y enemigos con PersistentId; al volver no reaparecen y el drop no recogido sigue | ✅ 🧪 |
-| HEX-05 | Mejora en la forja con ambos materiales | Receta "Despertar de la espada carmesí": 3 + 3, daño 15 → 25 | ✅ |
-| HEX-05 | Sin recursos no consume; con recursos consume una vez | Con 2/3: botón desactivado y nada se gasta. Con 3/3 dos veces: consume una vez y la receta desaparece | ✅ |
+| HEX-05 | Mejora en la forja con ambos materiales | Forja de Kaede con las recetas del equipo (`Receta_*`): **Módulo de espada** (10 Almas antiguas + 5 Circuitos antiguos, daño 15 → 25), Gota de Amrita, Poción, Casco, Pechera y Botas de cuero | ✅ |
+| HEX-05 | Sin recursos no consume; con recursos consume una vez | Botón "Forjar" desactivado si falta algo (nada se gasta). El módulo queda "Ya forjado"; cada pieza de armadura se forja una vez ("Ya la tienes"). Cada forja guarda el progreso | ✅ |
 | HEX-06 | Sello que rechaza sin la mejora | E en el sello con espada nivel 0 → rechazo y retroceso. Con nivel 1 → se abre (una vez) | ✅ |
-| HEX-06 | Guardián con 2 patrones telegrafiados | Embestida (franja) y golpe en área (círculo); vulnerable solo después de atacar; i-frames tras cada golpe | ✅ |
+| HEX-06 | Guardián con 2 patrones telegrafiados | Varn duerme hasta recibir la Gota de Amrita (E frente a él o G). Embestida (franja con llamas, polvo y chispas) y golpe en área (círculo con llamas; al caer: anillo de fuego, polvo, escombros y temblor); vulnerable solo después de atacar | ✅ |
 | HEX-06 | Permiso una sola vez | El segundo intento no hace nada; al continuar, el jefe y el permiso no reaparecen | ✅ |
 | HEX-07 | Victoria/cierre solo tras vencer al jefe | El cierre solo se alcanza con el permiso (la salida de la arena exige `permit_obtained`) | ✅ |
 | HEX-07 | Derrota con reintento coherente | Morir → "Tsuki ha caído" → Reintentar: último punto seguro, vida llena, estado del guardado | ✅ |
@@ -75,7 +75,12 @@ Tests EditMode: `SaveRepositoryTests` (8) y telemetría (9). Todos pasan.
 - **Inventario del Pocket Map**: el capítulo usa su propia ventana con Tab (`InventoryScreen`); el menú Pocket del equipo no se integró.
 
 **Supuestos tomados**
-- Receta nueva (3 cueros + 3 flores) en lugar de `Receta_ModuloEspada`, que quedó intacta.
+- La forja usa las recetas del equipo tal cual (`Scripts/ScriptableObjects/Recipes`). La receta temporal del capítulo (3 cueros + 3 flores) se eliminó.
+- Botín garantizado por tipo (ids estables): Slime → flor_destello, resto_slime, concentrado_slime · Custodio de ruinas (golem) → cuero_antiguo ×2, alma_antigua ×2, circuito_antiguo (uno guarda además alma_pequena) · Centinela → alma_antigua ×2, circuito_antiguo.
+- El Alma pequeña se consume en la puerta del Santuario; dentro, la estatua pone a prueba la espada (2 oleadas) antes de despertar a Aoi.
+- La Gota de Amrita solo se gasta frente a un guardián dormido (antes la tecla G la consumía en cualquier lugar).
+- Armadura de cuero: Casco Defensa +1 · Pechera Defensa +3 y Vida +10 · Botas Defensa +1 y Velocidad +0.1. Equipar no saca la pieza del inventario; lo equipado se guarda en `progress.equipped` (ids).
+- Hitos que guardan el progreso sin mover el punto seguro: sello abierto, forja, puerta del santuario, despertar de la doncella y cambios de equipo.
 - Reintento sin punto seguro previo: vuelve a la entrada de la zona con el estado de ese momento.
 - Los cristales guardan solos al acercarse (una vez por visita) y con E; siempre restauran la vida.
 - Mientras hay un diálogo abierto, el mundo se pausa (`timeScale = 0`).
@@ -86,8 +91,11 @@ Tests EditMode: `SaveRepositoryTests` (8) y telemetría (9). Todos pasan.
 **Cambios en código o assets del equipo (mínimos y justificados)**
 - `PlayerController`: busca el sprite en los hijos; bloqueo de input; `AttackEnabled`; un golpe daña una vez por objetivo.
 - `EnemyHealth`: invulnerabilidad opcional y eventos (sin cambiar el comportamiento por defecto).
-- `MaterialPickup`: respeta `PersistentId` si lo tiene. `CraftingPanel`, `CraftingStation`, `ItemUser`: bloqueo de input.
-- `SessionState` y `SaveData`: flags, recogidos y vencidos (compatible con guardados v2); corregido el fallback de carga por nombre en el editor.
+- `MaterialPickup`: respeta `PersistentId` si lo tiene. `CraftingPanel`, `CraftingStation`, `ItemUser`: bloqueo de input. `ItemUser.UseAmrita`: solo frente a un guardián dormido.
+- `EquipmentSlot`: nuevas ranuras Head/Chest/Feet al final (no cambia los valores existentes). `EquipmentItem`: campo `item` (MaterialData). `PlayerStats`: una pieza por ranura (misma API) y `GetEquipped`.
+- `ModuloEspada.asset`: no tenía icono; el builder le asigna `placeholder_icon_sword_module`.
+- `CraftingPanel` sigue en el proyecto pero el capítulo usa `ForgeScreen` (pantalla nueva con iconos y materiales).
+- `SessionState` y `SaveData`: flags, recogidos, vencidos y equipados (listas nuevas, compatible con guardados v2); corregido el fallback de carga por nombre en el editor.
 - `CameraFollow.SnapToTarget`. `Game.Gameplay.asmdef`: referencias a URP 2D.
 - Prefabs `Enemy_Melee` y `Pickup_*`: solo pasan del sorting layer Default a Sprites.
 - `TagManager`: `suelo` → `Objects` (mismo ID) y nuevos Background/Sprites/UI; `Renderer2D`: Custom Axis.
@@ -101,3 +109,13 @@ Tests EditMode: `SaveRepositoryTests` (8) y telemetría (9). Todos pasan.
 - **Inventario con Tab** (ver HEX-04); se quitó el panel fijo del HUD.
 - **Varn** ahora se limita a la elipse real de la arena (antes era un círculo y podía salirse arriba/abajo).
 - Un guardado antiguo que apunte a `03_Camp` se ignora: «Continuar» no aparece y la nueva partida funciona.
+
+## Cambios tras la segunda prueba de juego
+
+- **Error del sello corregido**: abrir el sello vivía solo en memoria hasta el siguiente cristal; al salir al menú y continuar volvía a estar sellado. Ahora se guarda al abrirse (y en los demás hitos).
+- **Forja** con todas las recetas del equipo, pantalla nueva con iconos, efecto y materiales (tienes/necesitas).
+- **Inventario rediseñado** (marcos pixel art) con pestaña **Equipo** y muñeco que se viste.
+- **Slimes** como tercer enemigo (fuente de flor y restos de slime).
+- **Alma pequeña → puerta del Santuario → prueba de la espada** con oleadas e invocaciones.
+- **Gota de Amrita** para despertar a Varn; ataques con fuego, polvo, escombros, chispas y temblor de cámara.
+- Frase de la intro y del cierre: "si para cumplirla tengo que desafiar al mismo cielo, lo haré".

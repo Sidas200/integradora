@@ -70,6 +70,7 @@ namespace Game.EditorTools.Chapter1
             root.AddComponent<SessionSync>();
             root.AddComponent<PlayerInteractor>();
             root.AddComponent<PlayerStoryState>();
+            root.AddComponent<PlayerEquipment>().Setup(ChapterData.LeatherSet());
 
             // Mismos valores que el jugador de Test_Inventory_Emmanuel, con la capa Enemy ya asignada.
             var so = new SerializedObject(controller);

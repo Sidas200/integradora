@@ -38,8 +38,8 @@ namespace Game.EditorTools.Chapter1
             var canvas = canvasGo.transform;
 
             BuildHud(canvas);
-            BuildCrafting(canvas);
-            BuildInventory(canvas);
+            ChapterUiScreens.BuildForge(canvas);
+            ChapterUiScreens.BuildInventory(canvas);
             BuildDialogue(canvas);
             var pause = BuildPause(canvas);
             var defeat = BuildDefeat(canvas);
@@ -109,13 +109,15 @@ namespace Game.EditorTools.Chapter1
             SetRef(hud, "promptGroup", promptGroup);
             SetRef(hud, "promptText", promptText);
 
-            // Materiales que siguen los avisos y el objetivo (el detalle está en el inventario con Tab)
-            var tracked = new[] { ChapterPrefabs.LoadMaterial("CueroAntiguo"), ChapterPrefabs.LoadMaterial("FlorDestello"), ChapterPrefabs.LoadMaterial("Pocion") };
+            // Avisos al recoger cualquier item ("Alma antigua: 4"); el detalle está en el inventario (Tab)
+            var trackedNames = new[] { "AlmaPequena", "AlmaAntigua", "CircuitoAntiguo", "CueroAntiguo", "FlorDestello",
+                                       "ConcentradoSlime", "RestoSlime", "Pocion", "GotaAmrita", "CascoCuero", "PecheraCuero", "BotasCuero" };
+            var tracked = System.Array.ConvertAll(trackedNames, ChapterPrefabs.LoadMaterial);
             var hudSo = new SerializedObject(hud);
             var matsProp = hudSo.FindProperty("trackedMaterials");
             var goalsProp = hudSo.FindProperty("materialGoals");
             matsProp.arraySize = goalsProp.arraySize = tracked.Length;
-            int[] goals = { 3, 3, 0 };
+            var goals = new int[tracked.Length];
             for (int i = 0; i < tracked.Length; i++)
             {
                 matsProp.GetArrayElementAtIndex(i).objectReferenceValue = tracked[i];
@@ -161,106 +163,6 @@ namespace Game.EditorTools.Chapter1
             var toastText = Text(Stretch(toast, "Text"), "", 32, TextAlignmentOptions.Center);
             SetRef(hud, "toastGroup", toastGroup);
             SetRef(hud, "toastText", toastText);
-        }
-
-        // ---------------------------------------------------------------- forja
-
-        // Panel de crafteo existente (CraftingPanel de Emmanuel) con la receta del capítulo.
-        private static void BuildCrafting(Transform canvas)
-        {
-            var rootRt = Stretch(canvas, "Crafting");
-            var panel = Stretch(rootRt, "CraftingPanel");
-            Image(panel, DimColor).raycastTarget = true;
-            var box = Box(panel, "Box", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(980, 560));
-            Image(box, PanelColor);
-            Label(box, "Title", "Forja de Kaede", 56, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -30), new Vector2(900, 70));
-            Label(box, "Help", "Mejora la espada con materiales de la isla. Si te falta algo, no se gasta nada.", 26,
-                TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -105), new Vector2(900, 70), MutedText);
-            var content = Box(box, "Content", new Vector2(0.5f, 1), new Vector2(0, -190), new Vector2(880, 220));
-            var close = Button(box, "Close", "Cerrar  (E / Esc)", new Vector2(420, 70));
-            var closeRt = (RectTransform)close.transform;
-            closeRt.anchorMin = closeRt.anchorMax = closeRt.pivot = new Vector2(0.5f, 0);
-            closeRt.anchoredPosition = new Vector2(0, 30);
-
-            var crafting = panel.gameObject.AddComponent<CraftingPanel>();
-            var so = new SerializedObject(crafting);
-            var recipes = so.FindProperty("recipes");
-            recipes.arraySize = 1;
-            recipes.GetArrayElementAtIndex(0).objectReferenceValue = ChapterData.SwordRecipe();
-            so.FindProperty("content").objectReferenceValue = content;
-            so.FindProperty("closeButton").objectReferenceValue = close;
-            so.FindProperty("rowHeight").floatValue = 110f;
-            so.ApplyModifiedPropertiesWithoutUndo();
-            panel.gameObject.SetActive(false);
-        }
-
-        // ---------------------------------------------------------------- inventario (Tab)
-
-        private static void BuildInventory(Transform canvas)
-        {
-            var rootRt = Stretch(canvas, "Inventory");
-            var screen = rootRt.gameObject.AddComponent<InventoryScreen>();
-            var panel = Stretch(rootRt, "Panel");
-            Image(panel, DimColor).raycastTarget = true;
-            var box = Box(panel, "Box", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1280, 760));
-            Image(box, PanelColor);
-            Label(box, "Title", "Inventario", 56, TextAlignmentOptions.Left, new Vector2(0, 1), new Vector2(40, -24), new Vector2(500, 70));
-            Label(box, "Hint", "Tab / Esc: cerrar   ·   1 / 2: cambiar pestaña", 22, TextAlignmentOptions.Right,
-                new Vector2(1, 1), new Vector2(-40, -44), new Vector2(600, 32), MutedText);
-
-            // Pestañas
-            var itemsTab = Button(box, "TabItems", "Objetos", new Vector2(260, 64));
-            Anchor(itemsTab, new Vector2(0, 1), new Vector2(40, -110));
-            var statsTab = Button(box, "TabStats", "Estadísticas", new Vector2(260, 64));
-            Anchor(statsTab, new Vector2(0, 1), new Vector2(316, -110));
-
-            // Página de objetos: lista a la izquierda, detalle a la derecha
-            var itemsPage = Rect(box, "ItemsPage", Vector2.zero, Vector2.one, new Vector2(40, 40), new Vector2(-40, -196));
-            var list = Rect(itemsPage, "List", new Vector2(0, 0), new Vector2(0.55f, 1), Vector2.zero, new Vector2(-16, 0));
-            var layout = list.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 8; layout.childControlWidth = true; layout.childControlHeight = true;
-            layout.childForceExpandWidth = true; layout.childForceExpandHeight = false;
-            var detail = Rect(itemsPage, "Detail", new Vector2(0.55f, 0), Vector2.one, new Vector2(16, 0), Vector2.zero);
-            Image(detail, new Color(0.10f, 0.08f, 0.15f, 1f));
-            var icon = Box(detail, "Icon", new Vector2(0.5f, 1), new Vector2(0, -30), new Vector2(120, 120));
-            var iconImg = Image(icon, Color.white, null);
-            iconImg.preserveAspect = true;
-            var dName = Label(detail, "Name", "", 36, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -160), new Vector2(480, 50));
-            dName.fontStyle = FontStyles.Bold;
-            var dText = Label(detail, "Description", "", 28, TextAlignmentOptions.Top, new Vector2(0.5f, 1), new Vector2(0, -220), new Vector2(480, 260), MutedText);
-
-            // Página de estadísticas
-            var statsPage = Rect(box, "StatsPage", Vector2.zero, Vector2.one, new Vector2(40, 40), new Vector2(-40, -196));
-            Image(statsPage, new Color(0.10f, 0.08f, 0.15f, 1f));
-            var stats = Text(Rect(statsPage, "Text", Vector2.zero, Vector2.one, new Vector2(40, 30), new Vector2(-40, -30)), "", 34, TextAlignmentOptions.TopLeft);
-            stats.lineSpacing = 12;
-
-            var so = new SerializedObject(screen);
-            so.FindProperty("panel").objectReferenceValue = panel.gameObject;
-            so.FindProperty("itemsTab").objectReferenceValue = itemsTab;
-            so.FindProperty("statsTab").objectReferenceValue = statsTab;
-            so.FindProperty("itemsPage").objectReferenceValue = itemsPage.gameObject;
-            so.FindProperty("statsPage").objectReferenceValue = statsPage.gameObject;
-            so.FindProperty("itemList").objectReferenceValue = list;
-            so.FindProperty("detailIcon").objectReferenceValue = iconImg;
-            so.FindProperty("detailName").objectReferenceValue = dName;
-            so.FindProperty("detailText").objectReferenceValue = dText;
-            so.FindProperty("statsText").objectReferenceValue = stats;
-            so.FindProperty("swordIcon").objectReferenceValue = PlaceholderArtGenerator.Load("placeholder_icon_sword");
-            so.FindProperty("permitIcon").objectReferenceValue = PlaceholderArtGenerator.Load("placeholder_icon_permit");
-            var names = new[] { "CueroAntiguo", "FlorDestello", "Pocion", "GotaAmrita", "AlmaAntigua", "AlmaPequena",
-                                "CircuitoAntiguo", "ConcentradoSlime", "RestoSlime", "ModuloEspada", "BotasCuero", "CascoCuero", "PecheraCuero" };
-            var catalog = so.FindProperty("catalog");
-            catalog.arraySize = names.Length;
-            for (int i = 0; i < names.Length; i++) catalog.GetArrayElementAtIndex(i).objectReferenceValue = ChapterPrefabs.LoadMaterial(names[i]);
-            so.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        private static void Anchor(UnityEngine.UI.Button b, Vector2 anchor, Vector2 pos)
-        {
-            var rt = (RectTransform)b.transform;
-            rt.anchorMin = rt.anchorMax = rt.pivot = anchor;
-            rt.anchoredPosition = pos;
         }
 
         // ---------------------------------------------------------------- diálogo

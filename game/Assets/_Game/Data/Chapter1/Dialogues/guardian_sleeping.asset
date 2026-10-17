@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e4285355d7234af4a5c7418047c645c, type: 3}
+  m_Name: guardian_sleeping
+  m_EditorClassIdentifier: Game.Gameplay::DialogueData
+  lockedByDesigner: 0
+  lines:
+  - speaker: 
+    portrait: {fileID: 0}
+    text: Un gigante de piedra duerme en el centro del umbral, sobre su arma.
+  - speaker: Tsuki
+    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
+    text: "As\xED que este es el guardi\xE1n... Kaede dijo que solo la Amrita lo despierta."
+  - speaker: 
+    portrait: {fileID: 0}
+    text: "Ac\xE9rcate y ofr\xE9cele la Gota de Amrita (E frente a \xE9l, o G)."

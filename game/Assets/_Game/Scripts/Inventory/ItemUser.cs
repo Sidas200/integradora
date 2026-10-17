@@ -73,6 +73,13 @@ public class ItemUser : MonoBehaviour
     {
         if (amritaDrop == null || health == null || health.IsDead) return false;
 
+        // Capítulo 1: solo tiene efecto frente a un guardián dormido; si no, no se gasta.
+        if (!GuardianArena.CanReceiveAmrita)
+        {
+            if (GameHud.Instance != null) GameHud.Instance.ShowToast("La Gota de Amrita solo tiene efecto ante un guardián dormido.");
+            return false;
+        }
+
         var inv = GetInventory();
         if (inv == null || !inv.TryConsume(amritaDrop.id, 1))
         {

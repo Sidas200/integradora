@@ -38,6 +38,10 @@ public class SessionState : MonoBehaviour
     [Tooltip("Enemigos ya vencidos (PersistentId)")]
     public List<string> defeated = new List<string>();
 
+    [Header("Equipo (capítulo 1)")]
+    [Tooltip("Ids de inventario de las piezas equipadas (casco_cuero, pechera_cuero, botas_cuero)")]
+    public List<string> equipped = new List<string>();
+
     // Punto de aparición pedido por una transición. Solo vive durante el cambio de escena.
     [NonSerialized] public string pendingSpawnId;
 
@@ -137,6 +141,7 @@ public class SessionState : MonoBehaviour
         flags.Clear();
         collected.Clear();
         defeated.Clear();
+        equipped.Clear();
         respawnAtSafePoint = false;
         pendingSpawnId = null;
     }

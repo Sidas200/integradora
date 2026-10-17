@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ namespace Game.EditorTools.Chapter1
     // Genera el arte placeholder del capítulo 1 (pixel art, PPU 100, Point, sin compresión).
     // Todo se dibuja por código para que sea reproducible. Los PNG se pueden reemplazar
     // por arte final con el MISMO nombre y pivote sin romper prefabs (ver docs/claude/art-needed.md).
-    public static class PlaceholderArtGenerator
+    public static partial class PlaceholderArtGenerator
     {
         public const string Folder = "Assets/_Game/Art/Placeholders";
         public const int PixelsPerUnit = 100;
@@ -23,6 +24,8 @@ namespace Game.EditorTools.Chapter1
             public string name;
             public Vector2 pivot;
             public Func<PixelCanvas> draw;
+            // Borde 9-slice en pixeles (izq, abajo, der, arriba) para marcos de UI
+            public Vector4 border;
         }
 
         public static string PathOf(string name) => $"{Folder}/{name}.png";
@@ -39,12 +42,12 @@ namespace Game.EditorTools.Chapter1
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
 
             foreach (var e in entries)
-                ConfigureImporter(PathOf(e.name), e.pivot);
+                ConfigureImporter(PathOf(e.name), e.pivot, e.border);
 
             Debug.Log($"[Chapter1] {entries.Count} placeholders generados en {Folder}");
         }
 
-        private static void ConfigureImporter(string path, Vector2 pivot)
+        private static void ConfigureImporter(string path, Vector2 pivot, Vector4 border)
         {
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
             if (importer == null) return;
@@ -62,6 +65,7 @@ namespace Game.EditorTools.Chapter1
             settings.spriteAlignment = (int)SpriteAlignment.Custom;
             settings.spritePivot = pivot;
             settings.spriteMeshType = SpriteMeshType.FullRect;
+            settings.spriteBorder = border;
             importer.SetTextureSettings(settings);
             importer.SaveAndReimport();
         }
@@ -137,7 +141,7 @@ namespace Game.EditorTools.Chapter1
                 new Entry { name = "placeholder_portrait_hikari", pivot = tileCenter, draw = () => Portrait(Hikari()) },
                 new Entry { name = "placeholder_portrait_guardian", pivot = tileCenter, draw = GuardianPortrait },
                 new Entry { name = "placeholder_intro_sky", pivot = tileCenter, draw = IntroSky },
-            };
+            }.Concat(ExtraEntries()).ToList();
         }
 
         // ---------------------------------------------------------------- tiles

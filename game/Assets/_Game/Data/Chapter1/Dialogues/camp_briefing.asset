@@ -40,7 +40,19 @@ MonoBehaviour:
     text: "El guardi\xE1n de esta zona espera al este, en el Bosque Quebrado, detr\xE1s de un sello."
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Tr\xE1eme 3 Cueros antiguos y 3 Flores destello. Con eso mejoramos tu espada en la forja."
+    text: "Primero, el santuario del norte. Su puerta solo se abre con un Alma peque\xF1a."
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: 'Y antes de salir, toca el cristal: guarda tu avance.'
+    text: "Los Custodios de ruinas guardan almas dentro. Vence a uno y la tendr\xE1s."
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "Con las Almas antiguas y los Circuitos que sueltan los golems forjamos un M\xF3dulo de espada."
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "Y el guardi\xE1n duerme. Para despertarlo necesitar\xE1s una Gota de Amrita: tambi\xE9n sale de la forja."
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "Si te sobra cuero y restos de slime, f\xF3rjate una armadura. La vas a necesitar."
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: 'Antes de salir, toca el cristal: guarda tu avance.'

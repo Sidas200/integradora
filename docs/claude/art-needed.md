@@ -80,6 +80,15 @@ no pixel art. Hace falta un sprite de enemigo cuerpo a cuerpo a PPU 100.
 | `placeholder_icon_sword`, `placeholder_icon_permit` | HUD: espada mejorada y permiso del guardián |
 | `placeholder_portrait_*` (tsuki, researcher, maiden, hikari, guardian) | Retratos de diálogo 48×48 |
 | `placeholder_intro_sky` | Fondo de la intro (240×135) |
+| `ui_frame`, `ui_panel`, `ui_slot`, `ui_slot_selected`, `ui_tab`, `ui_tab_active`, `ui_button`, `ui_row`, `ui_row_selected` | Kit de UI pixel art (9-slice, se dibuja a 4x): inventario y forja. Al reemplazar, conservar el borde 9-slice |
+| `ui_badge_equipped` | Marca de pieza equipada |
+| `ui_doll`, `ui_doll_helmet`, `ui_doll_chest`, `ui_doll_boots` (48×80, mismo lienzo) | Muñeco de la pestaña Equipo y sus piezas (se dibujan encima, alineadas) |
+| `ui_empty_head`, `ui_empty_chest`, `ui_empty_feet` | Siluetas de ranura vacía |
+| `placeholder_icon_sword_module` | Icono del Módulo de espada (el asset del equipo no tenía) |
+| `placeholder_enemy_slime` (26×22) | Slime azul. Ideal: animación de salto |
+| `placeholder_summon_circle` | Círculo de invocación de la prueba del santuario |
+| `placeholder_door_barrier` | Puerta del santuario y barrera de la prueba |
+| `vfx_fire`, `vfx_dust`, `vfx_rock`, `vfx_spark` | Partículas de los ataques de Varn (blancas: se tiñen por código) |
 
 ## Índices de `tileset_grass` usados por el builder
 

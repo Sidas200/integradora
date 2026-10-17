@@ -23,12 +23,13 @@ namespace Game.EditorTools.Chapter1
                     OpenField(root, markers);
                     Enemies(root, markers, scene);
                     Pickups(root, markers, scene);
+                    SanctuaryDoor(root, markers);
                     // El campamento de Kaede está dentro de la Llanura (claro escondido al oeste)
                     Camp(root, markers);
                     Forge(props, markers);
                     SaveCrystal(props, markers, "base", "SavePoint_Base");
                     break;
-                case ChapterScenes.Sanctuary: Sanctuary(root, props); break;
+                case ChapterScenes.Sanctuary: Sanctuary(root, props, markers, gridGo.GetComponent<Grid>(), scene); break;
                 case ChapterScenes.CombatZone:
                     OnStart(root, "zone2_enter", "zone2_seen");
                     Enemies(root, markers, scene);
@@ -122,7 +123,7 @@ namespace Game.EditorTools.Chapter1
             });
         }
 
-        private static void Sanctuary(Transform root, Transform props)
+        private static void Sanctuary(Transform root, Transform props, Transform markers, Grid grid, string scene)
         {
             OnStart(root, "sanctuary_enter", "sanctuary_seen");
 
@@ -135,29 +136,94 @@ namespace Game.EditorTools.Chapter1
             var interact = statue.gameObject.AddComponent<MaidenStatue>();
             interact.Configure("Tocar la estatua", 0.6f, ChapterPrefabs.CreateMarker(statue, 0.7f));
             interact.Setup(Get("maiden_awaken"), Get("maiden_hint"), spirit, statue.GetComponent<SpriteRenderer>());
+            interact.SetTrial(SwordTrial(root, markers, grid, scene), Get("trial_intro"));
+        }
+
+        // Prueba de la espada: oleadas Trial_W1_* y Trial_W2_* (inactivas hasta que empieza)
+        // y una barrera que sella la entrada mientras dura.
+        private static SanctuaryTrial SwordTrial(Transform root, Transform markers, Grid grid, string scene)
+        {
+            var trialGo = new GameObject("SwordTrial");
+            trialGo.transform.SetParent(root, false);
+            var waves = new List<SanctuaryTrial.Wave>();
+            foreach (var prefix in new[] { "Trial_W1_", "Trial_W2_" })
+            {
+                var wave = new SanctuaryTrial.Wave();
+                foreach (Transform m in markers)
+                {
+                    if (!m.name.StartsWith(prefix)) continue;
+                    string kind = "Enemy_" + m.name.Substring(prefix.Length); // Trial_W1_Melee_A -> Enemy_Melee_A
+                    var e = SpawnEnemy(trialGo.transform, m, kind, scene);
+                    e.SetActive(false);
+                    wave.enemies.Add(e);
+                }
+                waves.Add(wave);
+            }
+
+            // Barrera transversal al pasillo de entrada (las celdas del pasillo van en +x)
+            var exitCell = (Vector2Int)grid.WorldToCell(markers.Find("Exit_ToField").position - ZoneBuilder.SurfaceOffset);
+            var a = ZoneBuilder.SurfaceWorld(exitCell + new Vector2Int(1, -1), grid);
+            var b = ZoneBuilder.SurfaceWorld(exitCell + new Vector2Int(1, 1), grid);
+            var barrierGo = new GameObject("TrialBarrier");
+            barrierGo.transform.SetParent(trialGo.transform, false);
+            barrierGo.transform.position = (a + b) * 0.5f;
+            var edge = barrierGo.AddComponent<EdgeCollider2D>();
+            var dir = (Vector2)(b - a).normalized;
+            edge.points = new[] { (Vector2)(a - barrierGo.transform.position) - dir * 0.12f, (Vector2)(b - barrierGo.transform.position) + dir * 0.12f };
+            edge.edgeRadius = 0.03f;
+            var sr = barrierGo.AddComponent<SpriteRenderer>();
+            sr.sprite = PlaceholderArtGenerator.Load("placeholder_door_barrier");
+            sr.sortingLayerName = "Sprites";
+            sr.spriteSortPoint = SpriteSortPoint.Pivot;
+            sr.color = new Color(1f, 0.75f, 0.8f, 0.9f);
+
+            var trial = trialGo.AddComponent<SanctuaryTrial>();
+            // La barrera visual es el mismo objeto del colisionador: se apaga entero al abrir
+            trial.Setup(waves, edge, sr, PlaceholderArtGenerator.Load("placeholder_summon_circle"));
+            return trial;
+        }
+
+        // Puerta del primer Santuario en la Llanura: se abre ofreciendo el Alma pequeña.
+        private static void SanctuaryDoor(Transform root, Transform markers)
+        {
+            var at = markers.Find("Sanctuary_Door").position;
+            var door = new GameObject("SanctuaryDoor");
+            door.transform.SetParent(root, false);
+            door.transform.position = at;
+            var barrier = new GameObject("Barrier");
+            barrier.transform.SetParent(door.transform, false);
+            var sr = barrier.AddComponent<SpriteRenderer>();
+            sr.sprite = PlaceholderArtGenerator.Load("placeholder_door_barrier");
+            sr.sortingLayerName = "Sprites";
+            sr.spriteSortPoint = SpriteSortPoint.Pivot;
+            var offering = door.AddComponent<ItemOffering>();
+            offering.Configure("Examinar la puerta", 0.6f, ChapterPrefabs.CreateMarker(door.transform, 0.7f));
+            offering.Setup(ChapterPrefabs.LoadMaterial("AlmaPequena"), ChapterObjectives.SanctuaryUnlocked, "Ofrecer el Alma pequeña",
+                Get("sanctuary_door_locked"), Get("sanctuary_door_open"), sr);
         }
 
         // Coloca enemigos en los marcadores "Enemy_Melee_*" y "Enemy_Ranged_*".
         private static void Enemies(Transform root, Transform markers, string scene)
         {
-            var dropPrefab = AssetDatabase.LoadAssetAtPath<MaterialPickup>("Assets/_Game/Prefabs/Pickup_FlorDestello.prefab");
             var parent = new GameObject("Enemies").transform;
             parent.SetParent(root, false);
-            var melee = AssetDatabase.LoadAssetAtPath<GameObject>(ChapterEnemies.MeleePath);
-            var ranged = AssetDatabase.LoadAssetAtPath<GameObject>(ChapterEnemies.RangedPath);
             foreach (Transform m in markers)
-            {
-                GameObject prefab = m.name.StartsWith("Enemy_Melee") ? melee : m.name.StartsWith("Enemy_Ranged") ? ranged : null;
-                if (prefab == null) continue;
-                var e = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
-                e.name = m.name;
-                e.transform.position = m.position;
+                if (m.name.StartsWith("Enemy_")) SpawnEnemy(parent, m, m.name, scene);
+        }
 
-                // HEX-04: botín garantizado y persistente (cada enemigo es una fuente única)
-                var loot = e.AddComponent<EnemyLoot>();
-                e.GetComponent<PersistentId>().SetId($"{scene}/{m.name}");
-                loot.Setup(dropPrefab, new List<EnemyLoot.Drop> { new EnemyLoot.Drop { material = ChapterData.LootForEnemy(m.name), amount = 1 } });
-            }
+        // Instancia el enemigo según su tipo (Enemy_Melee_*, Enemy_Slime_*, Enemy_Ranged_*) con
+        // botín garantizado y persistente (HEX-04: cada enemigo es una fuente única).
+        private static GameObject SpawnEnemy(Transform parent, Transform marker, string kind, string scene)
+        {
+            string path = kind.StartsWith("Enemy_Slime") ? ChapterEnemies.SlimePath
+                : kind.StartsWith("Enemy_Ranged") ? ChapterEnemies.RangedPath : ChapterEnemies.MeleePath;
+            var e = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(path), parent);
+            e.name = marker.name;
+            e.transform.position = marker.position;
+            var loot = e.AddComponent<EnemyLoot>();
+            e.GetComponent<PersistentId>().SetId($"{scene}/{marker.name}");
+            loot.Setup(AssetDatabase.LoadAssetAtPath<MaterialPickup>("Assets/_Game/Prefabs/Pickup_FlorDestello.prefab"), ChapterData.LootForEnemy(kind));
+            return e;
         }
 
         // Pickups en los marcadores "Pickup_*": cada uno tiene su id y se recoge una sola vez.
@@ -263,7 +329,15 @@ namespace Game.EditorTools.Chapter1
             var trigger = encounter.AddComponent<CircleCollider2D>();
             trigger.isTrigger = true;
             trigger.radius = 0.9f;
-            encounter.AddComponent<GuardianArena>().Setup(boss, permit, Get("guardian_intro"), Get("guardian_again"), Get("guardian_defeat"));
+            var arena = encounter.AddComponent<GuardianArena>();
+            arena.Setup(boss, permit, Get("guardian_sleeping"), Get("guardian_intro"), Get("guardian_again"), Get("guardian_defeat"));
+
+            // Ofrenda de la Gota de Amrita frente al guardián dormido
+            var altarGo = new GameObject("AmritaAltar");
+            altarGo.transform.SetParent(guardian.transform, false);
+            var altar = altarGo.AddComponent<AmritaAltar>();
+            altar.Configure("Ofrecer la Gota de Amrita", 0.75f, ChapterPrefabs.CreateMarker(guardian.transform, 0.9f));
+            altar.Setup(arena, Get("guardian_no_amrita"));
 
             // La salida al cierre solo aparece con el permiso (al continuar una partida ya terminada)
             var exitToggle = new GameObject("VictoryExitToggle");

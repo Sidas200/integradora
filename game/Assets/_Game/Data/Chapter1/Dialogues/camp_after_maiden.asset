@@ -19,4 +19,7 @@ MonoBehaviour:
     text: "\xBFLa doncella te habl\xF3? \xA1Entonces la espada s\xED responde!"
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Mej\xF3rala en la forja y ese sello no te detendr\xE1."
+    text: "Ahora forja el M\xF3dulo de espada: 10 Almas antiguas y 5 Circuitos antiguos."
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "Con \xE9l despierta la espada, y ese sello no te detendr\xE1."

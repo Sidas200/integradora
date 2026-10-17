@@ -8,6 +8,8 @@ using UnityEngine;
 // Solo recibe daño en la ventana vulnerable (EnemyHealth.Invulnerable) y tiene invulnerabilidad
 // breve tras cada golpe (invulnerableTime de EnemyHealth). Bajo 50% de vida es más rápido.
 // Las armas normales no lo hieren: sin la espada mejorada es invulnerable todo el tiempo.
+// Duerme hasta que le ofrecen una Gota de Amrita (GuardianArena). Los ataques tienen
+// fuego, polvo y escombros (BossFx) además de la zona roja.
 [RequireComponent(typeof(Rigidbody2D), typeof(EnemyHealth))]
 public class GuardianBoss : MonoBehaviour
 {
@@ -44,6 +46,8 @@ public class GuardianBoss : MonoBehaviour
     [SerializeField] private Sprite lineSprite;
     [SerializeField] private Color armoredTint = new Color(1f, 0.88f, 0.55f);
     [SerializeField] private Color vulnerableTint = new Color(0.7f, 0.75f, 0.95f);
+    [SerializeField] private Color sleepingTint = new Color(0.55f, 0.58f, 0.72f);
+    [SerializeField] private BossFx fx;
 
     public State Current { get; private set; } = State.Dormant;
     public string DisplayName => displayName;
@@ -59,11 +63,51 @@ public class GuardianBoss : MonoBehaviour
     private bool enraged;
     private bool warnedWeakSword;
     private int patternIndex;
+    private Coroutine breathing;
 
     public void SetArena(Transform center, Vector2 radii)
     {
         arenaCenter = center;
         arenaRadii = radii;
+    }
+
+    public void SetFx(BossFx effects) => fx = effects;
+
+    // Dormido: color apagado y respiración lenta. No ataca ni recibe daño.
+    public void SetSleeping(bool sleeping)
+    {
+        if (breathing != null) StopCoroutine(breathing);
+        breathing = null;
+        if (body == null) return;
+        body.transform.localScale = Vector3.one;
+        body.color = sleeping ? sleepingTint : armoredTint;
+        if (sleeping) breathing = StartCoroutine(Breathe());
+    }
+
+    private IEnumerator Breathe()
+    {
+        for (float t = 0f; ; t += Time.deltaTime)
+        {
+            body.transform.localScale = new Vector3(1f, 1f + Mathf.Sin(t * 1.6f) * 0.025f, 1f);
+            yield return null;
+        }
+    }
+
+    // Despertar con la Gota de Amrita: brilla, tiembla y se levanta.
+    public IEnumerator WakeUp()
+    {
+        SetSleeping(false);
+        if (fx != null) fx.WakeBurst(rb.position);
+        if (body == null) yield break;
+        for (float t = 0f; t < 1.2f; t += Time.deltaTime)
+        {
+            float k = t / 1.2f;
+            body.color = Color.Lerp(Color.white, armoredTint, k);
+            body.transform.localPosition = new Vector3(Mathf.Sin(t * 50f) * 0.01f * (1f - k), 0f, 0f);
+            yield return null;
+        }
+        body.transform.localPosition = Vector3.zero;
+        body.color = armoredTint;
     }
 
     public void Setup(Transform center, Sprite circle, Sprite line, SpriteRenderer bodyRenderer)
@@ -145,6 +189,7 @@ public class GuardianBoss : MonoBehaviour
         if (dir.sqrMagnitude < 0.01f) dir = Vector2.right;
         telegraph.GetComponent<SpriteRenderer>().sprite = lineSprite;
         telegraph.ShowLine(rb.position, dir, chargeLength, chargeWidth, chargeTelegraph * Scale, Telegraph.Danger);
+        if (fx != null) fx.LineFlames(rb.position, dir, chargeLength, chargeWidth, chargeTelegraph * Scale);
         yield return Shake(chargeTelegraph * Scale);
         telegraph.Hide();
 
@@ -158,8 +203,10 @@ public class GuardianBoss : MonoBehaviour
             if (!MoveTo(next)) break; // borde de la arena
             if (!hit && Vector2.Distance(rb.position, player.position) < 0.3f)
                 hit = CombatUtil.DamagePlayer(player.gameObject, chargeDamage, rb.position);
+            if (fx != null) fx.ChargeStep(rb.position, dir);
             yield return new WaitForFixedUpdate();
         }
+        if (fx != null) fx.ChargeEnd(rb.position);
     }
 
     private IEnumerator Slam()
@@ -167,10 +214,12 @@ public class GuardianBoss : MonoBehaviour
         SetState(State.Telegraph);
         telegraph.GetComponent<SpriteRenderer>().sprite = circleSprite;
         telegraph.ShowCircle(rb.position, slamRadius, slamTelegraph * Scale, Telegraph.Danger);
+        if (fx != null) fx.TelegraphFlames(rb.position, slamRadius, slamTelegraph * Scale);
         yield return Shake(slamTelegraph * Scale);
         telegraph.Hide();
 
         SetState(State.Attack);
+        if (fx != null) fx.SlamImpact(rb.position, slamRadius);
         if (CombatUtil.InsideIsoCircle(player.position, rb.position, slamRadius))
             CombatUtil.DamagePlayer(player.gameObject, slamDamage, rb.position);
         // Pequeño salto visual del golpe

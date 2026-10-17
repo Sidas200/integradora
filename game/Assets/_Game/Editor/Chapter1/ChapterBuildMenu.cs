@@ -13,6 +13,7 @@ namespace Game.EditorTools.Chapter1
         {
             VerifyProjectSettings();
             PlaceholderArtGenerator.GenerateAll();
+            ChapterData.FillMissingIcons();
             ChapterPrefabs.BuildAll();
             ChapterDialogues.GenerateAll();
             ChapterScenes.BuildAll();

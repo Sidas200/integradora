@@ -14,9 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Gameplay::DialogueData
   lockedByDesigner: 0
   lines:
+  - speaker: 
+    portrait: {fileID: 0}
+    text: "La Amrita cae sobre la piedra. Los ojos del guardi\xE1n se encienden."
   - speaker: Varn
     portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
-    text: Alto. Un humano... con la marca de Rulebreaker.
+    text: "...\xBFQui\xE9n me despierta? Un humano... con la marca de Rulebreaker."
   - speaker: Varn
     portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
     text: "Soy Varn, guardi\xE1n del umbral. Ning\xFAn condenado pasa m\xE1s all\xE1 de este punto."

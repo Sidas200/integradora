@@ -11,12 +11,14 @@ namespace Game.EditorTools.Chapter1
         public const string MeleePath = ChapterPrefabs.Folder + "/Enemy_Melee_Ch1.prefab";
         public const string RangedPath = ChapterPrefabs.Folder + "/Enemy_Ranged.prefab";
         public const string GuardianPath = ChapterPrefabs.Folder + "/Guardian_Varn.prefab";
+        public const string SlimePath = ChapterPrefabs.Folder + "/Enemy_Slime.prefab";
 
         private const string BaseMeleePath = "Assets/_Game/Prefabs/enemies/Enemy_Melee.prefab";
 
         public static void BuildAll()
         {
             BuildMeleeVariant();
+            BuildSlime();
             BuildRanged();
             BuildGuardian();
         }
@@ -56,6 +58,40 @@ namespace Game.EditorTools.Chapter1
             Object.DestroyImmediate(root);
         }
 
+        // Slime azul (DropTable_SlimeAzul del equipo): misma IA cuerpo a cuerpo, más débil y lento,
+        // con su propio sprite y animación de rebote. Suelta flor y restos de slime.
+        private static void BuildSlime()
+        {
+            var basePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BaseMeleePath);
+            var root = (GameObject)PrefabUtility.InstantiatePrefab(basePrefab);
+            root.name = "Enemy_Slime";
+            root.GetComponent<SpriteRenderer>().enabled = false;
+            var visual = AddVisual(root.transform, PlaceholderArtGenerator.Load("placeholder_enemy_slime"), 0f);
+
+            var col = root.GetComponent<CircleCollider2D>();
+            col.radius = 0.09f;
+            col.offset = new Vector2(0f, 0.04f);
+            Finish(root, visual, 0.9f, 0.13f, 0.1f);
+
+            var warning = root.transform.Find("AttackWarningFX");
+            warning.GetComponent<SpriteRenderer>().sprite = PlaceholderArtGenerator.Load("placeholder_telegraph_circle");
+            warning.localScale = Vector3.one * (0.3f * 2f / 0.64f);
+            warning.gameObject.AddComponent<Telegraph>().SetDefaults(0.6f, Telegraph.Danger);
+            warning.gameObject.AddComponent<DetachedChild>();
+
+            var ai = root.GetComponent<EnemyMeleeController>();
+            SetFloat(ai, "attackWindup", 0.6f);
+            SetFloat(ai, "detectionRange", 1.5f);
+            SetFloat(ai, "moveSpeed", 1.0f);
+            SetInt(ai, "attackDamage", 6);
+            SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", 30);
+            UiFactory.SetRef(root.GetComponent<EnemyHitFeedback>(), "spriteRenderer", visual);
+            root.AddComponent<SlimeBounce>().Setup(visual.transform);
+
+            PrefabUtility.SaveAsPrefabAsset(root, SlimePath);
+            Object.DestroyImmediate(root);
+        }
+
         private static void BuildRanged()
         {
             var root = NewEnemyRoot("Enemy_Ranged", RigidbodyType2D.Dynamic, 0.09f);
@@ -90,6 +126,7 @@ namespace Game.EditorTools.Chapter1
             UiFactory.SetRef(feedback, "spriteRenderer", visual);
             var boss = root.AddComponent<GuardianBoss>();
             boss.Setup(null, PlaceholderArtGenerator.Load("placeholder_telegraph_circle"), PlaceholderArtGenerator.Load("placeholder_telegraph_rect"), visual);
+            boss.SetFx(ChapterVfx.AddBossFx(root));
 
             PrefabUtility.SaveAsPrefabAsset(root, GuardianPath);
             Object.DestroyImmediate(root);
