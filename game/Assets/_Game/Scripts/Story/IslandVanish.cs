@@ -18,6 +18,11 @@ public class IslandVanish : MonoBehaviour
     [SerializeField] private GameObject backBlocker;
     [Tooltip("Otros objetos de la isla que también desaparecen (marcas de salida de la cabaña).")]
     [SerializeField] private GameObject[] alsoHide;
+    [Tooltip("Tilemap de colisiones: las celdas de la isla se vuelven vacío infranqueable al desaparecer.")]
+    [SerializeField] private Tilemap collisions;
+    [SerializeField] private TileBase collisionTile;
+    [Tooltip("Dónde se coloca a Tsuki si al terminar no está sobre el puente.")]
+    [SerializeField] private Transform safeSpot;
 
     private bool done;
 
@@ -31,6 +36,13 @@ public class IslandVanish : MonoBehaviour
         props = propsRoot;
         keepTile = bridge;
         dialogue = data;
+    }
+
+    public void SetCollisions(Tilemap collisionMap, TileBase tile, Transform spot)
+    {
+        collisions = collisionMap;
+        collisionTile = tile;
+        safeSpot = spot;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -68,6 +80,10 @@ public class IslandVanish : MonoBehaviour
             yield return null;
         }
         foreach (var p in cells) ground.SetTile(p, null);
+        // La isla ya no existe: todas sus celdas bloquean, no solo la entrada del puente
+        if (collisions != null && collisionTile != null)
+            foreach (var p in cells) collisions.SetTile(p, collisionTile);
+        KeepPlayerOnBridge();
         if (elevations != null) elevations.gameObject.SetActive(false);
         if (props != null) props.gameObject.SetActive(false);
         if (backBlocker != null) backBlocker.SetActive(true);
@@ -75,5 +91,21 @@ public class IslandVanish : MonoBehaviour
 
         GameInput.Unlock(this);
         DialogueUI.Play(dialogue, () => StoryFlags.Set(Flag));
+    }
+
+    // Si Tsuki quedó fuera del puente (sobre la isla que desapareció), vuelve a su inicio.
+    private void KeepPlayerOnBridge()
+    {
+        var player = SceneContext.FindPlayer();
+        if (player == null || safeSpot == null) return;
+        var cell = ground.WorldToCell(player.transform.position - new Vector3(0f, 0.08f, 0f));
+        if (ground.GetTile(cell) == keepTile) return;
+        player.transform.position = safeSpot.position;
+        var rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.position = safeSpot.position;
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 }

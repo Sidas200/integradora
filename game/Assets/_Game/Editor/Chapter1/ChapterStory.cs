@@ -76,6 +76,7 @@ namespace Game.EditorTools.Chapter1
             vanish.Setup(gridGo.transform.Find("Ground").GetComponent<Tilemap>(), gridGo.transform.Find("Elevations").GetComponent<Tilemap>(),
                 props, ChapterTiles.Bridge, Get("island_vanish"), blocker,
                 new[] { markers.Find("Door_Cabin").gameObject, markers.Find("Exit_CabinInside").gameObject });
+            vanish.SetCollisions(gridGo.transform.Find("Collisions").GetComponent<Tilemap>(), ChapterTiles.Collision, bridgeStart);
         }
 
         private static void OpenField(Transform root, Transform markers)
