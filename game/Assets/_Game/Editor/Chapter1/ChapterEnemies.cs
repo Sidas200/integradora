@@ -48,7 +48,7 @@ namespace Game.EditorTools.Chapter1
             warning.gameObject.AddComponent<DetachedChild>();
 
             SetFloat(root.GetComponent<EnemyMeleeController>(), "attackWindup", 0.6f);
-            SetFloat(root.GetComponent<EnemyMeleeController>(), "detectionRange", 2.2f);
+            SetFloat(root.GetComponent<EnemyMeleeController>(), "detectionRange", 1.9f);
             SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", 45);
             UiFactory.SetRef(root.GetComponent<EnemyHitFeedback>(), "spriteRenderer", visual);
 

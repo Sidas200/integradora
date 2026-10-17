@@ -149,8 +149,9 @@ namespace Game.EditorTools.Chapter1
             z.Prop("placeholder_pillar", new V(13, 14), true, "Pillar_L");
             z.Prop("placeholder_pillar", new V(15, 12), true, "Pillar_R");
 
-            z.Marker("Enemy_Melee_A", new V(5, -4));
-            z.Marker("Enemy_Melee_B", new V(8, 4));
+            // Lejos de los 4 puntos de aparición (verificado en unidades del mundo)
+            z.Marker("Enemy_Melee_A", new V(2, -8));
+            z.Marker("Enemy_Melee_B", new V(-4, -8));
             z.Marker("Pickup_Flor_A", new V(5, 7));
             z.Marker("Pickup_Flor_B", new V(-3, -8));
             // Zona 1: 2 flores + 2 cueros (de los melee) + 1 poción. No alcanza para la receta (3/3):
@@ -233,9 +234,11 @@ namespace Game.EditorTools.Chapter1
             z.Marker("Seal_Front", new V(14, 14), 0);
             z.Marker("Exit_ToArena", new V(20, 19), 0);
 
-            z.Marker("Enemy_Melee_A", new V(-4, 4));
+            // Fuera del rango de detección desde la entrada (en isométrico la distancia
+            // en celdas engaña: se verificó en unidades del mundo, ≥ 2.8 desde Spawn_FromField)
+            z.Marker("Enemy_Melee_A", new V(4, 3));
             z.Marker("Enemy_Melee_B", new V(6, -5));
-            z.Marker("Enemy_Ranged_A", new V(3, 7));
+            z.Marker("Enemy_Ranged_A", new V(11, 4));
             z.Marker("Enemy_Ranged_B", new V(9, 0));
             z.Marker("Pickup_Cuero_A", new V(-6, -6));
             z.Marker("Pickup_Flor_A", new V(10, -6));

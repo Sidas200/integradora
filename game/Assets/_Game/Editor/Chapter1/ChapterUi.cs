@@ -44,6 +44,15 @@ namespace Game.EditorTools.Chapter1
             var defeat = BuildDefeat(canvas);
             var fader = BuildFader(canvas);
 
+            // F3: contador de FPS (RNF ≥ 30 FPS)
+            var fpsLabel = Label(canvas, "FpsLabel", "", 26, TextAlignmentOptions.Left, new Vector2(0, 1), new Vector2(36, -130), new Vector2(200, 36));
+            root.AddComponent<FpsCounter>().Setup(fpsLabel);
+
+            // -smoketest: recorre las escenas del build, mide FPS y cierra
+            var paths = new string[ChapterScenes.Order.Length];
+            for (int i = 0; i < paths.Length; i++) paths[i] = ChapterScenes.PathOf(ChapterScenes.Order[i]);
+            root.AddComponent<BuildSmokeTest>().Setup(paths);
+
             SetRef(loader, "fader", fader);
             SetRef(flow, "defeatScreen", defeat);
             SetString(flow, "mainMenuScene", ChapterScenes.PathOf(ChapterScenes.MainMenu));

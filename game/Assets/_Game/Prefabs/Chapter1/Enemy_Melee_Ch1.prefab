@@ -326,7 +326,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4492480789061150374, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
       propertyPath: detectionRange
-      value: 2.2
+      value: 1.9
       objectReference: {fileID: 0}
     - target: {fileID: 7161399166550526004, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
       propertyPath: m_Radius
@@ -431,10 +431,10 @@ MonoBehaviour:
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 5912923179209863847}
   m_ShadowShape2DProvider:
-    rid: 8748772602472301456
+    rid: 8748772630611624913
   m_ShadowCastingSource: 1
   m_ShadowMesh:
-    rid: 8748772602472301457
+    rid: 8748772630611624914
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: -1
@@ -442,16 +442,16 @@ MonoBehaviour:
   m_PreviousShadowShape2DSource: {fileID: 0}
   m_PreviousShadowShape2DProviderHash: 0
   m_SelectionSources:
-    rid: 8748772602472301458
+    rid: 8748772630611624915
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8748772602472301456
+    - rid: 8748772630611624913
       type: {class: ShadowShape2DProvider_SpriteRenderer, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
-    - rid: 8748772602472301457
+    - rid: 8748772630611624914
       type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Vertices:
@@ -655,7 +655,7 @@ MonoBehaviour:
         m_FlipX: 0
         m_FlipY: 0
         m_InitialTrim: 0.01
-    - rid: 8748772602472301458
+    - rid: 8748772630611624915
       type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 0
