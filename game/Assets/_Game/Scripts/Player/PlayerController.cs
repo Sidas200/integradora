@@ -134,7 +134,8 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
+        // El sprite puede estar en un hijo (raíz en los pies para el sorting isométrico)
+        sr = GetComponentInChildren<SpriteRenderer>();
         stats = GetComponent<PlayerStats>();
         cam = Camera.main;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -524,7 +525,7 @@ private void FixedUpdate()
 
     private void OnDrawGizmosSelected()
     {
-        SpriteRenderer renderer = sr != null ? sr : GetComponent<SpriteRenderer>();
+        SpriteRenderer renderer = sr != null ? sr : GetComponentInChildren<SpriteRenderer>();
         GetAttackBox(renderer, attackDirection, out Vector2 center, out Vector2 size);
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(center, size);
@@ -669,7 +670,7 @@ private void FixedUpdate()
     private void SpawnGhost()
     {
         GameObject ghost = new GameObject("DashGhost");
-        ghost.transform.position = transform.position;
+        ghost.transform.position = sr.transform.position;
         ghost.transform.rotation = transform.rotation;
 
         DashGhost dashGhost = ghost.AddComponent<DashGhost>();
