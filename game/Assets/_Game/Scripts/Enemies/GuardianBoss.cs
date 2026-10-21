@@ -125,7 +125,11 @@ public class GuardianBoss : MonoBehaviour
         health.Invulnerable = true;
         health.Blocked += OnBlocked;
         health.HealthChanged += OnHealthChanged;
-        health.Died += () => SetState(State.Dead);
+        health.Died += () =>
+        {
+            SetState(State.Dead);
+            PlayStats.BossDefeated(TryGetComponent<PersistentId>(out var pid) ? pid.Id : name);
+        };
     }
 
     private void OnDestroy()

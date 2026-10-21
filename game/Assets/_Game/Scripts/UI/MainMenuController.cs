@@ -21,9 +21,7 @@ public class MainMenuController : MonoBehaviour
     private void Start()
     {
         Time.timeScale = 1f;
-        hasSave = GameFlow.Instance != null && GameFlow.Instance.HasValidSave();
-        continueButton.interactable = hasSave;
-        if (continueHint != null) continueHint.text = hasSave ? "" : "No hay partida guardada";
+        RefreshSaveState();
         if (confirmPanel != null) confirmPanel.SetActive(false);
 
         newGameButton.onClick.AddListener(OnNewGame);
@@ -33,6 +31,14 @@ public class MainMenuController : MonoBehaviour
         if (confirmNo != null) confirmNo.onClick.AddListener(() => { confirmPanel.SetActive(false); Select(newGameButton); });
 
         Select(hasSave ? continueButton : newGameButton);
+    }
+
+    // CloudSync la llama al bajar un guardado de la nube con el menú abierto.
+    public void RefreshSaveState()
+    {
+        hasSave = GameFlow.Instance != null && GameFlow.Instance.HasValidSave();
+        continueButton.interactable = hasSave;
+        if (continueHint != null) continueHint.text = hasSave ? "" : "No hay partida guardada";
     }
 
     private void OnNewGame()

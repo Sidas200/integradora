@@ -42,6 +42,16 @@ public class SessionState : MonoBehaviour
     [Tooltip("Ids de inventario de las piezas equipadas (casco_cuero, pechera_cuero, botas_cuero)")]
     public List<string> equipped = new List<string>();
 
+    [Header("Estadísticas (PlayStats)")]
+    [Tooltip("Tiempo activo en zonas de juego, sin pausas")]
+    public float playTimeSec;
+    public int enemiesDefeated;
+    public int deaths;
+    public int materialsCollected;
+    public int itemsCrafted;
+    [Tooltip("Hitos de historia completados (PlayStats.MilestoneIds)")]
+    public List<MilestoneRecord> milestones = new List<MilestoneRecord>();
+
     // Punto de aparición pedido por una transición. Solo vive durante el cambio de escena.
     [NonSerialized] public string pendingSpawnId;
 
@@ -142,6 +152,12 @@ public class SessionState : MonoBehaviour
         collected.Clear();
         defeated.Clear();
         equipped.Clear();
+        playTimeSec = 0f;
+        enemiesDefeated = 0;
+        deaths = 0;
+        materialsCollected = 0;
+        itemsCrafted = 0;
+        milestones.Clear();
         respawnAtSafePoint = false;
         pendingSpawnId = null;
     }
