@@ -83,6 +83,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
         Debug.Log($"{name}: ha muerto");
 
+        PlayStats.EnemyDefeated(TryGetComponent<PersistentId>(out var pid) ? pid.Id : name);
         Died?.Invoke();
         gameObject.SetActive(false);
     }

@@ -62,6 +62,7 @@ public class MaterialPickup : MonoBehaviour
         var pid = GetComponent<PersistentId>();
         if (pid != null) WorldState.MarkCollected(pid.Id);
         inventory.Add(material, amount);
+        PlayStats.MaterialCollected(material.id, amount, pid != null ? pid.Id : null);
         Debug.Log($"Recogido: {material.displayName} x{amount} (total: {inventory.GetAmount(material.id)})");
         Destroy(gameObject);
     }

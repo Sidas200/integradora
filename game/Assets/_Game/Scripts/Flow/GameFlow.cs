@@ -27,6 +27,9 @@ public class GameFlow : MonoBehaviour
     private string entrySpawn;
 
     public event Action<string> Saved; // id del punto seguro
+    // Cada vez que se escribe el guardado en disco (punto seguro o hito); CloudSync lo sube.
+    public event Action<SaveData> SaveWritten;
+    public event Action<SceneContext> SceneReady;
 
     public string DemoEndScene => demoEndScene;
 
@@ -41,9 +44,34 @@ public class GameFlow : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
+    // Tiempo jugado: solo en zonas de juego y con el tiempo corriendo (pausa e inventario lo detienen).
+    private void Update()
+    {
+        var context = SceneContext.Current;
+        if (Time.timeScale > 0f && context != null && context.IsGameplayZone)
+            PlayStats.AddPlayTime(Time.unscaledDeltaTime);
+    }
+
     // ---------------------------------------------------------------- menú
 
     public bool HasValidSave() => LoadUsableSave() != null;
+
+    public SaveData LoadLocalSave() => LoadUsableSave();
+
+    // CloudSync: reemplaza el guardado local por el de la nube (otro dispositivo guardó después).
+    public bool WriteLocalSave(SaveData data)
+    {
+        try
+        {
+            repository.Save(data);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"No se pudo escribir el guardado de la nube: {e.Message}");
+            return false;
+        }
+    }
 
     // Un guardado que apunta a una escena que ya no está en el build (p. ej. la antigua 03_Camp)
     // se trata como inválido: nunca debe romper "Continuar" ni bloquear la nueva partida (SRS).
@@ -113,9 +141,10 @@ public class GameFlow : MonoBehaviour
         var session = SessionState.Instance;
         session.SyncFromPlayer();
         session.SaveSafePoint(safePointId, position);
+        var data = SaveData.FromSession(session);
         try
         {
-            repository.Save(SaveData.FromSession(session));
+            repository.Save(data);
         }
         catch (Exception e)
         {
@@ -124,6 +153,7 @@ public class GameFlow : MonoBehaviour
         }
         entrySnapshot = null;
         Saved?.Invoke(safePointId);
+        SaveWritten?.Invoke(data);
         return true;
     }
 
@@ -135,9 +165,10 @@ public class GameFlow : MonoBehaviour
         var session = SessionState.Instance;
         if (session == null || !session.HasSafePoint) return false;
         session.SyncFromPlayer();
+        var data = SaveData.FromSession(session);
         try
         {
-            repository.Save(SaveData.FromSession(session));
+            repository.Save(data);
         }
         catch (Exception e)
         {
@@ -146,6 +177,7 @@ public class GameFlow : MonoBehaviour
         }
         entrySnapshot = null;
         Debug.Log("Progreso guardado (hito).");
+        SaveWritten?.Invoke(data);
         return true;
     }
 
@@ -181,6 +213,7 @@ public class GameFlow : MonoBehaviour
     {
         if (defeatScreen != null) defeatScreen.Hide();
         BindPlayer();
+        SceneReady?.Invoke(context);
 
         if (!context.IsGameplayZone) return;
         var session = SessionState.Instance;
@@ -203,6 +236,7 @@ public class GameFlow : MonoBehaviour
 
     private void HandlePlayerDied()
     {
+        PlayStats.PlayerDied(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         if (InventoryScreen.Instance != null) InventoryScreen.Instance.Close();
         GameInput.Lock(this);
         StartCoroutine(ShowDefeat());

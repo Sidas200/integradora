@@ -179,13 +179,19 @@ public class CraftingPanel : MonoBehaviour
         {
             if (playerStats == null || !playerStats.CanUpgradeSword) return;
             if (inventory.TryConsumeIngredients(recipe) && playerStats.UpgradeSword())
+            {
                 Debug.Log("Crafteado: " + recipe.displayName + " (espada mejorada)");
+                PlayStats.ItemCrafted(recipe.id);
+            }
             Refresh();
             return;
         }
 
         if (inventory.TryCraft(recipe))
+        {
             Debug.Log("Crafteado: " + recipe.displayName);
+            PlayStats.ItemCrafted(recipe.id);
+        }
         Refresh();
     }
 }
