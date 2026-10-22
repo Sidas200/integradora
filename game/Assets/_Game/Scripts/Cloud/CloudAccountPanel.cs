@@ -29,8 +29,6 @@ public class CloudAccountPanel : MonoBehaviour
     private Button submitButton;
     private bool busy;
 
-    private Sprite sprite;
-
     public bool LoginOpen => loginPanel != null && loginPanel.activeSelf;
 
     public static CloudAccountPanel Create(Transform sceneRoot)
@@ -166,8 +164,6 @@ public class CloudAccountPanel : MonoBehaviour
 
     private void Build()
     {
-        sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
-
         var canvas = gameObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 20; // sobre el menú (10), bajo el fade de GameSystems (50)
@@ -224,8 +220,6 @@ public class CloudAccountPanel : MonoBehaviour
         rt.sizeDelta = new Vector2(640, 70);
 
         var bg = go.GetComponent<Image>();
-        bg.sprite = sprite;
-        bg.type = UnityEngine.UI.Image.Type.Sliced;
         bg.color = FieldColor;
 
         var field = go.GetComponent<TMP_InputField>();
@@ -268,8 +262,6 @@ public class CloudAccountPanel : MonoBehaviour
     private Image Image(RectTransform rt, Color color)
     {
         var img = rt.gameObject.AddComponent<Image>();
-        img.sprite = sprite;
-        img.type = UnityEngine.UI.Image.Type.Sliced;
         img.color = color;
         img.raycastTarget = false;
         return img;
