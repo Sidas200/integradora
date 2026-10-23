@@ -30,7 +30,8 @@ public class CloudApiClient
     private readonly string apiRoot;
     private readonly int timeoutSeconds;
 
-    public CloudApiClient(string apiRoot, int timeoutSeconds = 15)
+    // Render (plan gratis) tarda hasta ~1 min en despertar el servicio.
+    public CloudApiClient(string apiRoot, int timeoutSeconds = 75)
     {
         this.apiRoot = apiRoot.TrimEnd('/');
         this.timeoutSeconds = timeoutSeconds;

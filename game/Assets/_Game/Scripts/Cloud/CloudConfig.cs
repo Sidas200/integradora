@@ -4,14 +4,15 @@ using UnityEngine;
 
 // URL de la API. Se lee de StreamingAssets/telemetry.json, el mismo archivo que el pipeline escribe por
 // ambiente (infra/scripts/game/write-telemetry-config.sh). La variable TDIMP_API_URL lo reemplaza,
-// útil para probar en el editor contra un backend local.
+// útil para probar en el editor contra un backend local (TDIMP_API_URL=http://localhost:18081, el puerto de
+// docker-compose de integradora-web).
 [Serializable]
 public class CloudConfig
 {
     public const string FileName = "telemetry.json";
     public const string EnvVariable = "TDIMP_API_URL";
-    // Puerto de la API en docker-compose de integradora-web.
-    public const string DefaultBaseUrl = "http://localhost:18081";
+    // Staging en Render: el editor y los builds sin telemetry.json guardan en la base de pruebas.
+    public const string DefaultBaseUrl = "https://tdimp-api-staging.onrender.com";
 
     public string baseUrl = DefaultBaseUrl;
 
