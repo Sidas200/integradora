@@ -232,7 +232,7 @@ public class InventoryScreen : MonoBehaviour
     {
         if (ItemUsage.IsEquipment(id)) return "Equipo · armadura de cuero";
         if (id == "pocion" || id == "gota_amrita") return "Consumible";
-        if (id == "alma_pequena") return "Objeto clave";
+        if (ItemUsage.IsKeyItem(id)) return "Objeto clave";
         return "Material";
     }
 

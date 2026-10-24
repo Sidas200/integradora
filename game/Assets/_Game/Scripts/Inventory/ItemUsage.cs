@@ -24,4 +24,5 @@ public static class ItemUsage
 
     public static bool IsEquipment(string id) => id == "casco_cuero" || id == "pechera_cuero" || id == "botas_cuero";
     public static bool IsUsable(string id) => id == "pocion" || id == "gota_amrita";
+    public static bool IsKeyItem(string id) => id == "alma_pequena";
 }

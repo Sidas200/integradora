@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Capítulo 1: botín garantizado y persistente de un enemigo (HEX-04).
-// - Al morir queda marcado como vencido y suelta sus pickups, cada uno con su propio id.
-// - Al volver a la escena: si ya estaba vencido no reaparece, y solo vuelven los drops
-//   que el jugador no alcanzó a recoger. Así cada fuente se recoge una sola vez.
+// Capítulo 1: botín garantizado de un enemigo (HEX-04).
+// - La primera vez que muere queda marcado como vencido y suelta sus pickups, cada uno con su
+//   propio id: si no los recoges, vuelven a aparecer al regresar a la escena.
+// - Los enemigos de campo reaparecen cada vez que vuelves a la zona, para seguir juntando
+//   materiales. Esas muertes sueltan botín normal (sin id) y nunca un objeto clave.
+// - Los de la prueba del Santuario no reaparecen: SanctuaryTrial los marca con KeepDefeated.
 [RequireComponent(typeof(EnemyHealth), typeof(PersistentId))]
 public class EnemyLoot : MonoBehaviour
 {
@@ -22,12 +24,17 @@ public class EnemyLoot : MonoBehaviour
 
     private EnemyHealth health;
     private PersistentId pid;
+    private bool respawns = true;
+    private bool respawned;
 
     public void Setup(MaterialPickup prefab, List<Drop> list)
     {
         pickupPrefab = prefab;
         drops = list;
     }
+
+    // Para enemigos de un evento que solo ocurre una vez (la prueba del Santuario).
+    public void KeepDefeated() => respawns = false;
 
     private void Awake()
     {
@@ -39,29 +46,37 @@ public class EnemyLoot : MonoBehaviour
     private void Start()
     {
         if (!WorldState.IsDefeated(pid.Id)) return;
-        SpawnDrops(transform.position);
-        gameObject.SetActive(false);
+        SpawnDrops(transform.position, true); // los del primer botín que quedaron en el suelo
+        if (respawns) respawned = true;
+        else gameObject.SetActive(false);
     }
 
     private void HandleDied()
     {
+        if (respawned)
+        {
+            SpawnDrops(transform.position, false);
+            return;
+        }
         WorldState.MarkDefeated(pid.Id);
-        SpawnDrops(transform.position);
+        SpawnDrops(transform.position, true);
     }
 
-    private void SpawnDrops(Vector3 at)
+    private void SpawnDrops(Vector3 at, bool firstLoot)
     {
         if (pickupPrefab == null) return;
         for (int i = 0; i < drops.Count; i++)
         {
+            var material = drops[i].material;
+            if (material == null) continue;
             string dropId = $"{pid.Id}:drop{i}";
-            if (drops[i].material == null || WorldState.IsCollected(dropId)) continue;
+            if (firstLoot ? WorldState.IsCollected(dropId) : ItemUsage.IsKeyItem(material.id)) continue;
 
             float angle = i * 2.4f;
             var offset = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle) * 0.5f, 0f) * scatter;
             var pickup = Instantiate(pickupPrefab, at + offset, Quaternion.identity);
-            pickup.gameObject.AddComponent<PersistentId>().SetId(dropId);
-            pickup.Setup(drops[i].material, drops[i].amount);
+            if (firstLoot) pickup.gameObject.AddComponent<PersistentId>().SetId(dropId);
+            pickup.Setup(material, drops[i].amount);
         }
     }
 }

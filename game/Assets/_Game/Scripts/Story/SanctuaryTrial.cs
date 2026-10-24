@@ -33,6 +33,13 @@ public class SanctuaryTrial : MonoBehaviour
         summonCircle = circle;
     }
 
+    private void Awake()
+    {
+        foreach (var wave in waves)
+            foreach (var e in wave.enemies)
+                if (e != null && e.TryGetComponent<EnemyLoot>(out var loot)) loot.KeepDefeated();
+    }
+
     private void Start()
     {
         SetExitOpen(true);

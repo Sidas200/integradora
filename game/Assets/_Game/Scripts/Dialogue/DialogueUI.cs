@@ -34,6 +34,15 @@ public class DialogueUI : MonoBehaviour
     // Momento en que se cerró el último diálogo (evita reabrirlo con la misma tecla).
     public static float LastClosedTime { get; private set; } = -10f;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        // Con "Enter Play Mode" sin recarga de dominio los estáticos sobreviven, pero Time.unscaledTime
+        // vuelve a 0: la hora del Play anterior bloquearía la E (forja, NPC) durante ese tiempo.
+        LastClosedTime = -10f;
+        GameInput.ClearAll();
+    }
+
     private void Awake()
     {
         Instance = this;
