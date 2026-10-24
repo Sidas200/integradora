@@ -150,8 +150,8 @@ public class CloudSyncTests
         string path = Path.Combine(dir, CloudConfig.FileName);
         Assert.AreEqual(CloudConfig.DefaultBaseUrl + "/api/v1", CloudConfig.Load(path, null).ApiRoot);
 
-        File.WriteAllText(path, "{\"baseUrl\":\"https://tdimp-api-staging.onrender.com/\",\"apiKey\":\"x\"}");
-        Assert.AreEqual("https://tdimp-api-staging.onrender.com/api/v1", CloudConfig.Load(path, null).ApiRoot);
+        File.WriteAllText(path, "{\"baseUrl\":\"https://tdimp-api.onrender.com/\",\"apiKey\":\"x\"}");
+        Assert.AreEqual("https://tdimp-api.onrender.com/api/v1", CloudConfig.Load(path, null).ApiRoot);
         Assert.AreEqual("http://localhost:18090/api/v1", CloudConfig.Load(path, "http://localhost:18090").ApiRoot);
     }
 
