@@ -41,7 +41,7 @@ namespace Game.EditorTools.Chapter1
                 new Entry { name = "ui_doll_chest", pivot = center, draw = DollChest },
                 new Entry { name = "ui_doll_boots", pivot = center, draw = DollBoots },
                 new Entry { name = "ui_empty_head", pivot = center, draw = () => Ghost(DollHelmet()) },
-                new Entry { name = "ui_empty_chest", pivot = center, draw = () => Ghost(DollChest()) },
+                new Entry { name = "ui_empty_chest", pivot = center, draw = () => Ghost(DollChestTorso()) },
                 new Entry { name = "ui_empty_feet", pivot = center, draw = () => Ghost(DollBoots()) },
 
                 new Entry { name = "placeholder_icon_sword_module", pivot = center, draw = SwordModuleIcon },
@@ -232,7 +232,30 @@ namespace Game.EditorTools.Chapter1
             return c;
         }
 
+        // Pechera completa en el muñeco: torso, mangas y pantalón de cuero (las botas van encima).
         private static PixelCanvas DollChest()
+        {
+            var c = new PixelCanvas(48, 80);
+            // Mangas hasta la muñeca; las manos de madera quedan libres
+            c.Rect(6, 27, 7, 15, Leather); c.Rect(35, 27, 7, 15, Leather);
+            c.Rect(6, 27, 1, 15, LeatherLight); c.Rect(41, 27, 1, 15, LeatherDark);
+            c.Rect(6, 39, 7, 2, LeatherDark); c.Rect(35, 39, 7, 2, LeatherDark); // puños
+            // Pantalón: cada pierna hasta el tobillo, unidas en la cadera
+            c.Rect(14, 46, 9, 27, Leather); c.Rect(25, 46, 9, 27, Leather);
+            c.Rect(14, 46, 20, 5, Leather);
+            c.Rect(20, 51, 3, 22, LeatherDark); c.Rect(31, 51, 3, 22, LeatherDark);
+            for (int y = 53; y <= 69; y += 4) { c.Set(17, y, Stitch); c.Set(28, y, Stitch); }
+            c.Outline(LeatherLine);
+
+            var torso = DollChestTorso();
+            for (int y = 0; y < c.Height; y++)
+                for (int x = 0; x < c.Width; x++)
+                    if (torso.IsFilled(x, y)) c.Set(x, y, torso.Get(x, y));
+            return c;
+        }
+
+        // Solo el torso: también es la silueta de la ranura vacía.
+        private static PixelCanvas DollChestTorso()
         {
             var c = new PixelCanvas(48, 80);
             c.Poly(Leather, new Vector2(11, 22), new Vector2(37, 22), new Vector2(34, 46), new Vector2(14, 46));
