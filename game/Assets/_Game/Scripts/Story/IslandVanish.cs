@@ -70,20 +70,47 @@ public class IslandVanish : MonoBehaviour
             foreach (var go in alsoHide)
                 if (go != null) go.SetActive(false); // las marcas desaparecen al instante
 
+        // Capas pintadas a mano (Decoration, Props con árboles y rocas): se desvanecen con la isla.
+        // Las de colisiones solo se ocultan, porque al irse el suelo se verían debajo.
+        var layers = new System.Collections.Generic.List<Tilemap>();
+        var blocking = collisions;
+        foreach (var map in ground.layoutGrid.GetComponentsInChildren<Tilemap>())
+        {
+            if (map == ground || map == elevations) continue;
+            if (map.GetComponent<TilemapCollider2D>() != null)
+            {
+                var r = map.GetComponent<TilemapRenderer>();
+                if (r != null) r.enabled = false;
+                if (blocking == null || !blocking.gameObject.activeInHierarchy) blocking = map;
+            }
+            else layers.Add(map);
+        }
+        // Objetos sueltos de la isla en el Grid (cabaña, muros); Markers no, porque ahí está el puente.
+        var objects = new System.Collections.Generic.List<GameObject>();
+        foreach (Transform child in ground.layoutGrid.transform)
+        {
+            if (child.GetComponent<Tilemap>() != null || child == props || transform.IsChildOf(child)) continue;
+            objects.Add(child.gameObject);
+            renderers.AddRange(child.GetComponentsInChildren<SpriteRenderer>());
+        }
+
         for (float t = 0f; t < duration; t += Time.deltaTime)
         {
             float a = 1f - t / duration;
             var c = new Color(1f, 1f, 1f, a);
             foreach (var p in cells) ground.SetColor(p, c);
             if (elevations != null) elevations.color = c;
+            foreach (var map in layers) map.color = c;
             foreach (var r in renderers) r.color = c;
             yield return null;
         }
         foreach (var p in cells) ground.SetTile(p, null);
         // La isla ya no existe: todas sus celdas bloquean, no solo la entrada del puente
-        if (collisions != null && collisionTile != null)
-            foreach (var p in cells) collisions.SetTile(p, collisionTile);
+        if (blocking != null && collisionTile != null)
+            foreach (var p in cells) blocking.SetTile(p, collisionTile);
         KeepPlayerOnBridge();
+        foreach (var map in layers) map.gameObject.SetActive(false);
+        foreach (var go in objects) go.SetActive(false);
         if (elevations != null) elevations.gameObject.SetActive(false);
         if (props != null) props.gameObject.SetActive(false);
         if (backBlocker != null) backBlocker.SetActive(true);
