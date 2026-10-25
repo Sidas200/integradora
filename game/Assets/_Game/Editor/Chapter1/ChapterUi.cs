@@ -16,7 +16,9 @@ namespace Game.EditorTools.Chapter1
         public const string SystemsPath = ResourcesFolder + "/GameSystems.prefab";
 
         public const string Controls =
-            "WASD / flechas: mover   ·   Clic: atacar   ·   Espacio: esquivar   ·   E: interactuar   ·   Q: poción   ·   Tab: inventario   ·   Esc: pausa";
+            "WASD / flechas: mover   ·   Clic / J: atacar   ·   Espacio: esquivar   ·   E: interactuar   ·   Q: poción   ·   Tab: inventario   ·   Esc: pausa";
+
+        public const string DialogueHint = "E / Clic: continuar   ·   X: saltar";
 
         public static void BuildSystemsPrefab()
         {
@@ -68,6 +70,57 @@ namespace Game.EditorTools.Chapter1
 
         // ---------------------------------------------------------------- HUD
 
+        // Vida de Tsuki (arriba a la izquierda): marco dorado compacto con nombre, números y barra.
+        private static void HealthBar(RectTransform hudRt, GameHud hud)
+        {
+            var frame = Box(hudRt, "HealthFrame", new Vector2(0, 1), new Vector2(28, -24), new Vector2(380, 76));
+            HudFrame(frame);
+            var name = Label(frame, "Name", "Tsuki", 24, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(22, -12), new Vector2(160, 30), ChapterUiScreens.GoldText);
+            name.fontStyle = FontStyles.Bold;
+            var hpText = Label(frame, "HealthText", "100/100", 20, TextAlignmentOptions.TopRight, new Vector2(1, 1), new Vector2(-22, -14), new Vector2(140, 28));
+            var fill = Bar(frame, new Vector2(0, 16), new Vector2(336, 18), Crimson, new Color(0.22f, 0.06f, 0.10f, 1f));
+            SetRef(hud, "healthFill", fill);
+            SetRef(hud, "healthText", hpText);
+        }
+
+        // Barra del guardián (centro abajo, lejos de la vida y del objetivo): nombre, estado y vida en oro.
+        private static void BossBar(RectTransform hudRt, GameHud hud)
+        {
+            var boss = Box(hudRt, "BossBar", new Vector2(0.5f, 0), new Vector2(0, 12), new Vector2(1000, 74));
+            var bossGroup = boss.gameObject.AddComponent<CanvasGroup>();
+            HudFrame(boss);
+            var bossName = Label(boss, "Name", "", 24, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(26, -11), new Vector2(560, 30), ChapterUiScreens.GoldText);
+            bossName.fontStyle = FontStyles.Bold;
+            var bossState = Label(boss, "State", "", 20, TextAlignmentOptions.TopRight, new Vector2(1, 1), new Vector2(-26, -13), new Vector2(400, 28));
+            var bossFill = Bar(boss, new Vector2(0, 14), new Vector2(952, 18), new Color(0.95f, 0.72f, 0.28f), new Color(0.20f, 0.10f, 0.06f, 1f));
+            SetRef(hud, "bossGroup", bossGroup);
+            SetRef(hud, "bossName", bossName);
+            SetRef(hud, "bossFill", bossFill);
+            SetRef(hud, "bossState", bossState);
+        }
+
+        // Marco del kit de UI a media escala: borde dorado fino para el HUD.
+        private static void HudFrame(RectTransform rt)
+        {
+            var img = ChapterUiScreens.Kit(rt, "ui_frame");
+            img.pixelsPerUnitMultiplier = 0.5f;
+        }
+
+        // Barra con contorno oscuro, fondo, relleno horizontal y un brillo arriba. Devuelve el relleno.
+        private static Image Bar(RectTransform parent, Vector2 position, Vector2 size, Color fillColor, Color backColor)
+        {
+            var outline = Box(parent, "Bar", new Vector2(0.5f, 0), position, size + new Vector2(4, 4));
+            Image(outline, new Color(0.04f, 0.03f, 0.07f, 1f));
+            var back = Rect(outline, "Back", Vector2.zero, Vector2.one, new Vector2(2, 2), new Vector2(-2, -2));
+            Image(back, backColor);
+            var fill = Image(Rect(back, "Fill", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero), fillColor);
+            fill.type = UnityEngine.UI.Image.Type.Filled;
+            fill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
+            var shine = Rect(back, "Shine", new Vector2(0, 0.55f), Vector2.one, Vector2.zero, Vector2.zero);
+            Image(shine, new Color(1f, 1f, 1f, 0.14f));
+            return fill;
+        }
+
         private static void BuildHud(Transform canvas)
         {
             var hudRt = Stretch(canvas, "HUD");
@@ -77,19 +130,7 @@ namespace Game.EditorTools.Chapter1
             var hud = hudRt.gameObject.AddComponent<GameHud>();
             SetRef(hud, "root", group);
 
-            // Vida (arriba a la izquierda)
-            var frame = Box(hudRt, "HealthFrame", new Vector2(0, 1), new Vector2(32, -28), new Vector2(460, 92));
-            Image(frame, PanelColor);
-            Label(frame, "Name", "Tsuki", 30, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(18, -8), new Vector2(200, 40));
-            var barBg = Box(frame, "BarBg", new Vector2(0, 0), new Vector2(18, 14), new Vector2(330, 26));
-            Image(barBg, new Color(0.18f, 0.08f, 0.12f, 1f));
-            var fill = Stretch(barBg, "Fill");
-            var fillImg = Image(fill, Crimson);
-            fillImg.type = UnityEngine.UI.Image.Type.Filled;
-            fillImg.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
-            var hpText = Label(frame, "HealthText", "100/100", 26, TextAlignmentOptions.Right, new Vector2(1, 0), new Vector2(-16, 10), new Vector2(110, 34));
-            SetRef(hud, "healthFill", fillImg);
-            SetRef(hud, "healthText", hpText);
+            HealthBar(hudRt, hud);
 
             // Objetivo actual (arriba a la derecha)
             var objective = Box(hudRt, "Objective", new Vector2(1, 1), new Vector2(-32, -28), new Vector2(560, 150));
@@ -127,25 +168,10 @@ namespace Game.EditorTools.Chapter1
             hudSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Pista del inventario bajo la vida
-            Label(hudRt, "InventoryHint", "Tab: Inventario   ·   Esc: Pausa", 22, TextAlignmentOptions.Left,
-                new Vector2(0, 1), new Vector2(36, -126), new Vector2(460, 30), MutedText);
+            Label(hudRt, "InventoryHint", "Tab: Inventario   ·   Esc: Pausa", 20, TextAlignmentOptions.Left,
+                new Vector2(0, 1), new Vector2(34, -106), new Vector2(460, 28), MutedText);
 
-            // Barra del guardián (centro arriba)
-            var boss = Box(hudRt, "BossBar", new Vector2(0.5f, 1), new Vector2(-60, -28), new Vector2(720, 112));
-            var bossGroup = boss.gameObject.AddComponent<CanvasGroup>();
-            Image(boss, PanelColor);
-            var bossName = Label(boss, "Name", "", 28, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -6), new Vector2(690, 36));
-            bossName.fontStyle = FontStyles.Bold;
-            var bossBg = Box(boss, "BarBg", new Vector2(0.5f, 0.5f), new Vector2(0, -6), new Vector2(680, 22));
-            Image(bossBg, new Color(0.18f, 0.08f, 0.12f, 1f));
-            var bossFill = Image(Stretch(bossBg, "Fill"), new Color(0.95f, 0.75f, 0.3f));
-            bossFill.type = UnityEngine.UI.Image.Type.Filled;
-            bossFill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
-            var bossState = Label(boss, "State", "", 24, TextAlignmentOptions.Center, new Vector2(0.5f, 0), new Vector2(0, 6), new Vector2(690, 32));
-            SetRef(hud, "bossGroup", bossGroup);
-            SetRef(hud, "bossName", bossName);
-            SetRef(hud, "bossFill", bossFill);
-            SetRef(hud, "bossState", bossState);
+            BossBar(hudRt, hud);
 
             // Título de zona (centro arriba)
             var zone = Box(hudRt, "ZoneTitle", new Vector2(0.5f, 1), new Vector2(0, -150), new Vector2(1000, 90));
@@ -186,7 +212,7 @@ namespace Game.EditorTools.Chapter1
             name.fontStyle = FontStyles.Bold;
 
             var body = Label(panel, "Body", "", 36, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(280, -44), new Vector2(1240, 190));
-            var hint = Label(panel, "ContinueHint", "E / Clic: continuar", 24, TextAlignmentOptions.Right, new Vector2(1, 0), new Vector2(-24, 14), new Vector2(300, 34), MutedText);
+            var hint = Label(panel, "ContinueHint", DialogueHint, 24, TextAlignmentOptions.Right, new Vector2(1, 0), new Vector2(-24, 14), new Vector2(520, 34), MutedText);
 
             SetRef(ui, "panel", panel.gameObject);
             SetRef(ui, "portrait", portraitImg);

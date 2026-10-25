@@ -42,7 +42,7 @@ namespace Game.EditorTools.Chapter1
         public static List<EquipmentItem> LeatherSet() => new List<EquipmentItem>
         {
             Piece("Equip_CascoCuero", "Casco de cuero", "CascoCuero", EquipmentSlot.Head, defense: 1, health: 0, speed: 0f),
-            Piece("Equip_PecheraCuero", "Pechera de cuero", "PecheraCuero", EquipmentSlot.Chest, defense: 3, health: 10, speed: 0f),
+            Piece("Equip_PecheraCuero", "Pechera de cuero", "PecheraCuero", EquipmentSlot.Chest, defense: 4, health: 0, speed: 0f),
             Piece("Equip_BotasCuero", "Botas de cuero", "BotasCuero", EquipmentSlot.Feet, defense: 1, health: 0, speed: 0.1f),
         };
 

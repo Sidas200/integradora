@@ -17,6 +17,6 @@ MonoBehaviour:
   slot: 4
   item: {fileID: 11400000, guid: b300508ce5de64f558f7c6ad878c7d5e, type: 2}
   bonusAttack: 0
-  bonusDefense: 3
-  bonusMaxHealth: 10
+  bonusDefense: 4
+  bonusMaxHealth: 0
   bonusMoveSpeed: 0

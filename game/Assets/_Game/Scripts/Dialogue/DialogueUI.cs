@@ -84,6 +84,12 @@ public class DialogueUI : MonoBehaviour
     private void Update()
     {
         if (!IsOpen || Time.unscaledTime < inputReadyAt) return;
+        // X salta toda la conversación; el callback corre igual, así la historia avanza como si se leyera
+        if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
+        {
+            Close();
+            return;
+        }
         if (!AdvancePressed()) return;
 
         if (typing)

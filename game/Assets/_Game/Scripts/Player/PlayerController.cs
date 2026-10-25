@@ -96,6 +96,7 @@ public class PlayerController : MonoBehaviour
     private GameObject attackBox;
     private float attackVisibleTimer;
     private Vector2 attackDirection = Vector2.down;
+    private bool aimWithKeyboard;
     // GAME-101: Reacción al recibir daño
     [Header("Hit Feedback")]
     [SerializeField] private Color hitFlashColor = Color.red;
@@ -215,8 +216,15 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // Clic izquierdo apunta con el mouse; J (para laptop) ataca hacia donde camina Tsuki
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
+            aimWithKeyboard = false;
+            OnAttackPressed();
+        }
+        else if (Keyboard.current.jKey.wasPressedThisFrame)
+        {
+            aimWithKeyboard = true;
             OnAttackPressed();
         }
 
@@ -416,10 +424,12 @@ private void FixedUpdate()
             return false;
         }
 
-        // Dirección desde el centro del sprite hacia el mouse, ajustada a 4 direcciones
+        // Dirección hacia el mouse (con J, hacia donde camina), ajustada a 4 direcciones
         Vector2 origin = sr.bounds.center;
-        Vector2 mouseWorld = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        dir = mouseWorld - origin;
+        if (aimWithKeyboard || Mouse.current == null)
+            dir = lastMoveDirection;
+        else
+            dir = (Vector2)cam.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - origin;
         if (dir.sqrMagnitude < 0.0001f)
             dir = lastMoveDirection;
 

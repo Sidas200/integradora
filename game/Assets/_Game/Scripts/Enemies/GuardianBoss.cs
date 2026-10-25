@@ -52,6 +52,8 @@ public class GuardianBoss : MonoBehaviour
     public State Current { get; private set; } = State.Dormant;
     public string DisplayName => displayName;
     public EnemyHealth Health => health;
+    public Vector2 ArenaCenter => arenaCenter != null ? (Vector2)arenaCenter.position : (Vector2)transform.position;
+    public Vector2 ArenaRadii => arenaRadii;
 
     public event Action<State> StateChanged;
 
