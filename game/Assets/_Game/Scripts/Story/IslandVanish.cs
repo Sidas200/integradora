@@ -45,6 +45,44 @@ public class IslandVanish : MonoBehaviour
         safeSpot = spot;
     }
 
+    private void Start() => BlockIslandEdge();
+
+    // La isla no tiene muro: cada celda vacía que toca el suelo se vuelve infranqueable, así no se camina
+    // por el cielo aunque cambie la forma del suelo. Las capas de colisiones no se dibujan (se verían en el vacío).
+    private void BlockIslandEdge()
+    {
+        foreach (var map in ground.layoutGrid.GetComponentsInChildren<TilemapCollider2D>())
+            if (map.TryGetComponent<TilemapRenderer>(out var r)) r.enabled = false;
+
+        var blocking = BlockingMap();
+        if (blocking == null || collisionTile == null) return;
+        var bounds = ground.cellBounds;
+        for (int x = bounds.xMin - 1; x <= bounds.xMax; x++)
+            for (int y = bounds.yMin - 1; y <= bounds.yMax; y++)
+            {
+                var cell = new Vector3Int(x, y, 0);
+                if (ground.HasTile(cell) || !TouchesGround(cell)) continue;
+                blocking.SetTile(cell, collisionTile);
+            }
+    }
+
+    private bool TouchesGround(Vector3Int cell)
+    {
+        for (int dx = -1; dx <= 1; dx++)
+            for (int dy = -1; dy <= 1; dy++)
+                if ((dx != 0 || dy != 0) && ground.HasTile(cell + new Vector3Int(dx, dy, 0))) return true;
+        return false;
+    }
+
+    // La capa de colisiones activa: la asignada, o la que esté encendida en el Grid si esa se apagó.
+    private Tilemap BlockingMap()
+    {
+        if (collisions != null && collisions.gameObject.activeInHierarchy) return collisions;
+        foreach (var map in ground.layoutGrid.GetComponentsInChildren<TilemapCollider2D>())
+            return map.GetComponent<Tilemap>();
+        return null;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (done || !StoryFlags.Has(SwordPickup.Flag)) return;
@@ -71,19 +109,13 @@ public class IslandVanish : MonoBehaviour
                 if (go != null) go.SetActive(false); // las marcas desaparecen al instante
 
         // Capas pintadas a mano (Decoration, Props con árboles y rocas): se desvanecen con la isla.
-        // Las de colisiones solo se ocultan, porque al irse el suelo se verían debajo.
+        // Las de colisiones ya están ocultas desde Start (BlockIslandEdge).
         var layers = new System.Collections.Generic.List<Tilemap>();
-        var blocking = collisions;
+        var blocking = BlockingMap();
         foreach (var map in ground.layoutGrid.GetComponentsInChildren<Tilemap>())
         {
-            if (map == ground || map == elevations) continue;
-            if (map.GetComponent<TilemapCollider2D>() != null)
-            {
-                var r = map.GetComponent<TilemapRenderer>();
-                if (r != null) r.enabled = false;
-                if (blocking == null || !blocking.gameObject.activeInHierarchy) blocking = map;
-            }
-            else layers.Add(map);
+            if (map == ground || map == elevations || map.GetComponent<TilemapCollider2D>() != null) continue;
+            layers.Add(map);
         }
         // Objetos sueltos de la isla en el Grid (cabaña, muros); Markers no, porque ahí está el puente.
         var objects = new System.Collections.Generic.List<GameObject>();
