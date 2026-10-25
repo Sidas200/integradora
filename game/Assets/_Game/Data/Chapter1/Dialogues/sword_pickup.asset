@@ -22,4 +22,4 @@ MonoBehaviour:
     text: Es como si me estuviera esperando... Me la llevo.
   - speaker: 
     portrait: {fileID: 0}
-    text: "Obtuviste la Espada carmes\xED. Clic izquierdo: atacar. Espacio: esquivar."
+    text: "Obtuviste la Espada carmes\xED. Clic izquierdo o J: atacar. Espacio: esquivar."

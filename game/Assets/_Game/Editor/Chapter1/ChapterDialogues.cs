@@ -72,7 +72,7 @@ namespace Game.EditorTools.Chapter1
             {
                 L(Narrator, "Una espada carmesí, sin filo. Pesa menos de lo que parece."),
                 L(Tsuki, "Es como si me estuviera esperando... Me la llevo."),
-                L(Narrator, "Obtuviste la Espada carmesí. Clic izquierdo: atacar. Espacio: esquivar."),
+                L(Narrator, "Obtuviste la Espada carmesí. Clic izquierdo o J: atacar. Espacio: esquivar."),
             });
             Make("island_vanish", new[]
             {
