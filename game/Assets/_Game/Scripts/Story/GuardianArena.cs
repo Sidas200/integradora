@@ -107,11 +107,13 @@ public class GuardianArena : MonoBehaviour
             StoryFlags.Set(MetFlag);
             if (GameHud.Instance != null) GameHud.Instance.ShowBoss(boss);
             boss.Begin();
+            if (TryGetComponent<GuardianSummons>(out var summons)) summons.Begin(boss);
         });
     }
 
     private void OnBossDied()
     {
+        if (TryGetComponent<GuardianSummons>(out var summons)) summons.Clear();
         if (GameHud.Instance != null) GameHud.Instance.HideBoss();
         StartCoroutine(AfterVictory(boss.transform.position));
     }
