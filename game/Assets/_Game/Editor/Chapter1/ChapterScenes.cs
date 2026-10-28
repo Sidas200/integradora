@@ -454,6 +454,10 @@ namespace Game.EditorTools.Chapter1
             context.Configure("", "", false, false, false);
             context.SetGlobalLight(global);
             var card = ChapterUi.BuildNarrativeScreen(context.transform, endCard);
+            // La intro se cuenta como un libro de cuentos
+            if (name == Intro)
+                context.gameObject.AddComponent<StoryBook>().Setup(
+                    AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Game/Art/Placeholders/placeholder_intro_sky.png"));
             var sequence = context.gameObject.AddComponent<DialogueSequence>();
             sequence.Setup(ChapterDialogues.Get(dialogueId), then, card, name == Intro ? "intro_seen" : "demo_complete");
             SaveScene(scene, name);

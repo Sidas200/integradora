@@ -501,6 +501,7 @@ GameObject:
   - component: {fileID: 1838635814}
   - component: {fileID: 1838635813}
   - component: {fileID: 1838635812}
+  - component: {fileID: 1838635815}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -542,6 +543,21 @@ MonoBehaviour:
   allowPause: 0
   isGameplayZone: 0
   sceneGlobalLight: {fileID: 1389892588}
+--- !u!114 &1838635815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1838635811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8238d120139a43debf3c9d92b217e24e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::StoryBook
+  narrationArt: {fileID: 21300000, guid: 9df9063a784eb4711a7bd56fb0bb4b08, type: 3}
+  charsPerSecond: 40
+  flipDuration: 0.6
 --- !u!4 &1838635814
 Transform:
   m_ObjectHideFlags: 0
