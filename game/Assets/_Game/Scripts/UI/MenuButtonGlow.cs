@@ -35,6 +35,10 @@ public class MenuButtonGlow : MonoBehaviour, ISelectHandler, IDeselectHandler, I
         group = gameObject.AddComponent<CanvasGroup>();
 
         var size = ((RectTransform)transform).rect.size;
+        bool big = size.y >= 70f; // los del menú; los chicos (cuenta) sin flecha y con detalles más finos
+        float diamond = big ? 14f : 10f;
+        float iconSize = big ? 52f : size.y * 0.55f;
+        float iconX = -size.x / 2f + (big ? 80f : 50f);
         label = GetComponentInChildren<TMP_Text>();
 
         glow = Child("Glow", Vector2.zero, size + new Vector2(70f, 60f), GlowColor);
@@ -53,15 +57,15 @@ public class MenuButtonGlow : MonoBehaviour, ISelectHandler, IDeselectHandler, I
             Child("InTop", new Vector2(0f, size.y / 2f - 9f), new Vector2(size.x - 44f, 1f), Line),
             Child("InBottom", new Vector2(0f, -size.y / 2f + 9f), new Vector2(size.x - 44f, 1f), Line),
             // rombos en las puntas
-            Child("DiamondL", new Vector2(-size.x / 2f + 12f, 0f), new Vector2(14f, 14f), Line),
-            Child("DiamondR", new Vector2(size.x / 2f - 12f, 0f), new Vector2(14f, 14f), Line),
+            Child("DiamondL", new Vector2(-size.x / 2f + 12f, 0f), new Vector2(diamond, diamond), Line),
+            Child("DiamondR", new Vector2(size.x / 2f - 12f, 0f), new Vector2(diamond, diamond), Line),
         };
         lines[6].rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
         lines[7].rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
 
         if (iconSprite != null)
         {
-            icon = Child("Icon", new Vector2(-size.x / 2f + 80f, 0f), new Vector2(52f, 52f), Color.white);
+            icon = Child("Icon", new Vector2(iconX, 0f), new Vector2(iconSize, iconSize), Color.white);
             icon.sprite = iconSprite;
             icon.preserveAspect = true;
         }
@@ -76,12 +80,14 @@ public class MenuButtonGlow : MonoBehaviour, ISelectHandler, IDeselectHandler, I
         chevron.fontSize = 40;
         chevron.alignment = TextAlignmentOptions.Center;
         chevron.raycastTarget = false;
+        chev.SetActive(big);
 
         if (label != null)
         {
             label.transform.SetAsLastSibling();
             label.alignment = TextAlignmentOptions.Left;
-            label.margin = new Vector4(iconSprite != null ? 150f : 60f, 0f, 60f, 0f);
+            float left = iconSprite != null ? iconX + size.x / 2f + iconSize / 2f + (big ? 24f : 14f) : 60f;
+            label.margin = new Vector4(left, 0f, big ? 60f : 20f, 0f);
         }
         Apply();
     }
@@ -100,7 +106,7 @@ public class MenuButtonGlow : MonoBehaviour, ISelectHandler, IDeselectHandler, I
     }
 
     // Textura suave (bordes con degradado) para el brillo, generada una sola vez.
-    private static Sprite SoftSprite()
+    public static Sprite SoftSprite()
     {
         if (softSprite != null) return softSprite;
         const int n = 64, edge = 28;

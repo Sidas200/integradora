@@ -2963,11 +2963,16 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0f33f27da4594418aed8226f86d23d67, type: 3}
   - {fileID: 21300000, guid: 68b81c88fd8e4fa78d13f249f249cbb8, type: 3}
   - {fileID: 21300000, guid: 840217576a8d4d76ad889a4f2cfcd525, type: 3}
-  buttonIcon: {fileID: 21300000, guid: b510431743ec457a938c6031d65038fa, type: 3}
+  buttonIcons:
+  - {fileID: 21300000, guid: b510431743ec457a938c6031d65038fa, type: 3}
+  - {fileID: 21300000, guid: 29fb94c4fb8e423882bd6cb91804bb45, type: 3}
+  - {fileID: 21300000, guid: c529756d70d242cca035867b0948834c, type: 3}
   buttons:
   - {fileID: 1822574772}
   - {fileID: 1455201183}
   - {fileID: 444612192}
+  flower: {fileID: 21300000, guid: b510431743ec457a938c6031d65038fa, type: 3}
+  cloudIcon: {fileID: 21300000, guid: c865b2deb68b4fbba746e3eb603d80cb, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -334,8 +334,10 @@ namespace Game.EditorTools.Chapter1
             var petals = new List<Sprite>();
             foreach (var guid in AssetDatabase.FindAssets("t:Sprite", new[] { "Assets/UI/MainMenu/Petalos" }))
                 petals.Add(AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GUIDToAssetPath(guid)));
-            go.AddComponent<MainMenuStyle>().Setup(bg, petals.ToArray(), LoadSprite("Assets/UI/MainMenu/Sakura_Flor.png"),
-                new[] { newGame, cont, quit });
+            var flower = LoadSprite("Assets/UI/MainMenu/Sakura_Flor.png");
+            go.AddComponent<MainMenuStyle>().Setup(bg, petals.ToArray(),
+                new[] { flower, LoadSprite("Assets/UI/MainMenu/Icono_Continuar.png"), LoadSprite("Assets/UI/MainMenu/Icono_Salir.png") },
+                new[] { newGame, cont, quit }, flower, LoadSprite("Assets/UI/MainMenu/Icono_Nube.png"));
         }
 
         // Fondo de cielo para la intro y el cierre. Con endCard agrega la tarjeta final
