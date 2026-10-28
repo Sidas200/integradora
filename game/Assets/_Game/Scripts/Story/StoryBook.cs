@@ -27,6 +27,8 @@ public class StoryBook : MonoBehaviour
     [SerializeField] private SpeakerPortrait[] portraits;
     [SerializeField] private float charsPerSecond = 40f;
     [SerializeField] private float flipDuration = 0.6f;
+    [Tooltip("Estrellas que parpadean en el fondo negro (0 = solo negro).")]
+    [SerializeField] private int starCount = 90;
 
     private const float PageW = 820f, PageH = 600f;
 
@@ -43,6 +45,8 @@ public class StoryBook : MonoBehaviour
     private RectTransform leftPage, rightPage;
     private TMP_Text bodyText;
     private GameObject hint;
+    private Image[] stars;
+    private float[] starPhase;
 
     private DialogueData current;
     private int lineIndex;
@@ -79,6 +83,7 @@ public class StoryBook : MonoBehaviour
     // ---------------------------------------------------------- INPUT
     private void Update()
     {
+        TwinkleStars();
         if (!open || busy || Time.unscaledTime < inputReadyAt) return;
         if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
         {
@@ -120,9 +125,10 @@ public class StoryBook : MonoBehaviour
         group = cgo.AddComponent<CanvasGroup>();
         group.alpha = 0f;
 
-        var dim = Rect(cgo.transform, "Dim", Vector2.zero, Vector2.zero, new Color(0f, 0f, 0.03f, 0.6f));
-        dim.anchorMin = Vector2.zero;
-        dim.anchorMax = Vector2.one;
+        var backdrop = Rect(cgo.transform, "Backdrop", Vector2.zero, Vector2.zero, Color.black);
+        backdrop.anchorMin = Vector2.zero;
+        backdrop.anchorMax = Vector2.one;
+        BuildStars(backdrop);
 
         book = Rect(cgo.transform, "Book", new Vector2(PageW * 2f, PageH), new Vector2(0f, 30f), null);
 
@@ -157,6 +163,33 @@ public class StoryBook : MonoBehaviour
 
         leftPage = BuildPage(current.lines[0], true, 0);
         rightPage = BuildPage(current.lines[0], false, 0);
+    }
+
+    private void BuildStars(RectTransform parent)
+    {
+        stars = new Image[starCount];
+        starPhase = new float[starCount];
+        for (int i = 0; i < starCount; i++)
+        {
+            float size = UnityEngine.Random.value < 0.85f ? UnityEngine.Random.Range(2f, 4f) : UnityEngine.Random.Range(5f, 7f);
+            var star = Rect(parent, "Star", new Vector2(size, size), Vector2.zero, Color.white);
+            star.anchorMin = star.anchorMax = new Vector2(UnityEngine.Random.value, UnityEngine.Random.value);
+            if (size > 4f) star.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            stars[i] = star.GetComponent<Image>();
+            starPhase[i] = UnityEngine.Random.Range(0f, 10f);
+        }
+    }
+
+    private void TwinkleStars()
+    {
+        if (stars == null) return;
+        float t = Time.unscaledTime;
+        for (int i = 0; i < stars.Length; i++)
+        {
+            if (stars[i] == null) continue;
+            float a = 0.35f + 0.65f * (0.5f + 0.5f * Mathf.Sin(t * (0.8f + i % 5 * 0.35f) + starPhase[i]));
+            stars[i].color = new Color(0.95f, 0.92f, 1f, a);
+        }
     }
 
     // Una hoja con su contenido. El pivote queda en el lomo para poder "girarla".
