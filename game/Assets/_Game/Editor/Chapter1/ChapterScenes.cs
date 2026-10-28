@@ -455,12 +455,30 @@ namespace Game.EditorTools.Chapter1
             context.SetGlobalLight(global);
             var card = ChapterUi.BuildNarrativeScreen(context.transform, endCard);
             // La intro se cuenta como un libro de cuentos
-            if (name == Intro)
-                context.gameObject.AddComponent<StoryBook>().Setup(
-                    AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Game/Art/Placeholders/placeholder_intro_sky.png"));
+            if (name == Intro) AddStoryBook(context.gameObject);
             var sequence = context.gameObject.AddComponent<DialogueSequence>();
             sequence.Setup(ChapterDialogues.Get(dialogueId), then, card, name == Intro ? "intro_seen" : "demo_complete");
             SaveScene(scene, name);
+        }
+
+        // Ilustraciones de Art/Intro (intro_01..15, una por línea del diálogo) y retratos del libro
+        private static void AddStoryBook(GameObject go)
+        {
+            const string art = "Assets/_Game/Art/Intro/";
+            var pages = new List<Sprite>();
+            for (int i = 1; ; i++)
+            {
+                var page = AssetDatabase.LoadAssetAtPath<Sprite>($"{art}intro_{i:00}.png");
+                if (page == null) break;
+                pages.Add(page);
+            }
+            go.AddComponent<StoryBook>().Setup(pages.ToArray(),
+                AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Game/Art/Placeholders/placeholder_intro_sky.png"),
+                new[]
+                {
+                    new StoryBook.SpeakerPortrait { speaker = "Tsuki", portrait = AssetDatabase.LoadAssetAtPath<Sprite>(art + "portrait_tsuki.png") },
+                    new StoryBook.SpeakerPortrait { speaker = "Hikari", portrait = AssetDatabase.LoadAssetAtPath<Sprite>(art + "portrait_hikari.png") },
+                });
         }
 
         private static Camera CreateCamera(Color background)

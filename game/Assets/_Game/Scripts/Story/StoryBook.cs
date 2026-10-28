@@ -6,18 +6,29 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 // Cuento de la intro: el diálogo se lee en un libro que se abre y pasa de página (estilo "Érase una vez").
-// Cada línea del DialogueData es una doble página: ilustración a la izquierda (retrato del personaje
-// o la ilustración de narración) y el texto a la derecha con máquina de escribir.
+// Cada línea del DialogueData es una doble página: la ilustración de esa línea a la izquierda y el texto
+// a la derecha con máquina de escribir (con el retrato de quien habla junto a su nombre).
 // Mismos controles que DialogueUI: E, Espacio, Enter o clic avanzan (la primera pulsación completa la línea), X salta todo.
 // Todo se construye por código, así que no depende de sprites de libro.
 public class StoryBook : MonoBehaviour
 {
-    [Tooltip("Ilustración para las páginas de narración (líneas sin retrato).")]
+    [Serializable]
+    public struct SpeakerPortrait
+    {
+        public string speaker;
+        public Sprite portrait;
+    }
+
+    [Tooltip("Ilustración de cada doble página, en el mismo orden que las líneas del diálogo.")]
+    [SerializeField] private Sprite[] pageArt;
+    [Tooltip("Si una línea no tiene ilustración propia, se usa esta.")]
     [SerializeField] private Sprite narrationArt;
+    [Tooltip("Retratos del libro por personaje (si no hay, se usa el retrato de la línea).")]
+    [SerializeField] private SpeakerPortrait[] portraits;
     [SerializeField] private float charsPerSecond = 40f;
     [SerializeField] private float flipDuration = 0.6f;
 
-    private const float PageW = 720f, PageH = 820f;
+    private const float PageW = 820f, PageH = 600f;
 
     private static readonly Color Leather = new Color(0.33f, 0.17f, 0.11f);
     private static readonly Color LeatherDark = new Color(0.22f, 0.11f, 0.07f);
@@ -40,7 +51,12 @@ public class StoryBook : MonoBehaviour
     private Coroutine typeRoutine;
     private float inputReadyAt;
 
-    public void Setup(Sprite art) => narrationArt = art;
+    public void Setup(Sprite[] pages, Sprite fallback, SpeakerPortrait[] speakerPortraits)
+    {
+        pageArt = pages;
+        narrationArt = fallback;
+        portraits = speakerPortraits;
+    }
 
     public void Play(DialogueData dialogue, Action finished = null)
     {
@@ -162,53 +178,64 @@ public class StoryBook : MonoBehaviour
         int pageNumber = index * 2 + (left ? 1 : 2);
         Text(page, pageNumber.ToString(), 26, InkSoft, new Vector2(100f, 40f), new Vector2(left ? -PageW / 2f + 80f : PageW / 2f - 80f, -PageH / 2f + 55f));
 
-        if (left) BuildIllustration(page, line);
+        if (left) BuildIllustration(page, line, index);
         else BuildText(page, line, index);
         return page;
     }
 
-    private void BuildIllustration(RectTransform page, DialogueData.Line line)
+    private void BuildIllustration(RectTransform page, DialogueData.Line line, int index)
     {
-        bool hasPortrait = line.portrait != null;
-        var art = hasPortrait ? line.portrait : narrationArt;
-
-        var holder = Rect(page, "ArtFrame", new Vector2(520f, 520f), new Vector2(0f, 40f), Ink);
-        var inner = Rect(holder, "ArtBg", new Vector2(504f, 504f), Vector2.zero, hasPortrait ? new Color(0.84f, 0.76f, 0.6f) : Paper);
-        if (art != null)
+        var art = pageArt != null && index < pageArt.Length && pageArt[index] != null ? pageArt[index] : narrationArt;
+        if (art == null) art = line.portrait;
+        if (art == null)
         {
-            var img = Rect(inner, "Art", new Vector2(hasPortrait ? 440f : 504f, hasPortrait ? 440f : 504f), Vector2.zero, Color.white);
-            var image = img.GetComponent<Image>();
-            image.sprite = art;
-            image.preserveAspect = hasPortrait;
-        }
-        else
-        {
-            var orn = Text(inner, "~ * ~", 90, InkSoft, new Vector2(480f, 200f), Vector2.zero);
+            var orn = Text(page, "~ * ~", 90, InkSoft, new Vector2(480f, 200f), Vector2.zero);
             orn.fontStyle = FontStyles.Bold;
+            return;
         }
 
-        if (hasPortrait)
-        {
-            var caption = Text(page, line.speaker, 44, Ink, new Vector2(560f, 70f), new Vector2(0f, -280f));
-            caption.fontStyle = FontStyles.Bold | FontStyles.SmallCaps;
-        }
+        // el marco se ajusta a la proporción de la ilustración
+        Vector2 max = new Vector2(PageW - 150f, PageH - 150f);
+        float aspect = art.rect.width / art.rect.height;
+        Vector2 size = max.x / aspect <= max.y ? new Vector2(max.x, max.x / aspect) : new Vector2(max.y * aspect, max.y);
+        var frame = Rect(page, "ArtFrame", size + new Vector2(12f, 12f), new Vector2(0f, 10f), Ink);
+        var img = Rect(frame, "Art", size, Vector2.zero, Color.white);
+        img.GetComponent<Image>().sprite = art;
+    }
+
+    private Sprite PortraitFor(DialogueData.Line line)
+    {
+        if (portraits != null)
+            foreach (var p in portraits)
+                if (p.portrait != null && p.speaker == line.speaker) return p.portrait;
+        return line.portrait;
     }
 
     private void BuildText(RectTransform page, DialogueData.Line line, int index)
     {
         bool narration = string.IsNullOrEmpty(line.speaker);
-        float top = 250f;
         if (!narration)
         {
-            var name = Text(page, line.speaker, 48, Ink, new Vector2(560f, 70f), new Vector2(0f, top));
+            var portrait = PortraitFor(line);
+            if (portrait != null)
+            {
+                var frame = Rect(page, "PortraitFrame", new Vector2(162f, 162f), new Vector2(0f, 170f), Ink);
+                var img = Rect(frame, "Portrait", new Vector2(150f, 150f), Vector2.zero, Color.white);
+                var image = img.GetComponent<Image>();
+                image.sprite = portrait;
+                image.preserveAspect = true;
+            }
+            var name = Text(page, line.speaker, 46, Ink, new Vector2(560f, 60f), new Vector2(0f, portrait != null ? 55f : 170f));
             name.fontStyle = FontStyles.Bold | FontStyles.SmallCaps;
-            Rect(page, "Rule", new Vector2(260f, 3f), new Vector2(0f, top - 45f), InkSoft);
+            Rect(page, "Rule", new Vector2(240f, 3f), new Vector2(0f, portrait != null ? 20f : 135f), InkSoft);
         }
 
-        var body = Text(page, Decorate(line.text, narration), 42, Ink, new Vector2(560f, 520f), new Vector2(0f, narration ? 0f : -60f));
-        body.alignment = narration ? TextAlignmentOptions.Center : TextAlignmentOptions.TopLeft;
+        var body = narration
+            ? Text(page, Decorate(line.text, true), 42, Ink, new Vector2(620f, 420f), Vector2.zero)
+            : Text(page, line.text, 38, Ink, new Vector2(620f, 220f), new Vector2(0f, -140f));
+        body.alignment = narration ? TextAlignmentOptions.Center : TextAlignmentOptions.Top;
         body.fontStyle = narration ? FontStyles.Italic : FontStyles.Normal;
-        body.lineSpacing = 12f;
+        body.lineSpacing = 10f;
         body.maxVisibleCharacters = 0;
         bodyText = body;
     }
