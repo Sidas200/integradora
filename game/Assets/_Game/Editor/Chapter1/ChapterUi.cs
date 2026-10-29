@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -294,21 +295,16 @@ namespace Game.EditorTools.Chapter1
             Canvas(go, 10);
             var c = go.transform;
 
+            // La ilustración ya trae el título, los personajes y la luna
             var bg = Stretch(c, "Background");
-            Image(bg, Color.white, LoadSprite("Assets/UI/MainMenu/Generado/Fondo_Gradiente.png"));
-            var moon = Box(c, "Moon", new Vector2(1, 1), new Vector2(-160, -60), new Vector2(380, 380));
-            Image(moon, Color.white, LoadSprite("Assets/UI/MainMenu/Generado/Luna.png")).preserveAspect = true;
-            var character = Box(c, "Character", new Vector2(1, 0), new Vector2(-120, 0), new Vector2(760, 950));
-            Image(character, Color.white, LoadSprite("Assets/UI/MainMenu/01_Personaje.png")).preserveAspect = true;
-            var title = Box(c, "Title", new Vector2(0, 1), new Vector2(80, -50), new Vector2(900, 540));
-            Image(title, Color.white, LoadSprite("Assets/UI/MainMenu/02_Titulo.png")).preserveAspect = true;
+            Image(bg, Color.white, LoadSprite("Assets/UI/MainMenu/Fondo_Promesa.png"));
 
-            var col = Box(c, "Buttons", new Vector2(0, 0), new Vector2(180, 150), new Vector2(520, 330));
+            var col = Box(c, "Buttons", new Vector2(0, 0), new Vector2(200, 230), new Vector2(520, 330));
             Column(col, 18);
             var newGame = Button(col, "NewGame", "Nueva partida", new Vector2(520, 80));
             var cont = Button(col, "Continue", "Continuar", new Vector2(520, 80));
             var quit = Button(col, "Quit", "Salir", new Vector2(520, 80));
-            var hint = Label(c, "ContinueHint", "", 26, TextAlignmentOptions.Left, new Vector2(0, 0), new Vector2(720, 315), new Vector2(420, 40), MutedText);
+            var hint = Label(c, "ContinueHint", "", 26, TextAlignmentOptions.Left, new Vector2(0, 0), new Vector2(740, 395), new Vector2(420, 40), MutedText);
 
             Label(c, "Footer", "Demo · Capítulo 1   —   Se juega sin conexión", 24, TextAlignmentOptions.Left,
                 new Vector2(0, 0), new Vector2(40, 30), new Vector2(900, 40), MutedText);
@@ -333,6 +329,15 @@ namespace Game.EditorTools.Chapter1
             SetRef(controller, "confirmPanel", confirm.gameObject);
             SetRef(controller, "confirmYes", yes);
             SetRef(controller, "confirmNo", no);
+
+            // Pétalos cayendo y botones con brillo
+            var petals = new List<Sprite>();
+            foreach (var guid in AssetDatabase.FindAssets("t:Sprite", new[] { "Assets/UI/MainMenu/Petalos" }))
+                petals.Add(AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GUIDToAssetPath(guid)));
+            var flower = LoadSprite("Assets/UI/MainMenu/Sakura_Flor.png");
+            go.AddComponent<MainMenuStyle>().Setup(bg, petals.ToArray(),
+                new[] { flower, LoadSprite("Assets/UI/MainMenu/Icono_Continuar.png"), LoadSprite("Assets/UI/MainMenu/Icono_Salir.png") },
+                new[] { newGame, cont, quit }, flower, LoadSprite("Assets/UI/MainMenu/Icono_Nube.png"));
         }
 
         // Fondo de cielo para la intro y el cierre. Con endCard agrega la tarjeta final

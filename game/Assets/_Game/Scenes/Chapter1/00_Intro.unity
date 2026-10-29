@@ -501,6 +501,7 @@ GameObject:
   - component: {fileID: 1838635814}
   - component: {fileID: 1838635813}
   - component: {fileID: 1838635812}
+  - component: {fileID: 1838635815}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -542,6 +543,42 @@ MonoBehaviour:
   allowPause: 0
   isGameplayZone: 0
   sceneGlobalLight: {fileID: 1389892588}
+--- !u!114 &1838635815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1838635811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8238d120139a43debf3c9d92b217e24e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::StoryBook
+  pageArt:
+  - {fileID: 21300000, guid: efcf3643030543f4a7a0932a293b2fe2, type: 3}
+  - {fileID: 21300000, guid: 7ee75c6fd45b4dbbb555881b00ca91c3, type: 3}
+  - {fileID: 21300000, guid: 22c7141287fb4fcbbdbbd75f6e3f06c5, type: 3}
+  - {fileID: 21300000, guid: 9095eb66dba244ddb96d34428e747736, type: 3}
+  - {fileID: 21300000, guid: 4b17c809e73f4b369d1e78ea3583e483, type: 3}
+  - {fileID: 21300000, guid: 9601d2b94d80446ba4fa801cbdaa8339, type: 3}
+  - {fileID: 21300000, guid: 20e4a26f8f6844018cd35e3c563ce9db, type: 3}
+  - {fileID: 21300000, guid: 37a812d24fbc4fa997e67184de475826, type: 3}
+  - {fileID: 21300000, guid: bf66424f4035421aa937566cfd9067cd, type: 3}
+  - {fileID: 21300000, guid: 77a104714048452085c9c19cd0f27f63, type: 3}
+  - {fileID: 21300000, guid: 05d37ef664f44c8a943675066bd6ada7, type: 3}
+  - {fileID: 21300000, guid: 1c343a274d5f46c6a9cb2e8a4fdf6ae5, type: 3}
+  - {fileID: 21300000, guid: 340d04f36d2346698299626b128c80c4, type: 3}
+  - {fileID: 21300000, guid: cbc90318e1b84d68b3d3036a779a332e, type: 3}
+  - {fileID: 21300000, guid: a8ce508605164b779022ddf05b42aa28, type: 3}
+  narrationArt: {fileID: 21300000, guid: 9df9063a784eb4711a7bd56fb0bb4b08, type: 3}
+  portraits:
+  - speaker: Tsuki
+    portrait: {fileID: 21300000, guid: 1984b436d63f45ba8fb953fbb6f07de1, type: 3}
+  - speaker: Hikari
+    portrait: {fileID: 21300000, guid: 31f0d5f65726469d934c933fb922b525, type: 3}
+  charsPerSecond: 40
+  flipDuration: 0.6
 --- !u!4 &1838635814
 Transform:
   m_ObjectHideFlags: 0
