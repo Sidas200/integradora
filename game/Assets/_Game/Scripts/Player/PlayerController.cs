@@ -155,98 +155,159 @@ public class PlayerController : MonoBehaviour
         BuildAnimations();
     }
 
+
     private void Update()
     {
-        if (Keyboard.current == null)
-            return;
-
-        // Pausa, diálogo, forja o transición: el jugador se queda quieto
-        if (GameInput.Locked)
-        {
-            movement = Vector2.zero;
-            UpdateSpriteAnimation();
-            return;
-        }
-
-        // Se sigue leyendo el teclado durante el ataque para que el dash
-        // salga hacia donde el jugador está presionando
+    // Pausa, diálogo, forja o transición
+    if (GameInput.Locked)
+    {
         movement = Vector2.zero;
-
-        if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
-            movement.y += 1;
-        if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
-            movement.y -= 1;
-        if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
-            movement.x -= 1;
-        if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
-            movement.x += 1;
-
-        movement = movement.normalized;
-
-        if (movement.sqrMagnitude > 0)
-            lastMoveDirection = movement;
-
-        if (dashCooldownTimer > 0)
-            dashCooldownTimer -= Time.deltaTime;
-
-        if (attackCooldownTimer > 0)
-            attackCooldownTimer -= Time.deltaTime;
-
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && !isDashing && dashCooldownTimer <= 0)
-        {
-            isDashing = true;
-            dashTimer = dashDuration;
-            dashCooldownTimer = dashCooldown;
-            ghostTimer = 0f;
-            if (dashParticles != null)
-                dashParticles.Play();
-
-            // El dash cancela el ataque
-            if (IsAttacking)
-                CancelAttack();
-        }
-
-        if (isDashing)
-        {
-            ghostTimer -= Time.deltaTime;
-            if (ghostTimer <= 0f)
-            {
-                SpawnGhost();
-                ghostTimer = ghostSpawnInterval;
-            }
-        }
-
-        // Clic izquierdo apunta con el mouse; J (para laptop) ataca hacia donde camina Tsuki
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            aimWithKeyboard = false;
-            OnAttackPressed();
-        }
-        else if (Keyboard.current.jKey.wasPressedThisFrame)
-        {
-            aimWithKeyboard = true;
-            OnAttackPressed();
-        }
-
-        UpdateAttackBox();
         UpdateSpriteAnimation();
-
-        // GAME-101: Actualizar destello por daño
-        if (hitFlashTimer > 0f)
-            hitFlashTimer -= Time.deltaTime;
-
-        // Prioridad al efecto de daño
-        if (hitFlashTimer > 0f)
-            sr.color = hitFlashColor;
-        else if (isDashing)
-            sr.color = dashColor;
-        else if (dashCooldownTimer > 0f)
-            sr.color = cooldownColor;
-        else
-            sr.color = normalColor;
+        return;
     }
 
-    
+    // =========================
+    // MOVIMIENTO TECLADO
+    // =========================
+    movement = Vector2.zero;
+
+    if (Keyboard.current != null)
+    {
+        if (Keyboard.current.wKey.isPressed ||
+            Keyboard.current.upArrowKey.isPressed)
+            movement.y += 1;
+
+        if (Keyboard.current.sKey.isPressed ||
+            Keyboard.current.downArrowKey.isPressed)
+            movement.y -= 1;
+
+        if (Keyboard.current.aKey.isPressed ||
+            Keyboard.current.leftArrowKey.isPressed)
+            movement.x -= 1;
+
+        if (Keyboard.current.dKey.isPressed ||
+            Keyboard.current.rightArrowKey.isPressed)
+            movement.x += 1;
+    }
+
+    // =========================
+    // MOVIMIENTO CONTROL PS5 / XBOX
+    // =========================
+    if (Gamepad.current != null)
+    {
+        Vector2 stick = Gamepad.current.leftStick.ReadValue();
+        Vector2 dpad = Gamepad.current.dpad.ReadValue();
+
+        // La cruceta tiene prioridad sobre el stick
+        if (dpad.sqrMagnitude > 0.01f)
+            stick = dpad;
+
+        // Si se utiliza el control, tiene prioridad
+        if (stick.sqrMagnitude > 0.01f)
+            movement = stick;
+    }
+
+    // Limitar velocidad y permitir movimiento analógico
+    movement = Vector2.ClampMagnitude(movement, 1f);
+
+    if (movement.sqrMagnitude > 0f)
+        lastMoveDirection = movement.normalized;
+
+    // =========================
+    // COOLDOWNS
+    // =========================
+    if (dashCooldownTimer > 0)
+        dashCooldownTimer -= Time.deltaTime;
+
+    if (attackCooldownTimer > 0)
+        attackCooldownTimer -= Time.deltaTime;
+
+    // =========================
+    // DASH: ESPACIO / X PS5 / A XBOX
+    // =========================
+    bool dashPressed =
+        (Keyboard.current != null &&
+         Keyboard.current.spaceKey.wasPressedThisFrame) ||
+        (Gamepad.current != null &&
+         Gamepad.current.buttonSouth.wasPressedThisFrame);
+
+    if (dashPressed && !isDashing && dashCooldownTimer <= 0)
+    {
+        isDashing = true;
+        dashTimer = dashDuration;
+        dashCooldownTimer = dashCooldown;
+        ghostTimer = 0f;
+
+        if (dashParticles != null)
+            dashParticles.Play();
+
+        // El dash cancela el ataque
+        if (IsAttacking)
+            CancelAttack();
+    }
+
+    // =========================
+    // EFECTO VISUAL DEL DASH
+    // =========================
+    if (isDashing)
+    {
+        ghostTimer -= Time.deltaTime;
+
+        if (ghostTimer <= 0f)
+        {
+            SpawnGhost();
+            ghostTimer = ghostSpawnInterval;
+        }
+    }
+
+    // =========================
+    // ATAQUE: MOUSE / J / CUADRADO PS5
+    // =========================
+    if (Mouse.current != null &&
+        Mouse.current.leftButton.wasPressedThisFrame)
+    {
+        aimWithKeyboard = false;
+        OnAttackPressed();
+    }
+    else if (Keyboard.current != null &&
+             Keyboard.current.jKey.wasPressedThisFrame)
+    {
+        aimWithKeyboard = true;
+        OnAttackPressed();
+    }
+    else if (Gamepad.current != null &&
+             Gamepad.current.buttonWest.wasPressedThisFrame)
+    {
+        // Cuadrado PS5 / X Xbox
+        aimWithKeyboard = true;
+        OnAttackPressed();
+    }
+
+    // =========================
+    // ACTUALIZAR ATAQUE Y ANIMACIONES
+    // =========================
+    UpdateAttackBox();
+    UpdateSpriteAnimation();
+
+    // =========================
+    // GAME-101: HIT FEEDBACK
+    // =========================
+    if (hitFlashTimer > 0f)
+        hitFlashTimer -= Time.deltaTime;
+
+    // Prioridad de efectos visuales
+    if (hitFlashTimer > 0f)
+        sr.color = hitFlashColor;
+    else if (isDashing)
+        sr.color = dashColor;
+    else if (dashCooldownTimer > 0f)
+        sr.color = cooldownColor;
+    else
+        sr.color = normalColor;
+}
+
+
+
 private void FixedUpdate()
 {
     // DASH: Tiene prioridad sobre el resto
@@ -412,54 +473,105 @@ private void FixedUpdate()
 
     // ---------- GOLPE (daño + cuadro rojo) ----------
 
+
     private bool DoHit(out Vector2 dir)
     {
         dir = lastMoveDirection;
 
         if (cam == null)
             cam = Camera.main;
+
         if (cam == null)
         {
             Debug.LogWarning("No hay cámara con el tag MainCamera");
             return false;
         }
 
-        // Dirección hacia el mouse (con J, hacia donde camina), ajustada a 4 direcciones
+        // =========================
+        // DIRECCIÓN DEL ATAQUE
+        // =========================
         Vector2 origin = sr.bounds.center;
+
         if (aimWithKeyboard || Mouse.current == null)
-            dir = lastMoveDirection;
+        {
+            // Apuntar con joystick derecho
+            Vector2 rightStick = Gamepad.current != null
+                ? Gamepad.current.rightStick.ReadValue()
+                : Vector2.zero;
+
+            // Si el stick derecho no se utiliza,
+            // atacar hacia donde caminó Tsuki
+            if (rightStick.sqrMagnitude > 0.09f)
+                dir = rightStick;
+            else
+                dir = lastMoveDirection;
+        }
         else
-            dir = (Vector2)cam.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - origin;
+        {
+            // Apuntar con mouse
+            dir = (Vector2)cam.ScreenToWorldPoint(
+                Mouse.current.position.ReadValue()
+            ) - origin;
+        }
+
         if (dir.sqrMagnitude < 0.0001f)
             dir = lastMoveDirection;
 
+        // Ajustar ataque a 4 direcciones
         attackDirection = SnapToCardinal(dir);
 
         if (animator != null)
             animator.SetTrigger("Attack");
 
-        GetAttackBox(sr, attackDirection, out Vector2 center, out Vector2 size);
+        // =========================
+        // HITBOX DEL ATAQUE
+        // =========================
+        GetAttackBox(
+            sr,
+            attackDirection,
+            out Vector2 center,
+            out Vector2 size
+        );
 
-        // Detección de golpes con el mismo cuadro que se dibuja
-        Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, 0f, enemyLayer);
-        // HEX-03: un golpe daña una sola vez a cada objetivo, aunque tenga varios colliders
-        // (cuerpo + hurtbox). El IDamageable puede estar en el padre del collider.
+        // Detectar enemigos alcanzados
+        Collider2D[] hits = Physics2D.OverlapBoxAll(
+            center,
+            size,
+            0f,
+            enemyLayer
+        );
+
+        // HEX-03: Evitar daño duplicado
+        // cuando un enemigo tiene varios colliders
         hitThisSwing.Clear();
+
         foreach (var hit in hits)
         {
-            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
-            if (damageable != null && hitThisSwing.Add(damageable))
+            IDamageable damageable =
+                hit.GetComponentInParent<IDamageable>();
+
+            if (damageable != null &&
+                hitThisSwing.Add(damageable))
+            {
                 damageable.TakeDamage(stats.Attack);
+            }
         }
 
-        // Mostrar el cuadro rojo
-        attackBox.transform.localScale = new Vector3(size.x, size.y, 1f);
+        // =========================
+        // MOSTRAR HITBOX VISUAL
+        // =========================
+        attackBox.transform.localScale =
+            new Vector3(size.x, size.y, 1f);
+
         attackBox.SetActive(true);
+
         attackVisibleTimer = attackVisibleTime;
+
         PlaceAttackBox();
 
         return true;
     }
+
 
     private static Vector2 SnapToCardinal(Vector2 d)
     {
