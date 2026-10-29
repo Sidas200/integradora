@@ -4,6 +4,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.DualShock;
 
 // HEX-04: inventario emergente (Tab), pausa el juego. Tres pestañas:
 //  - Objetos: cuadrícula con objetos clave, materiales y consumibles; detalle y botón Usar/Equipar.
@@ -113,40 +115,126 @@ public class InventoryScreen : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
+
     private void Update()
     {
         var kb = Keyboard.current;
-        if (kb == null) return;
+        var pad = Gamepad.current;
 
+        // Detectar control PlayStation
+        var psPad = pad as DualShockGamepad;
+
+        // Teclado: Tab
+        bool tabPressed = kb != null &&
+                        kb.tabKey.wasPressedThisFrame;
+
+        // PS5: presionar Touchpad
+        // Otros gamepads: Select / View
+        bool touchpadPressed = psPad != null
+            ? psPad.touchpadButton.wasPressedThisFrame
+            : pad != null && pad.selectButton.wasPressedThisFrame;
+
+        // Escape del teclado
+        bool escapePressed = kb != null &&
+                            kb.escapeKey.wasPressedThisFrame;
+
+        // PS5: Circulo / Xbox: B
+        bool backPressed = pad != null &&
+                        pad.buttonEast.wasPressedThisFrame;
+
+        bool inventoryPressed = tabPressed || touchpadPressed;
+
+        // =========================
+        // INVENTARIO ABIERTO
+        // =========================
         if (IsOpen)
         {
-            if (kb.tabKey.wasPressedThisFrame || kb.escapeKey.wasPressedThisFrame)
+            // Cerrar inventario
+            if (inventoryPressed || escapePressed || backPressed)
             {
-                if (kb.escapeKey.wasPressedThisFrame) GameInput.ConsumeEscape();
+                if (escapePressed)
+                    GameInput.ConsumeEscape();
+
                 Close();
+                return;
             }
-            else if (kb.digit1Key.wasPressedThisFrame) ShowTab(Tab.Items);
-            else if (kb.digit2Key.wasPressedThisFrame) ShowTab(Tab.Equipment);
-            else if (kb.digit3Key.wasPressedThisFrame) ShowTab(Tab.Stats);
-            else if (kb.aKey.wasPressedThisFrame || kb.leftArrowKey.wasPressedThisFrame) ShowTab((Tab)(((int)tab + 2) % 3));
-            else if (kb.dKey.wasPressedThisFrame || kb.rightArrowKey.wasPressedThisFrame) ShowTab((Tab)(((int)tab + 1) % 3));
+
+            // Cambio de pestanas con teclado
+            if (kb != null)
+            {
+                if (kb.digit1Key.wasPressedThisFrame)
+                    ShowTab(Tab.Items);
+
+                else if (kb.digit2Key.wasPressedThisFrame)
+                    ShowTab(Tab.Equipment);
+
+                else if (kb.digit3Key.wasPressedThisFrame)
+                    ShowTab(Tab.Stats);
+
+                else if (kb.aKey.wasPressedThisFrame ||
+                        kb.leftArrowKey.wasPressedThisFrame)
+                    ShowTab((Tab)(((int)tab + 2) % 3));
+
+                else if (kb.dKey.wasPressedThisFrame ||
+                        kb.rightArrowKey.wasPressedThisFrame)
+                    ShowTab((Tab)(((int)tab + 1) % 3));
+            }
+
+            // Cambio de pestanas con PS5 / Xbox
+            if (pad != null)
+            {
+                // L1: pestana anterior
+                if (pad.leftShoulder.wasPressedThisFrame)
+                {
+                    ShowTab((Tab)(((int)tab + 2) % 3));
+                }
+
+                // R1: siguiente pestana
+                else if (pad.rightShoulder.wasPressedThisFrame)
+                {
+                    ShowTab((Tab)(((int)tab + 1) % 3));
+                }
+            }
+
             return;
         }
 
-        if (!kb.tabKey.wasPressedThisFrame) return;
+        // =========================
+        // INVENTARIO CERRADO
+        // =========================
+
+        // Solo Tab o Touchpad abren inventario
+        if (!inventoryPressed)
+            return;
+
         var context = SceneContext.Current;
         var player = SceneContext.FindPlayer();
-        var h = player != null ? player.GetComponent<Health>() : null;
-        bool canOpen = context != null && context.AllowPause && !GameInput.Locked
-                       && (h == null || !h.IsDead)
-                       && (SceneLoader.Instance == null || !SceneLoader.Instance.IsBusy);
-        if (canOpen) Open();
+
+        var h = player != null
+            ? player.GetComponent<Health>()
+            : null;
+
+        bool canOpen =
+            context != null &&
+            context.AllowPause &&
+            !GameInput.Locked &&
+            (h == null || !h.IsDead) &&
+            (SceneLoader.Instance == null ||
+            !SceneLoader.Instance.IsBusy);
+
+        if (canOpen)
+            Open();
     }
+
+
 
     public void Open()
     {
         var player = SceneContext.FindPlayer();
-        if (player == null) return;
+
+        if (player == null)
+            return;
+
         inventory = player.GetComponent<Inventory>();
         stats = player.GetComponent<PlayerStats>();
         health = player.GetComponent<Health>();
@@ -154,12 +242,29 @@ public class InventoryScreen : MonoBehaviour
         itemUser = player.GetComponent<ItemUser>();
 
         panel.SetActive(true);
+
+        // Pausar el juego
         Time.timeScale = 0f;
         GameInput.Lock(this);
+
         equipmentChanged = false;
         selectedItem = 0;
+
         ShowTab(tab);
+
+        // Seleccionar la pestana actual
+        // para navegar con el control
+        if (EventSystem.current != null &&
+            tabButtons != null &&
+            (int)tab < tabButtons.Count &&
+            tabButtons[(int)tab] != null)
+        {
+            EventSystem.current.SetSelectedGameObject(
+                tabButtons[(int)tab].gameObject
+            );
+        }
     }
+
 
     public void Close()
     {

@@ -23,23 +23,55 @@ public class PauseMenu : MonoBehaviour
         if (quitButton != null) quitButton.onClick.AddListener(() => GameFlow.Instance.QuitGame());
     }
 
+
     private void Update()
     {
         var kb = Keyboard.current;
-        if (kb == null || !kb.escapeKey.wasPressedThisFrame) return;
-        if (GameInput.EscapeConsumedFrame == Time.frameCount) return; // otro panel ya cerró con Esc
+        var pad = Gamepad.current;
 
+        // Teclado: Escape
+        bool escapePressed = kb != null &&
+                            kb.escapeKey.wasPressedThisFrame;
+
+        // PS5: Options / Xbox: Menu
+        bool optionsPressed = pad != null &&
+                            pad.startButton.wasPressedThisFrame;
+
+        // PS5: Circulo / Xbox: B
+        bool backPressed = pad != null &&
+                        pad.buttonEast.wasPressedThisFrame;
+
+        // Evitar que se abra pausa si otro panel
+        // acaba de cerrarse con Escape
+        if (GameInput.EscapeConsumedFrame == Time.frameCount)
+            return;
+
+        // Si la pausa esta abierta
         if (IsOpen)
         {
-            Close();
+            if (escapePressed || optionsPressed || backPressed)
+            {
+                Close();
+            }
+
             return;
         }
 
+        // Solo Options o Escape pueden abrir pausa
+        if (!escapePressed && !optionsPressed)
+            return;
+
         var context = SceneContext.Current;
-        bool canPause = context != null && context.AllowPause
-                        && (SceneLoader.Instance == null || !SceneLoader.Instance.IsBusy)
-                        && !GameInput.Locked;
-        if (canPause) Open();
+
+        bool canPause =
+            context != null &&
+            context.AllowPause &&
+            (SceneLoader.Instance == null ||
+            !SceneLoader.Instance.IsBusy) &&
+            !GameInput.Locked;
+
+        if (canPause)
+            Open();
     }
 
     public void Open()
