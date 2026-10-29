@@ -25,7 +25,10 @@ public class DialogueSequence : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(0.5f);
         while (SceneLoader.Instance != null && SceneLoader.Instance.IsBusy) yield return null;
-        DialogueUI.Play(dialogue, Finish);
+        // Con un StoryBook en el mismo objeto la narración se lee como cuento; si no, en la caja de diálogo
+        var book = GetComponent<StoryBook>();
+        if (book != null) book.Play(dialogue, Finish);
+        else DialogueUI.Play(dialogue, Finish);
     }
 
     private void Finish()

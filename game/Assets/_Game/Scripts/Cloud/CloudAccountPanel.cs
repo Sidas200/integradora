@@ -31,6 +31,12 @@ public class CloudAccountPanel : MonoBehaviour
 
     public bool LoginOpen => loginPanel != null && loginPanel.activeSelf;
 
+    // Para que el menú principal le aplique su estilo (MainMenuStyle)
+    public RectTransform Card { get; private set; }
+    public Button AccountButton => accountButton;
+    public TMP_Text AccountText => accountText;
+    public TMP_Text StatusText => statusText;
+
     public static CloudAccountPanel Create(Transform sceneRoot)
     {
         var go = new GameObject("CloudAccountCanvas", typeof(RectTransform));
@@ -148,7 +154,7 @@ public class CloudAccountPanel : MonoBehaviour
         var sync = CloudSync.Instance;
         if (sync == null || accountText == null) return;
         var session = sync.Session;
-        accountText.text = session.IsSignedIn ? $"Cuenta: <b>{session.Player.Username}</b>" : "Sin cuenta conectada";
+        accountText.text = session.IsSignedIn ? $"Cuenta: <b><color=#F6E2FF>{session.Player.Username}</color></b>" : "Sin cuenta conectada";
         statusText.text = sync.Status;
         accountButtonLabel.text = session.IsSignedIn ? "Cerrar sesión" : "Iniciar sesión";
         accountButton.interactable = !busy && session.State != CloudSessionState.Restoring;
@@ -176,6 +182,7 @@ public class CloudAccountPanel : MonoBehaviour
 
         // Tarjeta de cuenta (arriba a la derecha)
         var card = Box(root, "AccountCard", new Vector2(1, 1), new Vector2(-40, -36), new Vector2(560, 200));
+        Card = card;
         Image(card, PanelColor);
         accountText = Label(card, "Account", "", 30, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(22, -16), new Vector2(516, 40), TextColor);
         statusText = Label(card, "Status", "", 22, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(22, -58), new Vector2(516, 60), MutedText);
