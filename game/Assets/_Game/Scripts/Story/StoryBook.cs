@@ -8,7 +8,8 @@ using UnityEngine.UI;
 // Cuento de la intro: el diálogo se lee en un libro que se abre y pasa de página (estilo "Érase una vez").
 // Cada línea del DialogueData es una doble página: la ilustración de esa línea a la izquierda y el texto
 // a la derecha con máquina de escribir (con el retrato de quien habla junto a su nombre).
-// Mismos controles que DialogueUI: E, Espacio, Enter o clic avanzan (la primera pulsación completa la línea), X salta todo.
+// Mismos controles que DialogueUI: E, Espacio, Enter, clic o A / × avanzan (la primera pulsación completa la línea);
+// X del teclado o Start / Options saltan todo.
 // Todo se construye por código, así que no depende de sprites de libro.
 public class StoryBook : MonoBehaviour
 {
@@ -45,6 +46,7 @@ public class StoryBook : MonoBehaviour
     private RectTransform leftPage, rightPage;
     private TMP_Text bodyText;
     private GameObject hint;
+    private TMP_Text hintText;
     private Image[] stars;
     private float[] starPhase;
 
@@ -84,8 +86,21 @@ public class StoryBook : MonoBehaviour
     private void Update()
     {
         TwinkleStars();
+
+        // Actualizar las instrucciones segun el ultimo dispositivo utilizado.
+        // Solo cambia el texto; no afecta las animaciones ni los controles reales.
+        if (open && hintText != null)
+        {
+            string message = ControlHints.Format("{continue}: continuar     {skip}: saltar");
+
+            if (hintText.text != message)
+                hintText.text = message;
+        }
+
         if (!open || busy || Time.unscaledTime < inputReadyAt) return;
-        if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
+        // X del teclado o Start / Options del mando
+        if ((Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame) ||
+            GamepadInput.StartPressed)
         {
             Close();
             return;
@@ -102,13 +117,35 @@ public class StoryBook : MonoBehaviour
         else StartCoroutine(Flip(lineIndex + 1));
     }
 
+    
     private static bool AdvancePressed()
     {
         var kb = Keyboard.current;
         var mouse = Mouse.current;
-        return (kb != null && (kb.eKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame))
-               || (mouse != null && mouse.leftButton.wasPressedThisFrame);
+
+        // Teclado: E, Espacio o Enter
+        bool keyboardAdvance =
+            kb != null &&
+            (
+                kb.eKey.wasPressedThisFrame ||
+                kb.spaceKey.wasPressedThisFrame ||
+                kb.enterKey.wasPressedThisFrame
+            );
+
+        // Mouse: clic izquierdo
+        bool mouseAdvance =
+            mouse != null &&
+            mouse.leftButton.wasPressedThisFrame;
+
+        // AYN Thor / Xbox: A
+        // PlayStation 5: Cruz
+        bool gamepadAdvance = GamepadInput.SouthPressed;
+
+        return keyboardAdvance ||
+            mouseAdvance ||
+            gamepadAdvance;
     }
+
 
     // ---------------------------------------------------------- CONSTRUCCIÓN
     private void Build()
@@ -156,8 +193,10 @@ public class StoryBook : MonoBehaviour
         var title = Text(cover, "Érase una vez...", 64, Gold, new Vector2(PageW - 120f, 300f), new Vector2((PageW + 35f) / 2f, 40f));
         title.fontStyle = FontStyles.Italic | FontStyles.Bold;
 
-        var h = Text(cgo.transform, "E / Espacio / Clic: continuar      X: saltar", 26, new Color(1f, 1f, 1f, 0.8f),
-                     new Vector2(1200f, 40f), new Vector2(0f, -495f));
+        // La instruccion se determina dinamicamente mediante ControlHints.
+        var h = Text(cgo.transform, "", 26, new Color(1f, 1f, 1f, 0.8f),
+             new Vector2(1200f, 40f), new Vector2(0f, -495f));
+        hintText = h;
         hint = h.gameObject;
         hint.SetActive(false);
 
@@ -264,8 +303,8 @@ public class StoryBook : MonoBehaviour
         }
 
         var body = narration
-            ? Text(page, Decorate(line.text, true), 42, Ink, new Vector2(620f, 420f), Vector2.zero)
-            : Text(page, line.text, 38, Ink, new Vector2(620f, 220f), new Vector2(0f, -140f));
+            ? Text(page, Decorate(ControlHints.Format(line.text), true), 42, Ink, new Vector2(620f, 420f), Vector2.zero)
+            : Text(page, ControlHints.Format(line.text), 38, Ink, new Vector2(620f, 220f), new Vector2(0f, -140f));
         body.alignment = narration ? TextAlignmentOptions.Center : TextAlignmentOptions.Top;
         body.fontStyle = narration ? FontStyles.Italic : FontStyles.Normal;
         body.lineSpacing = 10f;

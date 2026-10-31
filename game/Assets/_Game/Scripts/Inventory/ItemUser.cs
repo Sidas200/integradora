@@ -3,15 +3,15 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-// Usa items consumibles del inventario: Poción (Q) y Gota de Amrita (G).
+// Usa items consumibles del inventario: Poción (Q / RB / R1) y Gota de Amrita (G / LB / L1).
 // Va en el mismo objeto que el componente Health del jugador.
 public class ItemUser : MonoBehaviour
 {
-    [Header("Poción (tecla Q)")]
+    [Header("Poción (tecla Q, RB / R1 con mando)")]
     [SerializeField] private MaterialData potion;
     [SerializeField] private int potionHeal = 30;
 
-    [Header("Gota de Amrita (tecla G)")]
+    [Header("Gota de Amrita (tecla G, LB / L1 con mando)")]
     [SerializeField] private MaterialData amritaDrop;
     public UnityEvent onAmritaUsed;
 
@@ -32,13 +32,12 @@ public class ItemUser : MonoBehaviour
     private void Update()
     {
         // Con el juego en pausa (panel de crafteo, menú) no se usan items
-        if (Time.timeScale == 0f || GameInput.Locked) return;
+        if (Time.timeScale == 0f || GameInput.GameplayBlocked) return;
 
         var keyboard = Keyboard.current;
-        if (keyboard == null) return;
 
-        if (keyboard.qKey.wasPressedThisFrame) UsePotion();
-        if (keyboard.gKey.wasPressedThisFrame) UseAmrita();
+        if ((keyboard != null && keyboard.qKey.wasPressedThisFrame) || GamepadInput.RightShoulderPressed) UsePotion();
+        if ((keyboard != null && keyboard.gKey.wasPressedThisFrame) || GamepadInput.LeftShoulderPressed) UseAmrita();
     }
 
     private Inventory GetInventory()

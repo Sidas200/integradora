@@ -25,4 +25,4 @@ MonoBehaviour:
     text: "Mi mano. Esta marca... es la misma que ten\xEDa ella."
   - speaker: 
     portrait: {fileID: 0}
-    text: "Mu\xE9vete con WASD o las flechas. Pulsa E cerca de algo para interactuar."
+    text: "Mu\xE9vete con {move}. Pulsa {interact} cerca de algo para interactuar."

@@ -6,8 +6,8 @@ public static class ItemUsage
     {
         switch (id)
         {
-            case "pocion": return "Úsala con Q o con el botón Usar: recupera 30 de vida.";
-            case "gota_amrita": return "Ofrécela a un guardián dormido para despertarlo (E frente a él, o G).";
+            case "pocion": return ControlHints.Format("Úsala con {potion} o con el botón Usar: recupera 30 de vida.");
+            case "gota_amrita": return ControlHints.Format("Ofrécela a un guardián dormido para despertarlo ({interact} frente a él, o {amrita}).");
             case "alma_pequena": return "Ofrécela en la puerta del primer Santuario para abrirla.";
             case "casco_cuero":
             case "pechera_cuero":

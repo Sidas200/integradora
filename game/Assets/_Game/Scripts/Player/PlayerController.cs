@@ -158,8 +158,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-    // Pausa, diálogo, forja o transición
-    if (GameInput.Locked)
+    // Pausa, diálogo, forja o transición (o el frame en que se cerró uno de ellos,
+    // para que la A que cerró el diálogo no haga también un dash)
+    if (GameInput.GameplayBlocked)
     {
         movement = Vector2.zero;
         UpdateSpriteAnimation();
@@ -191,21 +192,14 @@ public class PlayerController : MonoBehaviour
     }
 
     // =========================
-    // MOVIMIENTO CONTROL PS5 / XBOX
+    // MOVIMIENTO CONTROL PS5 / XBOX / AYN THOR
     // =========================
-    if (Gamepad.current != null)
-    {
-        Vector2 stick = Gamepad.current.leftStick.ReadValue();
-        Vector2 dpad = Gamepad.current.dpad.ReadValue();
+    // La cruceta tiene prioridad sobre el stick (se leen todos los mandos conectados)
+    Vector2 stick = GamepadInput.Move;
 
-        // La cruceta tiene prioridad sobre el stick
-        if (dpad.sqrMagnitude > 0.01f)
-            stick = dpad;
-
-        // Si se utiliza el control, tiene prioridad
-        if (stick.sqrMagnitude > 0.01f)
-            movement = stick;
-    }
+    // Si se utiliza el control, tiene prioridad
+    if (stick.sqrMagnitude > 0.01f)
+        movement = stick;
 
     // Limitar velocidad y permitir movimiento analógico
     movement = Vector2.ClampMagnitude(movement, 1f);
@@ -228,8 +222,7 @@ public class PlayerController : MonoBehaviour
     bool dashPressed =
         (Keyboard.current != null &&
          Keyboard.current.spaceKey.wasPressedThisFrame) ||
-        (Gamepad.current != null &&
-         Gamepad.current.buttonSouth.wasPressedThisFrame);
+        GamepadInput.SouthPressed;
 
     if (dashPressed && !isDashing && dashCooldownTimer <= 0)
     {
@@ -275,8 +268,7 @@ public class PlayerController : MonoBehaviour
         aimWithKeyboard = true;
         OnAttackPressed();
     }
-    else if (Gamepad.current != null &&
-             Gamepad.current.buttonWest.wasPressedThisFrame)
+    else if (GamepadInput.WestPressed)
     {
         // Cuadrado PS5 / X Xbox
         aimWithKeyboard = true;
@@ -495,9 +487,7 @@ private void FixedUpdate()
         if (aimWithKeyboard || Mouse.current == null)
         {
             // Apuntar con joystick derecho
-            Vector2 rightStick = Gamepad.current != null
-                ? Gamepad.current.rightStick.ReadValue()
-                : Vector2.zero;
+            Vector2 rightStick = GamepadInput.RightStick;
 
             // Si el stick derecho no se utiliza,
             // atacar hacia donde caminó Tsuki

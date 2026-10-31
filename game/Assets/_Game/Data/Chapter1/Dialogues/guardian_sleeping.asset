@@ -22,4 +22,4 @@ MonoBehaviour:
     text: "As\xED que este es el guardi\xE1n... Kaede dijo que solo la Amrita lo despierta."
   - speaker: 
     portrait: {fileID: 0}
-    text: "Ac\xE9rcate y ofr\xE9cele la Gota de Amrita (E frente a \xE9l, o G)."
+    text: "Ac\xE9rcate y ofr\xE9cele la Gota de Amrita ({interact} frente a \xE9l, o {amrita})."
