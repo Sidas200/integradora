@@ -352,7 +352,8 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4492480789061150374, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 4075933655755013577, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
@@ -374,6 +375,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3686867960986688430, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7210327913696327690}
+    - targetCorrespondingSourceObject: {fileID: 3686867960986688430, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 885358110529731765}
     - targetCorrespondingSourceObject: {fileID: 3313500293027026127, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7491035182960366217}
@@ -684,6 +688,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Gameplay::SlimeBounce
   visual: {fileID: 1574969461092369177}
   speed: 7
+--- !u!114 &885358110529731765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4811869618449077184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 533ab331cc83448fa422bb240071a93a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::SlimeController
+  player: {fileID: 0}
+  visual: {fileID: 1574969461092369177}
+  warning: {fileID: 7491035182960366217}
+  detectionRange: 1.5
+  loseSightRange: 1.9
+  moveSpeed: 1
+  lungeTriggerRange: 0.75
+  chargeTime: 0.7
+  lungeSpeed: 4.2
+  lungeDistance: 1
+  hitRadius: 0.12
+  attackDamage: 6
+  attackCooldown: 0.4
+  recoilSpeed: 1.6
+  recoilTime: 0.25
+  stunAfterHit: 1.5
+  stunAfterMiss: 2
+  hitStunDuration: 0.15
+  knockbackSpeed: 1.5
 --- !u!4 &5295656040892839335 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4075933655755013577, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}

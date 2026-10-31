@@ -30,7 +30,21 @@ namespace Game.EditorTools.Chapter1
 
         public static string PathOf(string name) => $"{Folder}/{name}.png";
 
-        public static Sprite Load(string name) => AssetDatabase.LoadAssetAtPath<Sprite>(PathOf(name));
+        // Arte final que ya reemplaza a un placeholder (el builder lo usa en su lugar)
+        private static readonly Dictionary<string, string> DesignedArt = new Dictionary<string, string>
+        {
+            { "placeholder_forge", "Assets/_Game/Art/Props/forge_workbench.png" },
+        };
+
+        public static Sprite Load(string name)
+        {
+            if (DesignedArt.TryGetValue(name, out var path))
+            {
+                var designed = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                if (designed != null) return designed;
+            }
+            return AssetDatabase.LoadAssetAtPath<Sprite>(PathOf(name));
+        }
 
         [MenuItem("Tools/Claude/Chapter 1/2 - Generate Placeholder Art")]
         public static void GenerateAll()

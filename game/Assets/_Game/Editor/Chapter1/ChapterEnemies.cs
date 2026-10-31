@@ -58,8 +58,9 @@ namespace Game.EditorTools.Chapter1
             Object.DestroyImmediate(root);
         }
 
-        // Slime azul (DropTable_SlimeAzul del equipo): misma IA cuerpo a cuerpo, más débil y lento,
-        // con su propio sprite y animación de rebote. Suelta flor y restos de slime.
+        // Slime azul (DropTable_SlimeAzul del equipo): parte del enemigo cuerpo a cuerpo pero con su
+        // propia IA (SlimeController: carga y se lanza contra el jugador), sprite y animación de rebote.
+        // Suelta flor y restos de slime.
         private static void BuildSlime()
         {
             var basePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BaseMeleePath);
@@ -79,14 +80,15 @@ namespace Game.EditorTools.Chapter1
             warning.gameObject.AddComponent<Telegraph>().SetDefaults(0.6f, Telegraph.Danger);
             warning.gameObject.AddComponent<DetachedChild>();
 
-            var ai = root.GetComponent<EnemyMeleeController>();
-            SetFloat(ai, "attackWindup", 0.6f);
+            Object.DestroyImmediate(root.GetComponent<EnemyMeleeController>());
+            root.AddComponent<SlimeBounce>().Setup(visual.transform);
+            var ai = root.AddComponent<SlimeController>();
+            ai.Setup(visual.transform, warning.GetComponent<Telegraph>());
             SetFloat(ai, "detectionRange", 1.5f);
             SetFloat(ai, "moveSpeed", 1.0f);
             SetInt(ai, "attackDamage", 6);
             SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", 30);
             UiFactory.SetRef(root.GetComponent<EnemyHitFeedback>(), "spriteRenderer", visual);
-            root.AddComponent<SlimeBounce>().Setup(visual.transform);
 
             PrefabUtility.SaveAsPrefabAsset(root, SlimePath);
             Object.DestroyImmediate(root);

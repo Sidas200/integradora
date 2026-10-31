@@ -390,6 +390,8 @@ namespace Game.EditorTools.Chapter1
                 var ranged = health.GetComponent<EnemyRangedController>();
                 if (melee != null) range = new SerializedObject(melee).FindProperty("detectionRange").floatValue;
                 if (ranged != null) range = new SerializedObject(ranged).FindProperty("detectionRange").floatValue;
+                var slime = health.GetComponent<SlimeController>();
+                if (slime != null) range = new SerializedObject(slime).FindProperty("detectionRange").floatValue;
                 foreach (Transform m in markers)
                 {
                     if (!m.name.StartsWith("Spawn_") && !m.name.StartsWith("SavePoint_")) continue;
