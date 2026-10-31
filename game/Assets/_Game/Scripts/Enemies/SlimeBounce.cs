@@ -9,6 +9,9 @@ public class SlimeBounce : MonoBehaviour
     private Rigidbody2D rb;
     private float phase;
 
+    // Aplastamiento extra que pide la IA (> 0 aplastado al cargar, < 0 estirado al saltar)
+    public float ExtraSquash { get; set; }
+
     public void Setup(Transform visualTransform) => visual = visualTransform;
 
     private void Awake() => rb = GetComponent<Rigidbody2D>();
@@ -18,7 +21,7 @@ public class SlimeBounce : MonoBehaviour
         if (visual == null) return;
         bool moving = rb != null && rb.linearVelocity.sqrMagnitude > 0.01f;
         phase += Time.deltaTime * (moving ? speed : 2.5f);
-        float k = Mathf.Sin(phase) * (moving ? 0.14f : 0.05f);
+        float k = Mathf.Sin(phase) * (moving ? 0.14f : 0.05f) + ExtraSquash;
         visual.localScale = new Vector3(1f + k, 1f - k, 1f);
         if (rb != null && Mathf.Abs(rb.linearVelocity.x) > 0.05f)
         {

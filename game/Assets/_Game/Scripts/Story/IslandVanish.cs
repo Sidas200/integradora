@@ -45,7 +45,30 @@ public class IslandVanish : MonoBehaviour
         safeSpot = spot;
     }
 
-    private void Start() => BlockIslandEdge();
+    private void Start()
+    {
+        BlockIslandEdge();
+        ClearBridge();
+    }
+
+    // El puente siempre se puede cruzar: se borran las colisiones pintadas encima de sus celdas
+    // (al repintar la isla quedaron celdas bloqueadas sobre el puente y Tsuki se atoraba en un carril de 1 celda).
+    private void ClearBridge()
+    {
+        if (keepTile == null) return;
+        var maps = ground.layoutGrid.GetComponentsInChildren<TilemapCollider2D>(true);
+        foreach (var p in ground.cellBounds.allPositionsWithin)
+        {
+            if (ground.GetTile(p) != keepTile) continue;
+            foreach (var map in maps)
+            {
+                var tilemap = map.GetComponent<Tilemap>();
+                // Las capas se alinean por posición en el mundo (Collisions puede tener otro desfase que Ground)
+                var cell = tilemap.WorldToCell(ground.GetCellCenterWorld(p));
+                if (tilemap.HasTile(cell)) tilemap.SetTile(cell, null);
+            }
+        }
+    }
 
     // La isla no tiene muro: cada celda vacía que toca el suelo se vuelve infranqueable, así no se camina
     // por el cielo aunque cambie la forma del suelo. Las capas de colisiones no se dibujan (se verían en el vacío).

@@ -24,6 +24,21 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private TMP_Text continueHintText;
     [SerializeField] private float charsPerSecond = 45f;
 
+    [Header("Busto de Tsuki")]
+    [Tooltip("Busto que acompaña la caja: a color cuando habla, en grises cuando habla alguien más.")]
+    [SerializeField] private string bustSpeaker = "Tsuki";
+    [SerializeField] private string bustResource = "Portraits/tsuki_bust";
+    [SerializeField] private string bustGrayResource = "Portraits/tsuki_bust_gray";
+    [SerializeField] private Vector2 bustSize = new Vector2(380f, 522f);
+    [SerializeField] private float bustFadeSpeed = 8f;
+
+    private Image bust;
+    private Sprite bustColor, bustGray;
+    private bool bustTalking;
+    private float bustLit;
+    private RectTransform bodyRect, hintRect;
+    private Vector2 bodySize, hintPos;
+
     private DialogueData current;
     private int lineIndex;
     private bool typing;
@@ -59,6 +74,65 @@ public class DialogueUI : MonoBehaviour
             if (continueHintText == null)
                 continueHintText = continueHint.GetComponentInChildren<TMP_Text>(true);
         }
+
+        CreateBust();
+    }
+
+    // El busto se arma en código para no depender de reconstruir el prefab GameSystems.
+    // Va a la derecha de la caja, apoyado en su borde inferior y sobresaliendo por arriba.
+    private void CreateBust()
+    {
+        bustColor = Resources.Load<Sprite>(bustResource);
+        bustGray = Resources.Load<Sprite>(bustGrayResource);
+        if (panel == null || bustColor == null) return;
+
+        var go = new GameObject("SpeakerBust", typeof(RectTransform));
+        var rt = (RectTransform)go.transform;
+        rt.SetParent(panel.transform, false);
+        rt.anchorMin = rt.anchorMax = new Vector2(1f, 0f);
+        rt.pivot = new Vector2(1f, 0f);
+        rt.anchoredPosition = new Vector2(-12f, 0f);
+        rt.sizeDelta = bustSize;
+        bust = go.AddComponent<Image>();
+        bust.sprite = bustColor;
+        bust.preserveAspect = true;
+        bust.raycastTarget = false;
+        go.SetActive(false);
+
+        if (bodyText != null) { bodyRect = bodyText.rectTransform; bodySize = bodyRect.sizeDelta; }
+        if (continueHint != null) { hintRect = continueHint.transform as RectTransform; hintPos = hintRect.anchoredPosition; }
+    }
+
+    private bool IsBustSpeaker(DialogueData.Line line) => line.speaker == bustSpeaker;
+
+    // El busto solo aparece en conversaciones donde Tsuki dice algo; el texto se acorta para no taparse.
+    private void SetupBust()
+    {
+        if (bust == null) return;
+        bool show = current.lines.Exists(IsBustSpeaker);
+        bust.gameObject.SetActive(show);
+        float room = show ? bustSize.x - 20f : 0f;
+        if (bodyRect != null) bodyRect.sizeDelta = new Vector2(bodySize.x - room, bodySize.y);
+        if (hintRect != null) hintRect.anchoredPosition = hintPos - new Vector2(room, 0f);
+        bustTalking = false;
+        bustLit = 0f;
+        ApplyBust();
+    }
+
+    private void UpdateBust()
+    {
+        if (bust == null || !bust.gameObject.activeSelf) return;
+        bustLit = Mathf.MoveTowards(bustLit, bustTalking ? 1f : 0f, bustFadeSpeed * Time.unscaledDeltaTime);
+        ApplyBust();
+    }
+
+    // Encendido: sprite a color, tamaño completo. Apagado: sprite en grises, más oscuro y un poco más chico.
+    private void ApplyBust()
+    {
+        bust.sprite = bustLit > 0.5f || bustGray == null ? bustColor : bustGray;
+        float v = Mathf.Lerp(0.7f, 1f, bustLit);
+        bust.color = new Color(v, v, v, 1f);
+        bust.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.95f, 1f, bustLit);
     }
 
     private void OnDestroy()
@@ -91,7 +165,7 @@ public class DialogueUI : MonoBehaviour
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
         inputReadyAt = Time.unscaledTime + 0.15f;
-
+        SetupBust();
         UpdateControlHint();
         ShowLine();
     }
@@ -99,6 +173,7 @@ public class DialogueUI : MonoBehaviour
     private void Update()
     {
         if (!IsOpen) return;
+        UpdateBust();
 
         // Actualizar el indicador aunque el juego este pausado o el texto se este escribiendo.
         UpdateControlHint();
@@ -106,8 +181,9 @@ public class DialogueUI : MonoBehaviour
 
         if (Time.unscaledTime < inputReadyAt) return;
 
-        // X del teclado o Start / Options del mando saltan toda la conversacion y ejecutan el callback.
-        // La pausa no se abre en ese frame (GameInput.GameplayBlocked).
+        // X del teclado o Start / Options del mando saltan toda la conversacion; el callback corre
+        // igual, asi la historia avanza como si se leyera. La pausa no se abre en ese frame
+        // (GameInput.GameplayBlocked).
         if (SkipPressed())
         {
             Close();
@@ -180,7 +256,9 @@ public class DialogueUI : MonoBehaviour
 
         nameBox.SetActive(!narration);
         speakerText.text = line.speaker;
-        portraitFrame.SetActive(line.portrait != null);
+        bustTalking = IsBustSpeaker(line);
+        // Cuando Tsuki habla, su busto ya lo representa: no se repite el retrato pequeño
+        portraitFrame.SetActive(line.portrait != null && !(bustTalking && bust != null && bust.gameObject.activeSelf));
         portrait.sprite = line.portrait;
         bodyText.fontStyle = narration ? FontStyles.Italic : FontStyles.Normal;
         shownScheme = ControlHints.Current;
