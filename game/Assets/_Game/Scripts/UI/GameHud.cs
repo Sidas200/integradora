@@ -45,6 +45,9 @@ public class GameHud : MonoBehaviour
     private string lastObjective;
     private GuardianBoss boss;
 
+    // Pista bajo la vida ("Tab: Inventario · Esc: Pausa") que crea el builder; cambia con el dispositivo.
+    private TMP_Text inventoryHint;
+
     private void Awake()
     {
         Instance = this;
@@ -52,6 +55,7 @@ public class GameHud : MonoBehaviour
         if (toastGroup != null) toastGroup.alpha = 0f;
         if (promptGroup != null) promptGroup.alpha = 0f;
         if (bossGroup != null) bossGroup.alpha = 0f;
+        inventoryHint = UiNav.FindLabel(transform, "InventoryHint");
         StoryFlags.Changed += HandleFlagChanged;
         ChapterObjectives.AmountProvider = AmountOf;
     }
@@ -61,6 +65,13 @@ public class GameHud : MonoBehaviour
         if (Instance == this) Instance = null;
         StoryFlags.Changed -= HandleFlagChanged;
         Unbind();
+    }
+
+    private void Update()
+    {
+        if (inventoryHint == null) return;
+        string message = ControlHints.Format("{inventory}: Inventario   ·   {pause}: Pausa");
+        if (inventoryHint.text != message) inventoryHint.text = message;
     }
 
     private void HandleFlagChanged(string flag) => RefreshObjective(true);

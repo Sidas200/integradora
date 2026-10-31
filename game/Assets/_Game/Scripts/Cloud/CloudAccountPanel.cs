@@ -27,6 +27,8 @@ public class CloudAccountPanel : MonoBehaviour
     private TMP_InputField passwordField;
     private TMP_Text loginMessage;
     private Button submitButton;
+    private Button cancelButton;
+    private Selectable[] loginSelectables;
     private bool busy;
 
     public bool LoginOpen => loginPanel != null && loginPanel.activeSelf;
@@ -63,11 +65,44 @@ public class CloudAccountPanel : MonoBehaviour
     private void Update()
     {
         if (!LoginOpen) return;
+
+        // Mando: B / ○ cierra; stick / cruceta recorren campos y botones (EventSystem), A / × confirma.
+        if (GamepadInput.EastPressed)
+        {
+            CloseLogin();
+            return;
+        }
+        UiNav.KeepSelection(emailField, loginSelectables);
+
         var kb = Keyboard.current;
         if (kb == null) return;
         if (kb.escapeKey.wasPressedThisFrame) CloseLogin();
         else if (kb.tabKey.wasPressedThisFrame) Focus(emailField.isFocused ? passwordField : emailField);
         else if ((kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame) && !busy) Submit();
+    }
+
+    // Recorrido con mando: correo -> contraseña -> Entrar <-> Cancelar.
+    private void ConfigureLoginNavigation()
+    {
+        loginSelectables = new Selectable[] { emailField, passwordField, submitButton, cancelButton };
+        SetNavigation(emailField, null, passwordField, null, null);
+        SetNavigation(passwordField, emailField, submitButton, null, null);
+        SetNavigation(submitButton, passwordField, null, cancelButton, cancelButton);
+        SetNavigation(cancelButton, passwordField, null, submitButton, submitButton);
+    }
+
+    private static void SetNavigation(Selectable s, Selectable up, Selectable down, Selectable left, Selectable right)
+    {
+        if (s == null) return;
+        var nav = new Navigation
+        {
+            mode = Navigation.Mode.Explicit,
+            selectOnUp = up,
+            selectOnDown = down,
+            selectOnLeft = left,
+            selectOnRight = right
+        };
+        s.navigation = nav;
     }
 
     // ---------------------------------------------------------------- acciones
@@ -211,6 +246,8 @@ public class CloudAccountPanel : MonoBehaviour
         submitButton.onClick.AddListener(() => { if (!busy) Submit(); });
         var cancel = Button(box, "Cancel", "Cancelar", new Vector2(0.5f, 0), new Vector2(170, 40), new Vector2(300, 74), 32);
         cancel.onClick.AddListener(CloseLogin);
+        cancelButton = cancel;
+        ConfigureLoginNavigation();
 
         loginPanel.SetActive(false);
         Refresh();

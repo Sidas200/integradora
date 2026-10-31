@@ -62,7 +62,7 @@ namespace Game.EditorTools.Chapter1
                 L(Tsuki, "...¿Dónde estoy? Hay flores por todas partes."),
                 L(Tsuki, "Hikari... la luz se la llevó hacia arriba. Tengo que encontrarla."),
                 L(Tsuki, "Mi mano. Esta marca... es la misma que tenía ella."),
-                L(Narrator, "Muévete con WASD o las flechas. Pulsa E cerca de algo para interactuar."),
+                L(Narrator, "Muévete con {move}. Pulsa {interact} cerca de algo para interactuar."),
             });
             Make("cabin_inside", new[]
             {
@@ -72,7 +72,7 @@ namespace Game.EditorTools.Chapter1
             {
                 L(Narrator, "Una espada carmesí, sin filo. Pesa menos de lo que parece."),
                 L(Tsuki, "Es como si me estuviera esperando... Me la llevo."),
-                L(Narrator, "Obtuviste la Espada carmesí. Clic izquierdo o J: atacar. Espacio: esquivar."),
+                L(Narrator, "Obtuviste la Espada carmesí. {attack}: atacar. {dash}: esquivar."),
             });
             Make("island_vanish", new[]
             {
@@ -187,7 +187,7 @@ namespace Game.EditorTools.Chapter1
             {
                 L(Narrator, "Un gigante de piedra duerme en el centro del umbral, sobre su arma."),
                 L(Tsuki, "Así que este es el guardián... Kaede dijo que solo la Amrita lo despierta."),
-                L(Narrator, "Acércate y ofrécele la Gota de Amrita (E frente a él, o G)."),
+                L(Narrator, "Acércate y ofrécele la Gota de Amrita ({interact} frente a él, o {amrita})."),
             });
             Make("guardian_no_amrita", new[]
             {
