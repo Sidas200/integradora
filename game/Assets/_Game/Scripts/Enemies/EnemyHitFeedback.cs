@@ -14,11 +14,13 @@ public class EnemyHitFeedback : MonoBehaviour
     private Color originalColor;
     private Coroutine flashCoroutine;
     private EnemyMeleeController meleeController;
+    private SlimeController slimeController;
 
     private void Awake()
     {
         enemyHealth = GetComponent<EnemyHealth>();
         meleeController = GetComponent<EnemyMeleeController>();
+        slimeController = GetComponent<SlimeController>();
 
         if (spriteRenderer == null)
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -51,6 +53,8 @@ public class EnemyHitFeedback : MonoBehaviour
         // Empuje y pausa al recibir daño
         if (meleeController != null)
             meleeController.ApplyHitReaction();
+        if (slimeController != null)
+            slimeController.ApplyHitReaction();
 
         // Destello rojo
         if (spriteRenderer == null)

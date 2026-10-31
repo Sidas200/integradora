@@ -33,6 +33,7 @@ public class SunLight : MonoBehaviour
     private float baseIntensity;
     private float seed;
     private Camera cam;
+    private SkyParallax sky;
     private readonly List<Patch> patches = new List<Patch>();
     private readonly List<CasterShadow> casters = new List<CasterShadow>();
     private readonly HashSet<Transform> tracked = new HashSet<Transform>();
@@ -43,6 +44,7 @@ public class SunLight : MonoBehaviour
     private void Start()
     {
         cam = Camera.main;
+        sky = GetComponent<SkyParallax>();
         seed = Random.value * 100f;
         global = FindGlobalLight();
         if (global != null)
@@ -118,7 +120,8 @@ public class SunLight : MonoBehaviour
                 if (rel.y > half.y) p.local.y -= half.y * 2f;
                 else if (rel.y < -half.y) p.local.y += half.y * 2f;
                 p.light.transform.position = new Vector3(p.local.x, p.local.y, 0f);
-                p.light.intensity = profile.sunPatchIntensity * (0.8f + 0.2f * Mathf.PerlinNoise(seed + i * 7.3f, t * 0.3f));
+                float indoor = sky != null ? sky.IndoorBlend : 0f; // bajo techo no hay sol
+                p.light.intensity = profile.sunPatchIntensity * (1f - indoor) * (0.8f + 0.2f * Mathf.PerlinNoise(seed + i * 7.3f, t * 0.3f));
             }
         }
 
