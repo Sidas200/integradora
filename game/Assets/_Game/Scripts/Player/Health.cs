@@ -24,6 +24,10 @@ public class Health : MonoBehaviour, IDamageable
     public event Action<int, int> HealthChanged;
     public event Action Died;
 
+    // Esquiva perfecta (PlayerController): si devuelve true el golpe no hace daño y se avisa con Dodged.
+    public Func<bool> DodgeCheck { get; set; }
+    public event Action Dodged;
+
     private IHealthProvider provider;
     private int currentHealth;
     private float invulnerableTimer;
@@ -58,6 +62,12 @@ public class Health : MonoBehaviour, IDamageable
     {
         if (IsDead || IsInvulnerable || amount <= 0)
             return;
+
+        if (DodgeCheck != null && DodgeCheck())
+        {
+            Dodged?.Invoke();
+            return;
+        }
 
         int damage = Mathf.Max(amount - Defense, minDamage);
         currentHealth = Mathf.Max(currentHealth - damage, 0);

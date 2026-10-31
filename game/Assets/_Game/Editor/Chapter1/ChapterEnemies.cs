@@ -51,7 +51,8 @@ namespace Game.EditorTools.Chapter1
 
             SetFloat(root.GetComponent<EnemyMeleeController>(), "attackWindup", 0.6f);
             SetFloat(root.GetComponent<EnemyMeleeController>(), "detectionRange", 1.9f);
-            SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", 45);
+            // Vidas: 3 golpes con la espada despertada (25 de daño), 4 sin ella (15)
+            SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", 60);
             UiFactory.SetRef(root.GetComponent<EnemyHitFeedback>(), "spriteRenderer", visual);
 
             PrefabUtility.SaveAsPrefabAsset(root, MeleePath);
@@ -87,7 +88,7 @@ namespace Game.EditorTools.Chapter1
             SetFloat(ai, "detectionRange", 1.5f);
             SetFloat(ai, "moveSpeed", 1.0f);
             SetInt(ai, "attackDamage", 6);
-            SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", 30);
+            SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", 52);
             UiFactory.SetRef(root.GetComponent<EnemyHitFeedback>(), "spriteRenderer", visual);
 
             PrefabUtility.SaveAsPrefabAsset(root, SlimePath);
@@ -102,7 +103,7 @@ namespace Game.EditorTools.Chapter1
             Finish(root, visual, 0.8f, 0.16f, 0.26f);
 
             var health = root.AddComponent<EnemyHealth>();
-            SetInt(health, "maxHealth", 40);
+            SetInt(health, "maxHealth", 56);
             var feedback = root.AddComponent<EnemyHitFeedback>();
             UiFactory.SetRef(feedback, "spriteRenderer", visual);
             var ranged = root.AddComponent<EnemyRangedController>();
@@ -122,7 +123,8 @@ namespace Game.EditorTools.Chapter1
             Finish(root, visual, 2.2f, 0.28f, 0.38f);
 
             var health = root.AddComponent<EnemyHealth>();
-            SetInt(health, "maxHealth", 300);
+            // 15 golpes con la espada despertada (25 de daño)
+            SetInt(health, "maxHealth", 375);
             SetFloat(health, "invulnerableTime", 0.35f);
             var feedback = root.AddComponent<EnemyHitFeedback>();
             UiFactory.SetRef(feedback, "spriteRenderer", visual);

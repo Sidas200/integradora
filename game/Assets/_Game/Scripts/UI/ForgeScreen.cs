@@ -15,8 +15,6 @@ public class ForgeScreen : MonoBehaviour
 {
     public static ForgeScreen Instance { get; private set; }
 
-    private const int SwordUpgradeBonus = 10;
-
     [SerializeField] private GameObject panel;
     [SerializeField] private List<CraftingRecipe> recipes = new List<CraftingRecipe>();
     [SerializeField] private List<RecipeRowView> rows = new List<RecipeRowView>();
@@ -547,7 +545,7 @@ public class ForgeScreen : MonoBehaviour
             return stats.CanUpgradeSword
                 ? $"Despierta la espada carmesí · " +
                   $"Daño {stats.Attack} → " +
-                  $"{stats.Attack + SwordUpgradeBonus}"
+                  $"{stats.Attack + stats.AttackPerSwordLevel}"
                 : "La espada ya despertó";
         }
 

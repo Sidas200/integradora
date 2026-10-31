@@ -33,6 +33,8 @@ public class SlimeController : MonoBehaviour
     [SerializeField] private float hitRadius = 0.12f;
     [SerializeField, Min(1)] private int attackDamage = 6;
     [SerializeField] private float attackCooldown = 0.4f;
+    [Tooltip("Multiplica la velocidad de ataque: carga y espera entre saltos (1.3 = 30% más rápido).")]
+    [SerializeField, Min(0.1f)] private float attackSpeed = 1.3f;
 
     [Header("Después del salto")]
     [SerializeField] private float recoilSpeed = 1.6f;
@@ -87,6 +89,20 @@ public class SlimeController : MonoBehaviour
         ResetVisual();
     }
 
+    // Al reaparecer (EnemyRespawner) empieza tranquilo, no a mitad de una embestida
+    private void OnEnable()
+    {
+        state = State.Idle;
+        stateTimer = 0f;
+        hitTimer = 0f;
+        PlayerDetected = false;
+    }
+
+    private float ChargeTime => chargeTime / attackSpeed;
+
+    // Dos patrones: salto en línea horizontal o vertical (el que apunta al jugador).
+    // No marca el suelo: el aviso es su propia animación de carga.
+
     private bool PlayerAlive => player != null && (playerHealth == null || !playerHealth.IsDead);
 
     private void Update()
@@ -117,7 +133,7 @@ public class SlimeController : MonoBehaviour
                 if (stateTimer <= 0f)
                 {
                     state = PlayerDetected ? State.Chase : State.Idle;
-                    nextAttackTime = Time.time + attackCooldown;
+                    nextAttackTime = Time.time + attackCooldown / attackSpeed;
                 }
                 break;
         }
@@ -168,20 +184,19 @@ public class SlimeController : MonoBehaviour
     private void BeginCharge()
     {
         state = State.Charge;
-        stateTimer = chargeTime;
-        if (warning != null)
-        {
-            // Apunta al jugador en el momento de cargar: si se mueve a tiempo, lo esquiva
-            Vector2 dir = ((Vector2)player.position - rb.position).normalized;
-            warning.ShowCircle(rb.position + dir * lungeDistance, 0.14f, chargeTime, Telegraph.Danger);
-        }
+        stateTimer = ChargeTime;
+        // Apunta al jugador al empezar a cargar, en horizontal o vertical: si se aparta de esa
+        // línea a tiempo, lo esquiva
+        Vector2 toPlayer = (Vector2)player.position - rb.position;
+        lungeDir = Mathf.Abs(toPlayer.x) >= Mathf.Abs(toPlayer.y)
+            ? new Vector2(Mathf.Sign(toPlayer.x), 0f)
+            : new Vector2(0f, Mathf.Sign(toPlayer.y));
     }
 
     private void BeginLunge()
     {
-        Vector2 target = warning != null && warning.gameObject.activeSelf ? (Vector2)warning.transform.position : (Vector2)player.position;
-        Vector2 dir = target - rb.position;
-        lungeDir = dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.right;
+        // La dirección quedó fija al empezar a cargar (BeginCharge)
+        if (lungeDir.sqrMagnitude < 0.0001f) lungeDir = Vector2.right;
         lungeStart = rb.position;
         state = State.Lunge;
         // Tope de tiempo por si choca con una pared y no avanza
@@ -209,13 +224,11 @@ public class SlimeController : MonoBehaviour
         if (player == null) return;
         Vector2 d = rb.position - (Vector2)player.position;
         knockbackDir = d.sqrMagnitude > 0.001f ? d.normalized : Vector2.up;
+        // Super armadura: cargando o saltando recibe el daño pero no se interrumpe ni retrocede
+        // (antes un golpe cancelaba la carga y el slime nunca llegaba a atacar)
+        if (state == State.Charge || state == State.Lunge)
+            return;
         hitTimer = hitStunDuration;
-        if (state == State.Charge)
-        {
-            HideWarning();
-            state = State.Chase;
-            nextAttackTime = Time.time + attackCooldown;
-        }
     }
 
     private void HideWarning()
@@ -232,7 +245,7 @@ public class SlimeController : MonoBehaviour
         Vector3 shake = Vector3.zero;
         if (state == State.Charge)
         {
-            float k = 1f - Mathf.Clamp01(stateTimer / chargeTime);
+            float k = 1f - Mathf.Clamp01(stateTimer / ChargeTime);
             squash = 0.25f * k;
             shake = new Vector3(Mathf.Sin(Time.time * 70f) * 0.01f * k, 0f, 0f);
         }

@@ -5,6 +5,7 @@ using UnityEngine;
 // Refuerzos de Varn: al bajar su vida a ciertos porcentajes invoca enemigos con el círculo de
 // invocación del Santuario, lejos de Tsuki y dentro de la arena. Va junto a GuardianArena, que
 // lo arranca al empezar la pelea y lo limpia al vencer al guardián. Los refuerzos no sueltan botín.
+// Mientras haya refuerzos vivos (o apareciendo), Varn tiene escudo: no recibe daño y brilla.
 public class GuardianSummons : MonoBehaviour
 {
     [SerializeField] private GameObject[] minionPrefabs;
@@ -21,6 +22,7 @@ public class GuardianSummons : MonoBehaviour
     private readonly List<GameObject> alive = new List<GameObject>();
     private GuardianBoss boss;
     private int nextThreshold;
+    private int summoning; // invocaciones en curso (el círculo todavía crece)
 
     public void Setup(GameObject[] prefabs, Sprite circle)
     {
@@ -38,11 +40,24 @@ public class GuardianSummons : MonoBehaviour
     // Al vencer a Varn sus refuerzos se desvanecen con él.
     public void Clear()
     {
-        if (boss != null) boss.Health.HealthChanged -= OnBossHealthChanged;
+        if (boss != null)
+        {
+            boss.Health.HealthChanged -= OnBossHealthChanged;
+            boss.SetShielded(false);
+        }
         StopAllCoroutines();
+        summoning = 0;
         foreach (var e in alive)
             if (e != null) Destroy(e);
         alive.Clear();
+    }
+
+    // El escudo dura mientras quede algún refuerzo vivo
+    private void Update()
+    {
+        if (boss == null || boss.Current == GuardianBoss.State.Dead) return;
+        alive.RemoveAll(e => e == null || !e.activeInHierarchy || e.GetComponent<EnemyHealth>().IsDead);
+        boss.SetShielded(summoning > 0 || alive.Count > 0);
     }
 
     private void OnDestroy()
@@ -65,7 +80,10 @@ public class GuardianSummons : MonoBehaviour
         alive.RemoveAll(e => e == null || !e.activeInHierarchy || e.GetComponent<EnemyHealth>().IsDead);
         count = Mathf.Min(count, maxAlive - alive.Count);
         if (count <= 0) return;
-        if (GameHud.Instance != null) GameHud.Instance.ShowToast("¡Varn invoca refuerzos!");
+        if (GameHud.Instance != null) GameHud.Instance.ShowToast("¡Varn invoca refuerzos! Derrótalos para romper su escudo.");
+        // Escudo desde ya: el golpe que cruzó el umbral es el último hasta vencer a los refuerzos
+        summoning++;
+        boss.SetShielded(true);
         StartCoroutine(Summon(count));
     }
 
@@ -103,6 +121,7 @@ public class GuardianSummons : MonoBehaviour
             var prefab = minionPrefabs[Random.Range(0, minionPrefabs.Length)];
             if (prefab != null) alive.Add(Instantiate(prefab, spots[i], Quaternion.identity));
         }
+        summoning--;
         CameraShake.Shake(0.02f, 0.2f);
 
         for (float t = 0f; t < 0.4f; t += Time.deltaTime)

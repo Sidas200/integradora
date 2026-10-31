@@ -1,4 +1,4 @@
-
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -33,7 +33,39 @@ public class EnemyMeleeController : MonoBehaviour
     // GAME-101: Advertencia antes del ataque
     [Header("Attack Warning")]
     [SerializeField] private float attackWindup = 0.4f;
+    [Tooltip("Multiplica la velocidad de ataque: aviso y espera entre golpes (1.3 = 30% más rápido).")]
+    [SerializeField, Min(0.1f)] private float attackSpeed = 1.3f;
     [SerializeField] private GameObject attackWarningFX;
+
+    // Dos patrones: golpe horizontal o vertical, siempre hacia delante (hacia el lado del
+    // jugador, nunca a su espalda). Avisa con un destello del propio golem y una franja tenue
+    // que crece desde él mientras carga; al golpear, la franja destella.
+    [Header("Patrones de ataque (franjas)")]
+    [SerializeField] private float bandLength = 0.8f;
+    [SerializeField] private float bandWidth = 0.3f;
+    [Tooltip("Muestra también el círculo rojo antiguo del golpe (solo para depurar).")]
+    [SerializeField] private bool showAttackArea;
+    [Tooltip("Color del destello mientras prepara el golpe; parpadea más rápido cuando está por golpear.")]
+    [SerializeField] private Color windupColor = new Color(1f, 0.8f, 0.25f, 1f);
+
+    private EnemyHitFeedback hitFeedback;
+    private SpriteRenderer body;
+
+    private Telegraph band;
+    private Vector2 attackDir;
+    private Vector2 attackCenter;
+
+    // Varios golems persiguiendo al jugador se reparten lugares a su alrededor en vez de
+    // amontonarse, y se separan entre ellos mientras se acercan.
+    [Header("Rodear al jugador")]
+    [Tooltip("Distancia entre golems a la que empiezan a separarse.")]
+    [SerializeField] private float separationRadius = 0.4f;
+    [SerializeField] private float separationWeight = 1.2f;
+
+    private static readonly List<EnemyMeleeController> active = new List<EnemyMeleeController>();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetActive() => active.Clear();
 
     private bool preparingAttack;
     private float warningTimer;
@@ -64,9 +96,37 @@ private Vector2 knockbackDirection;
         }
     }
 
+    private void OnDisable()
+    {
+        active.Remove(this);
+        if (band != null) band.Hide();
+    }
+
+    private void OnDestroy()
+    {
+        if (band != null) Destroy(band.gameObject);
+    }
+
+    // Al reaparecer (EnemyRespawner) no debe seguir a mitad de un ataque o aturdido
+    private void OnEnable()
+    {
+        if (!active.Contains(this)) active.Add(this);
+        CancelAttackWarning();
+        hitStunTimer = 0f;
+        if (attackFX != null)
+            attackFX.SetActive(false);
+    }
+
     // GAME-16: Buscar automáticamente al Player
     private void Start()
     {
+        band = Telegraph.Create(Telegraph.BandSprite, name + "_Band");
+        band.Opacity = Telegraph.SubtleOpacity;
+        hitFeedback = GetComponent<EnemyHitFeedback>();
+        body = enemySprite != null ? enemySprite
+            : hitFeedback != null && hitFeedback.Renderer != null ? hitFeedback.Renderer
+            : GetComponentInChildren<SpriteRenderer>();
+
         if (player != null)
             return;
 
@@ -127,6 +187,11 @@ private Vector2 knockbackDirection;
     public void ApplyHitReaction()
     {
         if (player == null)
+            return;
+
+        // Super armadura: si ya empezó a preparar el golpe, recibe el daño pero no se
+        // interrumpe ni retrocede (antes el combo del jugador cancelaba todos sus ataques)
+        if (preparingAttack)
             return;
 
         Vector2 direction =
@@ -199,22 +264,76 @@ private void DetectPlayer()
             return;
         }
 
-        Vector2 direction =
-            (Vector2)player.position - rb.position;
+        // Quieto mientras prepara el golpe: la franja marca dónde cae
+        if (preparingAttack)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
 
-        float distance = direction.magnitude;
+        // Va a su lugar alrededor del jugador (no al centro), separándose de los otros golems
+        Vector2 target = (Vector2)player.position + SlotOffset();
+        Vector2 toTarget = target - rb.position;
+        Vector2 steer = toTarget.magnitude > 0.05f ? toTarget.normalized : Vector2.zero;
+        steer += Separation() * separationWeight;
 
-        // Detenerse antes de llegar al centro del jugador
-        float stopDistance = Mathf.Max(0f, attackRange - 0.05f);
-
-        if (distance <= stopDistance)
+        if (steer.sqrMagnitude < 0.0025f)
         {
             rb.linearVelocity = Vector2.zero;
             return;
         }
 
         // Movimiento mediante velocidad física
-        rb.linearVelocity = direction.normalized * moveSpeed;
+        rb.linearVelocity = Vector2.ClampMagnitude(steer, 1f) * moveSpeed;
+    }
+
+    // Lugar de este golem alrededor del jugador. Los golems que lo persiguen se ordenan por su
+    // ángulo actual y se reparten a partes iguales en una elipse (aplanada por la vista
+    // isométrica), así no se cruzan ni se amontonan. Solo, va directo hacia el jugador.
+    private Vector2 SlotOffset()
+    {
+        Vector2 center = player.position;
+        float radius = Mathf.Max(0.05f, attackRange * 0.85f);
+        float myAngle = AngleAround(center);
+
+        int count = 0, rank = 0;
+        int myIndex = active.IndexOf(this);
+        float minAngle = float.MaxValue;
+        for (int i = 0; i < active.Count; i++)
+        {
+            var g = active[i];
+            if (g == null || !g.PlayerDetected || g.player != player) continue;
+            float a = g.AngleAround(center);
+            count++;
+            minAngle = Mathf.Min(minAngle, a);
+            // Empate de ángulo: decide el orden en la lista
+            if (g != this && (a < myAngle || (a == myAngle && i < myIndex)))
+                rank++;
+        }
+
+        float angle = count <= 1 ? myAngle : minAngle + rank * (2f * Mathf.PI / count);
+        return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle) * 0.7f) * radius;
+    }
+
+    private float AngleAround(Vector2 center)
+    {
+        Vector2 d = rb.position - center;
+        return Mathf.Atan2(d.y, d.x);
+    }
+
+    // Empuje para no encimarse con otros golems cercanos
+    private Vector2 Separation()
+    {
+        Vector2 push = Vector2.zero;
+        foreach (var g in active)
+        {
+            if (g == null || g == this || g.rb == null) continue;
+            Vector2 d = rb.position - g.rb.position;
+            float dist = d.magnitude;
+            if (dist > 0.001f && dist < separationRadius)
+                push += d / dist * (1f - dist / separationRadius);
+        }
+        return push;
     }
 
     // ACTUALIZAR HITBOX Y EFECTO VISUAL
@@ -277,17 +396,12 @@ private void DetectPlayer()
             player.position
         );
 
-        // Si está preparando el ataque
+        // Si está preparando el ataque: ya no se cancela si el jugador se aleja.
+        // El golpe cae en la franja marcada; para esquivarlo hay que salir de ella.
         if (preparingAttack)
         {
-            // Cancelar si el jugador sale del rango
-            if (distance > attackRange)
-            {
-                CancelAttackWarning();
-                return;
-            }
-
             warningTimer -= Time.deltaTime;
+            WindupFlash();
 
             if (warningTimer > 0f)
                 return;
@@ -297,7 +411,7 @@ private void DetectPlayer()
 
             Attack();
 
-            nextAttackTime = Time.time + attackCooldown;
+            nextAttackTime = Time.time + attackCooldown / attackSpeed;
             return;
         }
 
@@ -311,10 +425,34 @@ private void DetectPlayer()
 
         // Comenzar advertencia
         preparingAttack = true;
-        warningTimer = attackWindup;
+        warningTimer = attackWindup / attackSpeed;
 
-        if (attackWarningFX != null)
+        // Patrón según dónde está el jugador: más a los lados = golpe horizontal hacia ese lado,
+        // más arriba/abajo = golpe vertical hacia ese lado. Siempre hacia delante.
+        Vector2 toPlayer = (Vector2)player.position - (Vector2)transform.position;
+        attackDir = Mathf.Abs(toPlayer.x) >= Mathf.Abs(toPlayer.y)
+            ? new Vector2(Mathf.Sign(toPlayer.x), 0f)
+            : new Vector2(0f, Mathf.Sign(toPlayer.y));
+        attackCenter = transform.position;
+        if (band != null)
+            band.ShowLineGrowing(attackCenter, attackDir, bandLength, bandWidth, warningTimer, Telegraph.Danger);
+
+        if (attackWarningFX != null && showAttackArea)
             attackWarningFX.SetActive(true);
+    }
+
+    // Aviso del golpe: el golem parpadea en ámbar, cada vez más rápido. El destello de daño
+    // (EnemyHitFeedback) tiene prioridad para que se note que le pegaste.
+    private void WindupFlash()
+    {
+        if (body == null || (hitFeedback != null && hitFeedback.IsFlashing))
+            return;
+
+        float total = Mathf.Max(0.01f, attackWindup / attackSpeed);
+        float k = 1f - Mathf.Clamp01(warningTimer / total);
+        float speed = Mathf.Lerp(10f, 30f, k);
+        bool lit = Mathf.Sin((total - warningTimer) * speed) > -0.2f;
+        body.color = lit ? windupColor : Color.white;
     }
 
     // GAME-101: Cancelar advertencia
@@ -322,6 +460,11 @@ private void DetectPlayer()
     {
         preparingAttack = false;
         warningTimer = 0f;
+        if (band != null)
+            band.Hide();
+        // Termina el destello de aviso (si no hay un destello de golpe en curso)
+        if (body != null && (hitFeedback == null || !hitFeedback.IsFlashing))
+            body.color = Color.white;
 
         if (attackWarningFX != null)
             attackWarningFX.SetActive(false);
@@ -333,6 +476,8 @@ private void DetectPlayer()
         Debug.Log("Enemy Melee: ataque cuerpo a cuerpo");
 
         ShowAttackFX();
+        if (band != null)
+            band.Impact();
 
         bool hitPlayer = CheckAttackHitbox();
 
@@ -394,7 +539,14 @@ private void DetectPlayer()
     // COMPROBAR HITBOX
     private bool CheckAttackHitbox()
     {
-        if (attackPoint == null || player == null)
+        if (player == null)
+            return false;
+
+        // El golpe cubre la franja marcada (horizontal o vertical)
+        if (band != null)
+            return Telegraph.InsideLine(player.position, attackCenter, attackDir, bandLength, bandWidth);
+
+        if (attackPoint == null)
             return false;
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(
