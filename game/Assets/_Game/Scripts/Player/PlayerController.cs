@@ -34,6 +34,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float ghostSpawnInterval = 0.03f;
     [SerializeField] private float ghostLifetime = 0.25f;
 
+    [Header("Esquiva perfecta (dash a tiempo)")]
+    [Tooltip("Segundos desde que empieza el dash en los que un golpe se esquiva sin daño.")]
+    [SerializeField] private float perfectDodgeWindow = 0.18f;
+    [Tooltip("Velocidad del mundo durante la cámara lenta (Tsuki se mueve normal).")]
+    [SerializeField, Range(0.05f, 1f)] private float slowMotionScale = 0.3f;
+    [Tooltip("Duración de la cámara lenta en segundos reales.")]
+    [SerializeField] private float slowMotionDuration = 0.8f;
+    [Tooltip("Segundos reales antes de poder activar otra cámara lenta.")]
+    [SerializeField] private float slowMotionCooldown = 1.5f;
+    [SerializeField] private Color perfectDodgeColor = new Color(0.75f, 0.95f, 1f, 1f);
+    [Tooltip("Tinte de toda la pantalla mientras dura la cámara lenta (el HUD queda encima).")]
+    [SerializeField] private Color slowMotionTint = new Color(0.25f, 0.5f, 1f, 0.3f);
+
     [Header("Dash Particles")]
     [SerializeField] private ParticleSystem dashParticles;
     [SerializeField] private float particleDuration = 1.2f;
@@ -42,12 +55,14 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Si está activo, alcance y ancho se miden en 'alturas del jugador'. Si no, en unidades de Unity.")]
     [SerializeField] private bool usePlayerSize = true;
     [Tooltip("Qué tan lejos llega el cuadro desde el centro del jugador")]
-    [SerializeField] private float attackReach = 0.9f;
+    [SerializeField] private float attackReach = 0.78f;
     [Tooltip("Ancho del cuadro, perpendicular a la dirección del ataque")]
-    [SerializeField] private float attackWidth = 1.6f;
+    [SerializeField] private float attackWidth = 1.04f;
     [Tooltip("Tiempo de espera después de terminar el combo antes de poder atacar otra vez")]
     [SerializeField] private float attackCooldown = 0.1f;
     [SerializeField] private float attackVisibleTime = 0.15f;
+    [Tooltip("Muestra el cuadro rojo del golpe (solo para depurar). El área siempre se ve en la escena con el jugador seleccionado.")]
+    [SerializeField] private bool showAttackBox;
     [SerializeField] private Color attackColor = new Color(1f, 0f, 0f, 0.5f);
     [SerializeField] private LayerMask enemyLayer;
 
@@ -83,6 +98,22 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private PlayerStats stats;
+    private Health health;
+
+    // Esquiva perfecta y cámara lenta
+    private static float baseFixedDeltaTime = -1f;
+    private float dashStartTime = -10f;
+    private bool slowMotion;
+    private float nextSlowMotionTime;
+    private float dodgeFlashTimer;
+    private Coroutine slowMotionRoutine;
+    private float slowMotionEnd;
+    private UnityEngine.UI.Image screenTint;
+
+    // Durante la cámara lenta Tsuki va a velocidad normal: compensa la escala de tiempo
+    private float PlayerTimeScale => slowMotion && Time.timeScale > 0f ? 1f / Time.timeScale : 1f;
+    private float PlayerDelta => Time.deltaTime * PlayerTimeScale;
+    private float PlayerFixedDelta => Time.fixedDeltaTime * PlayerTimeScale;
     private Camera cam;
     private Vector2 movement;
     private Vector2 lastMoveDirection = Vector2.down;
@@ -101,6 +132,9 @@ public class PlayerController : MonoBehaviour
     [Header("Hit Feedback")]
     [SerializeField] private Color hitFlashColor = Color.red;
     [SerializeField] private float hitFlashDuration = 0.15f;
+    [Tooltip("Al recibir daño Tsuki parpadea en rojo este tiempo y la pantalla destella en rojo.")]
+    [SerializeField] private float hurtBlinkTime = 0.4f;
+    [SerializeField] private Color hurtScreenTint = new Color(1f, 0.1f, 0.1f, 0.35f);
     [SerializeField] private float hitStunDuration = 0.15f;
     [SerializeField] private float knockbackSpeed = 2f;
 
@@ -153,6 +187,140 @@ public class PlayerController : MonoBehaviour
 
         CreateAttackBox();
         BuildAnimations();
+
+        health = GetComponent<Health>();
+        if (health != null)
+        {
+            health.DodgeCheck = IsPerfectDodge;
+            health.Dodged += OnPerfectDodge;
+            // Cualquier daño (de cualquier enemigo) se nota: parpadeo rojo y destello de pantalla
+            if (health.onDamaged == null) health.onDamaged = new UnityEngine.Events.UnityEvent<int>();
+            health.onDamaged.AddListener(OnHurt);
+        }
+    }
+
+    // ---------- ESQUIVA PERFECTA ----------
+
+    // Un golpe que llega durante el dash (o justo al empezarlo) se esquiva
+    private bool IsPerfectDodge() =>
+        isDashing || Time.time - dashStartTime <= perfectDodgeWindow;
+
+    private void OnPerfectDodge()
+    {
+        dodgeFlashTimer = 0.25f;
+        SpawnGhost();
+        CameraShake.Shake(0.015f, 0.12f);
+
+        if (Time.timeScale <= 0f)
+            return;
+        if (slowMotion)
+        {
+            // Otra esquiva perfecta durante la cámara lenta la reinicia: encadenar esquivas la mantiene
+            slowMotionEnd = Time.unscaledTime + slowMotionDuration;
+            return;
+        }
+        if (Time.unscaledTime < nextSlowMotionTime)
+        {
+            // Sin cámara lenta (espera entre una y otra), pero con un destello azul para que se note
+            StartCoroutine(TintPulse());
+            return;
+        }
+        slowMotionRoutine = StartCoroutine(SlowMotion());
+    }
+
+    private System.Collections.IEnumerator TintPulse() => ScreenPulse(slowMotionTint, 0.2f);
+
+    private void OnHurt(int damage)
+    {
+        hitFlashTimer = hurtBlinkTime;
+        CameraShake.Shake(0.02f, 0.15f);
+        if (!slowMotion && isActiveAndEnabled) StartCoroutine(ScreenPulse(hurtScreenTint, 0.3f));
+    }
+
+    // Destello de pantalla que se desvanece (no se usa durante la cámara lenta, que tiene su tinte)
+    private System.Collections.IEnumerator ScreenPulse(Color color, float duration)
+    {
+        EnsureScreenTint();
+        for (float t = 0f; t < duration && !slowMotion; t += Time.unscaledDeltaTime)
+        {
+            SetScreenTint(color, 1f - t / duration);
+            yield return null;
+        }
+        if (!slowMotion) SetScreenTint(0f);
+    }
+
+    private System.Collections.IEnumerator SlowMotion()
+    {
+        if (baseFixedDeltaTime < 0f) baseFixedDeltaTime = Time.fixedDeltaTime;
+
+        slowMotion = true;
+        Time.timeScale = slowMotionScale;
+        // Pasos de física proporcionales para que el movimiento siga suave
+        Time.fixedDeltaTime = baseFixedDeltaTime * slowMotionScale;
+
+        float start = Time.unscaledTime;
+        slowMotionEnd = start + slowMotionDuration;
+        EnsureScreenTint();
+        // Si se abre la pausa o un diálogo (escala 0) se espera a que se cierre.
+        // slowMotionEnd se alarga si hay otra esquiva perfecta (OnPerfectDodge).
+        while (Time.unscaledTime < slowMotionEnd || Time.timeScale == 0f)
+        {
+            // Entra rápido (0.08 s) y se desvanece en los últimos 0.25 s
+            float fadeIn = Mathf.Clamp01((Time.unscaledTime - start) / 0.08f);
+            float fadeOut = Mathf.Clamp01((slowMotionEnd - Time.unscaledTime) / 0.25f);
+            SetScreenTint(Time.timeScale == 0f ? 0f : Mathf.Min(fadeIn, fadeOut));
+            yield return null;
+        }
+
+        EndSlowMotion();
+    }
+
+    // Capa azul sobre el juego para que se note la esquiva perfecta. Va debajo del HUD
+    // (orden 40; la UI de GameSystems usa 50) y no bloquea clics.
+    private void EnsureScreenTint()
+    {
+        if (screenTint != null) return;
+        var go = new GameObject("SlowMotionTint", typeof(RectTransform));
+        var canvas = go.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 40;
+        screenTint = new GameObject("Tint", typeof(RectTransform)).AddComponent<UnityEngine.UI.Image>();
+        var rt = screenTint.rectTransform;
+        rt.SetParent(go.transform, false);
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = rt.offsetMax = Vector2.zero;
+        screenTint.raycastTarget = false;
+        SetScreenTint(0f);
+    }
+
+    private void SetScreenTint(float amount) => SetScreenTint(slowMotionTint, amount);
+
+    private void SetScreenTint(Color color, float amount)
+    {
+        if (screenTint == null) return;
+        var c = color;
+        c.a *= amount;
+        screenTint.color = c;
+        screenTint.enabled = amount > 0f;
+    }
+
+    private void EndSlowMotion()
+    {
+        SetScreenTint(0f);
+        if (!slowMotion) return;
+        slowMotion = false;
+        slowMotionRoutine = null;
+        // Solo se devuelve la escala si nadie más la cambió (pausa, diálogo, cambio de escena)
+        if (Mathf.Approximately(Time.timeScale, slowMotionScale)) Time.timeScale = 1f;
+        if (baseFixedDeltaTime > 0f) Time.fixedDeltaTime = baseFixedDeltaTime;
+        nextSlowMotionTime = Time.unscaledTime + slowMotionCooldown;
+    }
+
+    private void OnDisable()
+    {
+        if (slowMotionRoutine != null) StopCoroutine(slowMotionRoutine);
+        EndSlowMotion();
     }
 
 
@@ -211,10 +379,10 @@ public class PlayerController : MonoBehaviour
     // COOLDOWNS
     // =========================
     if (dashCooldownTimer > 0)
-        dashCooldownTimer -= Time.deltaTime;
+        dashCooldownTimer -= PlayerDelta;
 
     if (attackCooldownTimer > 0)
-        attackCooldownTimer -= Time.deltaTime;
+        attackCooldownTimer -= PlayerDelta;
 
     // =========================
     // DASH: ESPACIO / X PS5 / A XBOX
@@ -227,6 +395,7 @@ public class PlayerController : MonoBehaviour
     if (dashPressed && !isDashing && dashCooldownTimer <= 0)
     {
         isDashing = true;
+        dashStartTime = Time.time;
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
         ghostTimer = 0f;
@@ -244,7 +413,7 @@ public class PlayerController : MonoBehaviour
     // =========================
     if (isDashing)
     {
-        ghostTimer -= Time.deltaTime;
+        ghostTimer -= PlayerDelta;
 
         if (ghostTimer <= 0f)
         {
@@ -285,11 +454,17 @@ public class PlayerController : MonoBehaviour
     // GAME-101: HIT FEEDBACK
     // =========================
     if (hitFlashTimer > 0f)
-        hitFlashTimer -= Time.deltaTime;
+        hitFlashTimer -= PlayerDelta;
+
+    if (dodgeFlashTimer > 0f)
+        dodgeFlashTimer -= PlayerDelta;
 
     // Prioridad de efectos visuales
-    if (hitFlashTimer > 0f)
-        sr.color = hitFlashColor;
+    if (dodgeFlashTimer > 0f)
+        sr.color = perfectDodgeColor;
+    else if (hitFlashTimer > 0f)
+        // Parpadeo rojo / normal cada 0.07 s para que se note aunque el sprite sea oscuro
+        sr.color = Mathf.Repeat(hitFlashTimer, 0.14f) > 0.07f ? hitFlashColor : normalColor;
     else if (isDashing)
         sr.color = dashColor;
     else if (dashCooldownTimer > 0f)
@@ -307,8 +482,8 @@ private void FixedUpdate()
     {
         hitStunTimer = 0f;
 
-        rb.linearVelocity = lastMoveDirection * dashSpeed;
-        dashTimer -= Time.fixedDeltaTime;
+        rb.linearVelocity = lastMoveDirection * dashSpeed * PlayerTimeScale;
+        dashTimer -= PlayerFixedDelta;
 
         if (dashTimer <= 0f)
             isDashing = false;
@@ -316,8 +491,8 @@ private void FixedUpdate()
     // GAME-101: Retroceso cuando el Player recibe daño
     else if (hitStunTimer > 0f)
     {
-        rb.linearVelocity = knockbackDirection * knockbackSpeed;
-        hitStunTimer -= Time.fixedDeltaTime;
+        rb.linearVelocity = knockbackDirection * knockbackSpeed * PlayerTimeScale;
+        hitStunTimer -= PlayerFixedDelta;
     }
     // DEV: Mantener al jugador quieto durante el combo
     else if (IsAttacking)
@@ -327,7 +502,7 @@ private void FixedUpdate()
     // Movimiento normal
     else
     {
-        rb.linearVelocity = movement * stats.MoveSpeed;
+        rb.linearVelocity = movement * stats.MoveSpeed * PlayerTimeScale;
     }
 }
 
@@ -442,7 +617,7 @@ private void FixedUpdate()
                 return true;
 
             case AttackState.Wait1:
-                attackStateTimer -= Time.deltaTime;
+                attackStateTimer -= PlayerDelta;
                 if (attackStateTimer <= 0f)
                 {
                     EndAttack();
@@ -553,7 +728,7 @@ private void FixedUpdate()
         attackBox.transform.localScale =
             new Vector3(size.x, size.y, 1f);
 
-        attackBox.SetActive(true);
+        attackBox.SetActive(showAttackBox);
 
         attackVisibleTimer = attackVisibleTime;
 
@@ -623,15 +798,15 @@ private void FixedUpdate()
         // El cuadro sigue al jugador mientras está visible
         PlaceAttackBox();
 
-        attackVisibleTimer -= Time.deltaTime;
+        attackVisibleTimer -= PlayerDelta;
         if (attackVisibleTimer <= 0f)
             attackBox.SetActive(false);
     }
     // GAME-101: Reacción visual y física al recibir daño
     public void ApplyHitReaction(Vector2 attackerPosition)
     {
-        // Activar destello rojo
-        hitFlashTimer = hitFlashDuration;
+        // Activar destello rojo (sin acortar el parpadeo de OnHurt)
+        hitFlashTimer = Mathf.Max(hitFlashTimer, hitFlashDuration);
 
         // Calcular dirección contraria al atacante
         Vector2 direction =
@@ -648,6 +823,8 @@ private void FixedUpdate()
     {
         if (attackBox != null)
             Destroy(attackBox);
+        if (screenTint != null)
+            Destroy(screenTint.canvas.gameObject);
     }
 
     private void OnDrawGizmosSelected()
@@ -774,7 +951,7 @@ private void FixedUpdate()
     // Devuelve false cuando una animación sin loop termina (el sprite se queda en el último frame)
     private bool StepAnim(float fps, bool loop)
     {
-        animTimer += Time.deltaTime;
+        animTimer += PlayerDelta;
         if (animTimer < 1f / fps)
             return true;
 

@@ -24,6 +24,8 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     // Golpe que no hizo daño por invulnerabilidad (para mostrar que "rebota")
     public event Action Blocked;
     public event Action Died;
+    // Volvió a la vida (EnemyRespawner)
+    public event Action Revived;
 
     private float invulnerableTimer;
 
@@ -86,6 +88,16 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         PlayStats.EnemyDefeated(TryGetComponent<PersistentId>(out var pid) ? pid.Id : name);
         Died?.Invoke();
         gameObject.SetActive(false);
+    }
+
+    // Vuelve con la vida completa. El objeto lo reactiva quien lo llama.
+    public void Revive()
+    {
+        IsDead = false;
+        CurrentHealth = maxHealth;
+        invulnerableTimer = 0f;
+        Revived?.Invoke();
+        HealthChanged?.Invoke(CurrentHealth, maxHealth);
     }
 
     [ContextMenu("TEST - Recibir 25 de daño")]

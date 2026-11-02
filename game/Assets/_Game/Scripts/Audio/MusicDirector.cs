@@ -4,8 +4,10 @@ using UnityEngine.SceneManagement;
 // Música del juego. Elige la pista según la escena y la pelea, y cambia con un fundido:
 // - Menú principal: intro, hasta dar Nueva partida o Continuar.
 // - Zonas de juego: normal; cuando hay enemigos cerca, batalla, y al vencer al último vuelve la normal.
-// - Pelea con Varn: la del jefe si existe (music_boss), si no la de batalla.
-// - Escenas sin juego (intro de la historia, cierre de la demo): en silencio por ahora.
+// - Zona del jefe (escena con Varn dormido): bossentrance.
+// - Pelea con Varn: bossbattle; si falta, la de batalla. Al vencerlo vuelve la normal.
+// - Cierre de la demo (después de vencer a Varn): la del menú (music_intro); al volver al menú sigue sin cortarse.
+// - Intro de la historia: en silencio por ahora.
 // Las pistas viven en Resources/Audio/Music; si falta una, esa parte queda en silencio.
 public class MusicDirector : MonoBehaviour
 {
@@ -13,7 +15,12 @@ public class MusicDirector : MonoBehaviour
     private const string Folder = "Audio/Music/";
 
     [SerializeField] private float volume = 0.6f;
-    [SerializeField] private float fadeTime = 1.2f;
+    [Tooltip("Segundos que tarda en bajar la pista que se va.")]
+    [SerializeField] private float fadeOutTime = 1.4f;
+    [Tooltip("Segundos que tarda en subir la pista nueva.")]
+    [SerializeField] private float fadeInTime = 2.2f;
+    [Tooltip("La pista nueva empieza a subir cuando la anterior baja de esta fracción del volumen.")]
+    [SerializeField, Range(0f, 1f)] private float crossoverLevel = 0.35f;
     [Tooltip("Distancia a la que un enemigo vivo cuenta como pelea.")]
     [SerializeField] private float combatRange = 3.5f;
     [Tooltip("Segundos sin enemigos cerca antes de volver a la música normal.")]
@@ -23,7 +30,7 @@ public class MusicDirector : MonoBehaviour
 
     private AudioSource[] sources;
     private int active;
-    private AudioClip intro, normal, battle, boss;
+    private AudioClip intro, normal, battle, bossEntrance, bossBattle;
     private float nextCheck, lastCombatTime = -100f;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -46,7 +53,8 @@ public class MusicDirector : MonoBehaviour
         intro = Resources.Load<AudioClip>(Folder + "music_intro");
         normal = Resources.Load<AudioClip>(Folder + "music_normal");
         battle = Resources.Load<AudioClip>(Folder + "music_battle");
-        boss = Resources.Load<AudioClip>(Folder + "music_boss");
+        bossEntrance = Resources.Load<AudioClip>(Folder + "bossentrance");
+        bossBattle = Resources.Load<AudioClip>(Folder + "bossbattle");
 
         // Dos fuentes para pasar de una pista a otra con fundido cruzado
         sources = new AudioSource[2];
@@ -79,20 +87,29 @@ public class MusicDirector : MonoBehaviour
 
     private AudioClip Desired()
     {
-        if (SceneManager.GetActiveScene().name == MenuScene) return intro;
+        var scene = SceneManager.GetActiveScene();
+        if (scene.name == MenuScene || IsDemoEnd(scene)) return intro;
         var context = SceneContext.Current;
         if (context == null || !context.IsGameplayZone) return null;
 
-        if (BossFighting()) return boss != null ? boss : battle;
+        var guardian = FindAnyObjectByType<GuardianBoss>();
+        if (guardian != null && guardian.isActiveAndEnabled)
+        {
+            // Si el jugador muere, Varn vuelve a dormir y suena otra vez la entrada
+            if (guardian.Current == GuardianBoss.State.Dormant && bossEntrance != null) return bossEntrance;
+            if (guardian.Current != GuardianBoss.State.Dormant && guardian.Current != GuardianBoss.State.Dead)
+                return bossBattle != null ? bossBattle : battle;
+        }
+
         if (EnemyNearby()) lastCombatTime = Time.unscaledTime;
         return Time.unscaledTime - lastCombatTime < calmDelay ? battle : normal;
     }
 
-    private static bool BossFighting()
+    private static bool IsDemoEnd(Scene scene)
     {
-        var guardian = FindAnyObjectByType<GuardianBoss>();
-        return guardian != null && guardian.isActiveAndEnabled
-            && guardian.Current != GuardianBoss.State.Dormant && guardian.Current != GuardianBoss.State.Dead;
+        var flow = GameFlow.Instance;
+        return flow != null && !string.IsNullOrEmpty(flow.DemoEndScene) &&
+               (scene.path == flow.DemoEndScene || scene.name == flow.DemoEndScene);
     }
 
     private bool EnemyNearby()
@@ -117,17 +134,34 @@ public class MusicDirector : MonoBehaviour
         var next = sources[active];
         next.clip = clip;
         next.volume = 0f;
-        if (clip != null) next.Play();
+        // Empieza a sonar en Fade, cuando le toca subir (así no se pierde el inicio de la pista)
+        next.Stop();
     }
 
+    // Cambio suave: la pista que se va baja primero y la nueva entra cuando la anterior ya está
+    // baja (crossoverLevel), así el paso de calma a pelea no es de golpe.
     private void Fade()
     {
-        float step = Time.unscaledDeltaTime / Mathf.Max(0.01f, fadeTime) * volume;
+        float outStep = Time.unscaledDeltaTime / Mathf.Max(0.01f, fadeOutTime) * volume;
+        float inStep = Time.unscaledDeltaTime / Mathf.Max(0.01f, fadeInTime) * volume;
+        var leaving = sources[1 - active];
+        bool waitForLeaving = leaving.clip != null && leaving.volume > volume * crossoverLevel;
+
         for (int i = 0; i < sources.Length; i++)
         {
             var s = sources[i];
-            float target = i == active && s.clip != null ? volume : 0f;
-            s.volume = Mathf.MoveTowards(s.volume, target, step);
+            if (i == active)
+            {
+                if (s.clip != null && !waitForLeaving)
+                {
+                    if (!s.isPlaying) s.Play();
+                    s.volume = Mathf.MoveTowards(s.volume, volume, inStep);
+                }
+            }
+            else
+            {
+                s.volume = Mathf.MoveTowards(s.volume, 0f, outStep);
+            }
             if (i != active && s.volume <= 0f && s.isPlaying)
             {
                 s.Stop();

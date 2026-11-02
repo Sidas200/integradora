@@ -23,6 +23,7 @@ public class PlayerStats : MonoBehaviour, IHealthProvider
     public float MoveSpeed { get; private set; }
 
     public int SwordLevel => swordLevel;
+    public int AttackPerSwordLevel => attackPerSwordLevel;
     public bool CanUpgradeSword => swordLevel < maxSwordLevel;
 
     // Puente para scripts que ya usaban PlayerStats para la vida

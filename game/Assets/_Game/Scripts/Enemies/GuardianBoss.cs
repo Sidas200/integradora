@@ -29,16 +29,35 @@ public class GuardianBoss : MonoBehaviour
     [SerializeField] private float chargeSpeed = 5f;
     [SerializeField] private float chargeLength = 2.6f;
     [SerializeField] private float chargeWidth = 0.36f;
-    [SerializeField] private int chargeDamage = 20;
+    // Con la armadura completa (100 de vida, 6 de defensa) la embestida y el golpe matan en 4 golpes
+    [SerializeField] private int chargeDamage = 32;
 
     [Header("Golpe del juicio (área)")]
     [SerializeField] private float slamTelegraph = 1.2f;
     [SerializeField] private float slamRadius = 0.95f;
-    [SerializeField] private int slamDamage = 25;
+    [SerializeField] private int slamDamage = 36;
+
+    [Header("Fase 2 (bajo 50% de vida)")]
+    [Tooltip("Onda del golpe al suelo: radio respecto al golpe y aviso antes de que llegue.")]
+    [SerializeField] private float shockwaveRadiusScale = 1.8f;
+    [SerializeField] private float shockwaveDelay = 0.45f;
+    [SerializeField] private int shockwaveDamage = 20;
+
+    [Header("Contacto")]
+    [Tooltip("Daño al tocar a Varn mientras camina; una vez por segundo como máximo.")]
+    [SerializeField] private int contactDamage = 12;
+    [SerializeField] private float contactRange = 0.3f;
 
     [Header("Ventana vulnerable")]
-    [SerializeField] private float vulnerableTime = 1.8f;
+    [SerializeField] private float vulnerableTime = 1.3f;
     [SerializeField, Range(0.3f, 1f)] private float enragedTimeScale = 0.75f;
+    [Tooltip("Multiplica la velocidad de sus ataques: acercarse, avisar y embestir (1.32 ≈ dos veces +15%). " +
+             "La ventana en que es vulnerable no cambia.")]
+    [SerializeField, Min(0.1f)] private float attackSpeed = 1.32f;
+
+    [Header("Escudo mientras hay refuerzos vivos")]
+    [SerializeField] private Color shieldColor = new Color(0.55f, 0.8f, 1f, 1f);
+    [SerializeField] private float shieldGlowScale = 1.18f;
 
     [Header("Visual")]
     [SerializeField] private SpriteRenderer body;
@@ -139,6 +158,50 @@ public class GuardianBoss : MonoBehaviour
         if (telegraph != null) Destroy(telegraph.gameObject);
     }
 
+    // ---------------------------------------------------------------- escudo
+
+    private bool shielded;
+    private SpriteRenderer shieldGlow;
+    private float nextShieldToast;
+
+    public bool Shielded => shielded;
+
+    // GuardianSummons: mientras viven sus refuerzos Varn no recibe daño y brilla en azul.
+    public void SetShielded(bool value)
+    {
+        if (shielded == value) return;
+        shielded = value && Current != State.Dead;
+        ApplyProtection();
+        EnsureShieldGlow();
+        if (shieldGlow != null) shieldGlow.enabled = shielded;
+        if (!value && Current != State.Dead && GameHud.Instance != null)
+            GameHud.Instance.ShowToast("¡El escudo de Varn se rompió! Ya puedes herirlo.");
+    }
+
+    // Copia del sprite detrás del cuerpo, un poco más grande, que late: se ve como un aura
+    private void EnsureShieldGlow()
+    {
+        if (shieldGlow != null || body == null) return;
+        var go = new GameObject("ShieldGlow");
+        go.transform.SetParent(body.transform, false);
+        go.transform.localScale = Vector3.one * shieldGlowScale;
+        shieldGlow = go.AddComponent<SpriteRenderer>();
+        shieldGlow.sharedMaterial = body.sharedMaterial;
+        shieldGlow.sortingLayerID = body.sortingLayerID;
+        shieldGlow.sortingOrder = body.sortingOrder - 1;
+        shieldGlow.enabled = false;
+    }
+
+    private void Update()
+    {
+        if (!shielded || shieldGlow == null || body == null) return;
+        shieldGlow.sprite = body.sprite;
+        shieldGlow.flipX = body.flipX;
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * 6f);
+        shieldGlow.color = new Color(shieldColor.r, shieldColor.g, shieldColor.b, Mathf.Lerp(0.35f, 0.85f, pulse));
+        shieldGlow.transform.localScale = Vector3.one * Mathf.Lerp(shieldGlowScale, shieldGlowScale + 0.06f, pulse);
+    }
+
     private void OnDisable()
     {
         if (telegraph != null) telegraph.Hide();
@@ -161,7 +224,11 @@ public class GuardianBoss : MonoBehaviour
         return h != null && !h.IsDead;
     }
 
+    private float nextContactTime;
+
     private float Scale => enraged ? enragedTimeScale : 1f;
+    // Tiempos del ataque (acercamiento, aviso, embestida); el tiempo vulnerable usa solo Scale
+    private float AttackScale => Scale / attackSpeed;
 
     private IEnumerator Loop()
     {
@@ -170,9 +237,15 @@ public class GuardianBoss : MonoBehaviour
             if (!PlayerAlive()) { SetState(State.Dormant); yield break; }
 
             yield return Approach();
-            if (patternIndex++ % 2 == 0) yield return Charge();
-            else yield return Slam();
+            bool chargeFirst = patternIndex++ % 2 == 0;
+            yield return chargeFirst ? Charge() : Slam();
             if (Current == State.Dead) yield break;
+            // Fase 2: encadena el otro ataque antes de quedar vulnerable
+            if (enraged)
+            {
+                yield return chargeFirst ? Slam() : Charge();
+                if (Current == State.Dead) yield break;
+            }
             yield return Vulnerable();
         }
     }
@@ -180,10 +253,11 @@ public class GuardianBoss : MonoBehaviour
     private IEnumerator Approach()
     {
         SetState(State.Approach);
-        for (float t = 0f; t < approachTime * Scale; t += Time.fixedDeltaTime)
+        for (float t = 0f; t < approachTime * AttackScale; t += Time.fixedDeltaTime)
         {
             Vector2 dir = ((Vector2)player.position - rb.position);
             if (dir.magnitude > 0.5f) MoveTo(rb.position + dir.normalized * walkSpeed * Time.fixedDeltaTime);
+            ContactDamage();
             yield return new WaitForFixedUpdate();
         }
     }
@@ -194,15 +268,15 @@ public class GuardianBoss : MonoBehaviour
         Vector2 dir = ((Vector2)player.position - rb.position).normalized;
         if (dir.sqrMagnitude < 0.01f) dir = Vector2.right;
         telegraph.GetComponent<SpriteRenderer>().sprite = lineSprite;
-        telegraph.ShowLine(rb.position, dir, chargeLength, chargeWidth, chargeTelegraph * Scale, Telegraph.Danger);
-        if (fx != null) fx.LineFlames(rb.position, dir, chargeLength, chargeWidth, chargeTelegraph * Scale);
-        yield return Shake(chargeTelegraph * Scale);
+        telegraph.ShowLine(rb.position, dir, chargeLength, chargeWidth, chargeTelegraph * AttackScale, Telegraph.Danger);
+        if (fx != null) fx.LineFlames(rb.position, dir, chargeLength, chargeWidth, chargeTelegraph * AttackScale);
+        yield return Shake(chargeTelegraph * AttackScale);
         telegraph.Hide();
 
         SetState(State.Attack);
         Vector2 start = rb.position;
         bool hit = false;
-        float speed = chargeSpeed / Scale;
+        float speed = chargeSpeed / AttackScale;
         while (Vector2.Distance(start, rb.position) < chargeLength)
         {
             Vector2 next = rb.position + dir * speed * Time.fixedDeltaTime;
@@ -219,9 +293,9 @@ public class GuardianBoss : MonoBehaviour
     {
         SetState(State.Telegraph);
         telegraph.GetComponent<SpriteRenderer>().sprite = circleSprite;
-        telegraph.ShowCircle(rb.position, slamRadius, slamTelegraph * Scale, Telegraph.Danger);
-        if (fx != null) fx.TelegraphFlames(rb.position, slamRadius, slamTelegraph * Scale);
-        yield return Shake(slamTelegraph * Scale);
+        telegraph.ShowCircle(rb.position, slamRadius, slamTelegraph * AttackScale, Telegraph.Danger);
+        if (fx != null) fx.TelegraphFlames(rb.position, slamRadius, slamTelegraph * AttackScale);
+        yield return Shake(slamTelegraph * AttackScale);
         telegraph.Hide();
 
         SetState(State.Attack);
@@ -236,6 +310,36 @@ public class GuardianBoss : MonoBehaviour
             yield return new WaitForSeconds(0.15f);
             body.transform.localPosition = basePos;
         }
+
+        if (enraged && Current != State.Dead) yield return Shockwave();
+    }
+
+    // Fase 2: tras el golpe sale una onda más grande. Castiga alejarse poco y antes de tiempo:
+    // hay que salir del círculo grande, que se avisa en el suelo.
+    private IEnumerator Shockwave()
+    {
+        float radius = slamRadius * shockwaveRadiusScale;
+        float warn = shockwaveDelay * AttackScale;
+        telegraph.GetComponent<SpriteRenderer>().sprite = circleSprite;
+        telegraph.ShowCircle(rb.position, radius, warn, Telegraph.Danger);
+        if (fx != null) fx.TelegraphFlames(rb.position, radius, warn);
+        yield return new WaitForSeconds(warn);
+        telegraph.Hide();
+        if (Current == State.Dead) yield break;
+
+        if (fx != null) fx.SlamImpact(rb.position, radius);
+        CameraShake.Shake(0.03f, 0.25f);
+        if (CombatUtil.InsideIsoCircle(player.position, rb.position, radius))
+            CombatUtil.DamagePlayer(player.gameObject, shockwaveDamage, rb.position);
+    }
+
+    // Tocar a Varn mientras camina hace daño (una vez por segundo como máximo)
+    private void ContactDamage()
+    {
+        if (Time.time < nextContactTime || player == null) return;
+        if (Vector2.Distance(rb.position, player.position) > contactRange) return;
+        if (CombatUtil.DamagePlayer(player.gameObject, contactDamage, rb.position))
+            nextContactTime = Time.time + 1f;
     }
 
     private IEnumerator Vulnerable()
@@ -277,9 +381,8 @@ public class GuardianBoss : MonoBehaviour
     private void SetState(State s)
     {
         Current = s;
-        bool weakSword = playerStats != null && playerStats.SwordLevel < 1;
-        health.Invulnerable = s != State.Vulnerable || weakSword;
-        if (body != null) body.color = s == State.Vulnerable ? vulnerableTint : (s == State.Dead ? Color.white : armoredTint);
+        if (s == State.Dead) shielded = false;
+        bool weakSword = ApplyProtection();
         if (s == State.Vulnerable && weakSword && !warnedWeakSword && GameHud.Instance != null)
         {
             warnedWeakSword = true;
@@ -288,17 +391,34 @@ public class GuardianBoss : MonoBehaviour
         StateChanged?.Invoke(s);
     }
 
+    // Vulnerable solo en su ventana, con la espada mejorada y sin refuerzos vivos.
+    // Con escudo no toma el color de "vulnerable", para no confundir.
+    private bool ApplyProtection()
+    {
+        bool weakSword = playerStats != null && playerStats.SwordLevel < 1;
+        health.Invulnerable = Current != State.Vulnerable || weakSword || shielded;
+        if (body != null)
+            body.color = Current == State.Vulnerable && !shielded ? vulnerableTint : (Current == State.Dead ? Color.white : armoredTint);
+        if (shieldGlow != null && !shielded) shieldGlow.enabled = false;
+        return weakSword;
+    }
+
     private void OnHealthChanged(int current, int max)
     {
         if (!enraged && current <= max / 2)
         {
             enraged = true;
-            if (GameHud.Instance != null) GameHud.Instance.ShowToast("¡Varn se enfurece! Sus ataques son más rápidos.");
+            if (GameHud.Instance != null) GameHud.Instance.ShowToast("¡Varn se enfurece! Encadena ataques y su golpe al suelo lanza una onda.");
         }
     }
 
     private void OnBlocked()
     {
+        if (shielded && Time.time >= nextShieldToast && GameHud.Instance != null)
+        {
+            nextShieldToast = Time.time + 3f;
+            GameHud.Instance.ShowToast("Varn está protegido: derrota primero a sus refuerzos.");
+        }
         if (body != null && isActiveAndEnabled) StartCoroutine(BlockFlash());
     }
 

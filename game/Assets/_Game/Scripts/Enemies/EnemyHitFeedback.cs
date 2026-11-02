@@ -9,6 +9,14 @@ public class EnemyHitFeedback : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Color flashColor = Color.red;
     [SerializeField] private float flashDuration = 0.15f;
+    [Tooltip("Parpadeo rojo / semitransparente, visible aunque el sprite ya sea rojo. " +
+             "Se activa solo en los enemigos a distancia (EnemyRangedController).")]
+    [SerializeField] private bool blink;
+    [SerializeField] private int blinkCount = 3;
+
+    // Mientras dura el destello, otros scripts no deben cambiar el color del sprite
+    public bool IsFlashing => flashCoroutine != null;
+    public SpriteRenderer Renderer => spriteRenderer;
 
     private EnemyHealth enemyHealth;
     private Color originalColor;
@@ -21,6 +29,10 @@ public class EnemyHitFeedback : MonoBehaviour
         enemyHealth = GetComponent<EnemyHealth>();
         meleeController = GetComponent<EnemyMeleeController>();
         slimeController = GetComponent<SlimeController>();
+
+        // El enemigo a distancia ya es carmesí: un tinte rojo no se distinguía
+        if (GetComponent<EnemyRangedController>() != null)
+            blink = true;
 
         if (spriteRenderer == null)
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -68,9 +80,23 @@ public class EnemyHitFeedback : MonoBehaviour
 
     private IEnumerator FlashEffect()
     {
-        spriteRenderer.color = flashColor;
-
-        yield return new WaitForSeconds(flashDuration);
+        if (!blink)
+        {
+            spriteRenderer.color = flashColor;
+            yield return new WaitForSeconds(flashDuration);
+        }
+        else
+        {
+            var faded = new Color(originalColor.r, originalColor.g, originalColor.b, 0.25f);
+            float half = flashDuration * 0.5f;
+            for (int i = 0; i < blinkCount; i++)
+            {
+                spriteRenderer.color = flashColor;
+                yield return new WaitForSeconds(half);
+                spriteRenderer.color = faded;
+                yield return new WaitForSeconds(half * 0.7f);
+            }
+        }
 
         spriteRenderer.color = originalColor;
         flashCoroutine = null;

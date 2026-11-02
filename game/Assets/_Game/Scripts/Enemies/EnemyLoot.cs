@@ -41,11 +41,26 @@ public class EnemyLoot : MonoBehaviour
     // Para enemigos de un evento que solo ocurre una vez (la prueba del Santuario).
     public void KeepDefeated() => respawns = false;
 
+    public bool Respawns => respawns;
+
+    // Si suelta un objeto clave no se copia como enemigo extra (daría el objeto dos veces)
+    public bool HasKeyItemDrop
+    {
+        get
+        {
+            foreach (var d in drops)
+                if (d.material != null && ItemUsage.IsKeyItem(d.material.id)) return true;
+            return false;
+        }
+    }
+
     private void Awake()
     {
         health = GetComponent<EnemyHealth>();
         pid = GetComponent<PersistentId>();
         health.Died += HandleDied;
+        // Al reaparecer en la misma escena suelta botín normal, nunca el primero ni un objeto clave
+        health.Revived += () => respawned = true;
     }
 
     private void Start()
