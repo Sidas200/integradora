@@ -44,6 +44,9 @@ public class SkyParallax : MonoBehaviour
     // 0 = exterior, 1 = dentro de un interior (lo usa SunLight para apagar las manchas de sol)
     public float IndoorBlend { get; private set; }
 
+    // Destello del cielo (relámpagos de StormLightning): 0 = nada, 1 = máximo. Se apaga solo.
+    public float Flash { get; set; }
+
     public void Setup(OutdoorAmbience.Profile p) => profile = p;
 
     private void Start()
@@ -54,11 +57,14 @@ public class SkyParallax : MonoBehaviour
         FindIndoorAreas();
 
         var material = Resources.Load<Material>(MaterialResource);
-        var skySprite = Resources.Load<Sprite>(SkyResource);
+        var skySprite = Resources.Load<Sprite>(string.IsNullOrEmpty(profile.skyResource) ? SkyResource : profile.skyResource);
+        if (skySprite == null) skySprite = Resources.Load<Sprite>(SkyResource);
         var cloudSprites = new List<Sprite>();
+        string cloudPrefix = string.IsNullOrEmpty(profile.cloudResource) ? CloudResource : profile.cloudResource;
+        if (Resources.Load<Sprite>(cloudPrefix + 1) == null) cloudPrefix = CloudResource;
         for (int i = 1; ; i++)
         {
-            var s = Resources.Load<Sprite>(CloudResource + i);
+            var s = Resources.Load<Sprite>(cloudPrefix + i);
             if (s == null) break;
             cloudSprites.Add(s);
         }
@@ -194,10 +200,13 @@ public class SkyParallax : MonoBehaviour
             drift.y = Mathf.Clamp(drift.y, -room.y, room.y);
             sky.transform.position = new Vector3(camPos.x + drift.x, camPos.y + drift.y, 0f);
             var st = profile.skyTint;
-            sky.color = new Color(st.r * outdoor, st.g * outdoor, st.b * outdoor, 1f);
+            var lit = new Color(st.r * outdoor, st.g * outdoor, st.b * outdoor, 1f);
+            // Relámpago: el cielo se aclara hacia un rosa pálido
+            sky.color = Color.Lerp(lit, new Color(1f, 0.85f, 0.95f, 1f), Mathf.Clamp01(Flash) * 0.55f * outdoor);
         }
 
         float dt = Time.deltaTime;
+        Flash = Mathf.MoveTowards(Flash, 0f, dt * 4f);
         foreach (var layer in layers)
         {
             Vector2 half = HalfSpan(layer);

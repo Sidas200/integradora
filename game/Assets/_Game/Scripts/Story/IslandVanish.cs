@@ -45,11 +45,93 @@ public class IslandVanish : MonoBehaviour
         safeSpot = spot;
     }
 
+    [Tooltip("Qué tanto se aleja Tsuki del borde de abajo del puente (fracción de celda). Arriba choca antes con la cabeza del colisionador.")]
+    [SerializeField, Range(0f, 0.45f)] private float bridgeMargin = 0.22f;
+    [Tooltip("Cuánto más arriba se dibuja el puente que su celda (unidades del mundo): el sprite trae la tabla en la mitad de arriba.")]
+    [SerializeField] private float bridgeVisualLift = 0.065f;
+
+    // Arriba el barandal va un poco más allá del dibujo: lo que choca ahí es la parte alta del
+    // colisionador (los pies quedan ~media celda antes), así los pies llegan cerca del borde de arriba.
+    private const float UpperReach = 0.2f;
+
+    private GameObject rails;
+
     private void Start()
     {
         BlockIslandEdge();
         ClearBridge();
+        UnblockBridgeOverhang();
+        BuildRails();
     }
+
+    // Desfase del dibujo del puente expresado en celdas (hacia arriba en pantalla = +x y +y en isométrico)
+    private Vector2 VisualShift()
+    {
+        Vector3 a = ground.LocalToCellInterpolated(Vector3.zero);
+        Vector3 b = ground.LocalToCellInterpolated(new Vector3(0f, bridgeVisualLift, 0f));
+        return new Vector2(b.x - a.x, b.y - a.y);
+    }
+
+    // Las celdas vacías del lado de arriba del puente se ven como parte de la tabla (por el desfase del
+    // dibujo); si quedan bloqueadas, Tsuki no puede acercarse a ese borde. Ahí manda el barandal.
+    private void UnblockBridgeOverhang()
+    {
+        var blocking = BlockingMap();
+        if (keepTile == null || blocking == null) return;
+        foreach (var p in ground.cellBounds.allPositionsWithin)
+        {
+            if (ground.GetTile(p) != keepTile) continue;
+            foreach (var d in new[] { Vector3Int.right, Vector3Int.up, new Vector3Int(1, 1, 0) })
+            {
+                var n = p + d;
+                if (ground.HasTile(n)) continue;
+                var cell = blocking.WorldToCell(ground.GetCellCenterWorld(n));
+                if (blocking.HasTile(cell)) blocking.SetTile(cell, null);
+            }
+        }
+    }
+
+    // Barandales invisibles en los bordes del puente que dan al vacío, alineados con el dibujo de la
+    // tabla (no con la celda). El colisionador de Tsuki está en sus pies: abajo se deja un margen para
+    // que no se pare en la orilla; arriba no hace falta porque el colisionador choca primero.
+    private void BuildRails()
+    {
+        if (keepTile == null || ground == null) return;
+        if (rails != null) Destroy(rails);
+        rails = new GameObject("BridgeRails");
+        rails.transform.SetParent(ground.transform, false);
+        var blocking = BlockingMap();
+        rails.layer = blocking != null ? blocking.gameObject.layer : ground.gameObject.layer;
+        var shift = VisualShift();
+        float m = bridgeMargin;
+        var dirs = new[] { Vector2Int.right, Vector2Int.left, Vector2Int.up, Vector2Int.down };
+        foreach (var p in ground.cellBounds.allPositionsWithin)
+        {
+            if (ground.GetTile(p) != keepTile) continue;
+            foreach (var d in dirs)
+            {
+                var n = p + new Vector3Int(d.x, d.y, 0);
+                if (ground.HasTile(n)) continue; // sigue el puente o la isla: abierto
+                Vector2 a, b;
+                if (d.x != 0)
+                {
+                    float x = d.x > 0 ? 1f + UpperReach : m;
+                    a = new Vector2(x, -0.05f); b = new Vector2(x, 1.05f);
+                }
+                else
+                {
+                    float y = d.y > 0 ? 1f + UpperReach : m;
+                    a = new Vector2(-0.05f, y); b = new Vector2(1.05f, y);
+                }
+                var edge = rails.AddComponent<EdgeCollider2D>();
+                edge.points = new[] { CellPoint(p, a + shift), CellPoint(p, b + shift) };
+            }
+        }
+    }
+
+    // Punto dentro de la celda (0..1 en cada eje) en coordenadas locales del Tilemap
+    private Vector2 CellPoint(Vector3Int cell, Vector2 f) =>
+        ground.CellToLocalInterpolated(new Vector3(cell.x + f.x, cell.y + f.y, 0f));
 
     // El puente siempre se puede cruzar: se borran las colisiones pintadas encima de sus celdas
     // (al repintar la isla quedaron celdas bloqueadas sobre el puente y Tsuki se atoraba en un carril de 1 celda).
@@ -131,6 +213,10 @@ public class IslandVanish : MonoBehaviour
             foreach (var go in alsoHide)
                 if (go != null) go.SetActive(false); // las marcas desaparecen al instante
 
+        // Campo de flores animadas (FlowerField se crea al cargar la escena, fuera del Grid)
+        var flowers = FindAnyObjectByType<FlowerField>();
+        if (flowers != null) renderers.AddRange(flowers.GetComponentsInChildren<SpriteRenderer>());
+
         // Capas pintadas a mano (Decoration, Props con árboles y rocas): se desvanecen con la isla.
         // Las de colisiones ya están ocultas desde Start (BlockIslandEdge).
         var layers = new System.Collections.Generic.List<Tilemap>();
@@ -168,6 +254,9 @@ public class IslandVanish : MonoBehaviour
         foreach (var go in objects) go.SetActive(false);
         if (elevations != null) elevations.gameObject.SetActive(false);
         if (props != null) props.gameObject.SetActive(false);
+        if (flowers != null) flowers.gameObject.SetActive(false);
+        UnblockBridgeOverhang();
+        BuildRails(); // la isla ya no está: ahora el borde del lado de la isla también da al vacío
         if (backBlocker != null) backBlocker.SetActive(true);
         if (alsoHide != null) foreach (var go in alsoHide) if (go != null) go.SetActive(false);
 

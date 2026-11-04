@@ -73,6 +73,7 @@ public class GuardianBoss : MonoBehaviour
     public EnemyHealth Health => health;
     public Vector2 ArenaCenter => arenaCenter != null ? (Vector2)arenaCenter.position : (Vector2)transform.position;
     public Vector2 ArenaRadii => arenaRadii;
+    public Sprite CircleSprite => circleSprite;
 
     public event Action<State> StateChanged;
 
