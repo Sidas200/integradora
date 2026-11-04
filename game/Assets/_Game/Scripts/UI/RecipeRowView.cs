@@ -36,4 +36,17 @@ public class RecipeRowView : MonoBehaviour
     }
 
     public void SetSelected(bool selected) => background.sprite = selected ? selectedSprite : normalSprite;
+
+    // Cambia el arte del marco (estilo de UiSkin) manteniendo el estado de selección actual
+    public void Restyle(Sprite normal, Sprite selected, float pixelsPerUnitMultiplier)
+    {
+        var target = background;
+        bool wasSelected = target != null && selectedSprite != null && target.sprite == selectedSprite;
+        normalSprite = normal;
+        selectedSprite = selected;
+        if (target == null) return;
+        target.type = Image.Type.Sliced;
+        target.pixelsPerUnitMultiplier = pixelsPerUnitMultiplier;
+        target.sprite = wasSelected ? selected : normal;
+    }
 }

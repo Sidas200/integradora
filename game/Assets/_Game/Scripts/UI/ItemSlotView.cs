@@ -41,4 +41,17 @@ public class ItemSlotView : MonoBehaviour
     {
         if (frame != null) frame.sprite = selected ? selectedSprite : normalSprite;
     }
+
+    // Cambia el arte del marco (estilo de UiSkin) manteniendo el estado de selección actual
+    public void Restyle(Sprite normal, Sprite selected, float pixelsPerUnitMultiplier)
+    {
+        var target = frame;
+        bool wasSelected = target != null && selectedSprite != null && target.sprite == selectedSprite;
+        normalSprite = normal;
+        selectedSprite = selected;
+        if (target == null) return;
+        target.type = Image.Type.Sliced;
+        target.pixelsPerUnitMultiplier = pixelsPerUnitMultiplier;
+        target.sprite = wasSelected ? selected : normal;
+    }
 }
