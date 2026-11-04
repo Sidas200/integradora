@@ -711,4 +711,18 @@ public class InventoryScreen : MonoBehaviour
     {
         if (GameHud.Instance != null) GameHud.Instance.ShowToast(text, 2f);
     }
+
+    // Arte de las pestañas (estilo de UiSkin)
+    public void SetTabSprites(Sprite normal, Sprite active, float pixelsPerUnitMultiplier)
+    {
+        foreach (var tab in tabButtons)
+        {
+            if (tab == null || !(tab.targetGraphic is Image img)) continue;
+            img.type = Image.Type.Sliced;
+            img.pixelsPerUnitMultiplier = pixelsPerUnitMultiplier;
+            img.sprite = img.sprite == tabActiveSprite ? active : normal;
+        }
+        tabSprite = normal;
+        tabActiveSprite = active;
+    }
 }

@@ -597,9 +597,9 @@ MonoBehaviour:
   dashParticles: {fileID: 0}
   particleDuration: 1.2
   usePlayerSize: 1
-  attackReach: 0.78
-  attackWidth: 1.04
-  attackCooldown: 0.4
+  attackReach: 0.85
+  attackWidth: 1.12
+  attackCooldown: 0.3
   attackVisibleTime: 0.15
   attackColor: {r: 1, g: 0.2, b: 0.3, a: 0.45}
   enemyLayer:
@@ -760,7 +760,7 @@ MonoBehaviour:
     start: 36
     count: 12
   walkFps: 8
-  attackFps: 16
+  attackFps: 19
   idleFps: 8
   hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
   hitFlashDuration: 0.15

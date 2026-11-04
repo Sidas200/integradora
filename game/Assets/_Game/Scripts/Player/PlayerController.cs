@@ -104,6 +104,10 @@ public class PlayerController : MonoBehaviour
     [Header("Velocidad de animación")]
     [SerializeField] private float walkFps = 10f;
     [SerializeField] private float attackFps = 30f;
+    [Tooltip("El 2do golpe del combo se anima más rápido que el 1ro (1.25 = 25% más rápido).")]
+    [SerializeField, Min(0.1f)] private float secondHitSpeed = 1.25f;
+    [Tooltip("Con el 2do golpe guardado, sale al llegar a esta fracción de la animación del 1ro (1 = al terminar).")]
+    [SerializeField, Range(0.5f, 1f)] private float comboCancelPoint = 0.75f;
     [SerializeField] private float idleFps = 8f;
 
     private Rigidbody2D rb;
@@ -582,7 +586,7 @@ private void FixedUpdate()
     {
         comboQueued = false;
 
-        if (!DoHit(out Vector2 dir))
+        if (!DoHit(out Vector2 dir, finisher: true))
         {
             EndAttack();
             return;
@@ -620,6 +624,12 @@ private void FixedUpdate()
         switch (attackState)
         {
             case AttackState.Hit1:
+                // Si ya pidió el 2do golpe, lo encadena antes de que termine la animación del 1ro
+                if (comboQueued && currentAnim != null && animFrame >= Mathf.CeilToInt(currentAnim.Length * comboCancelPoint))
+                {
+                    StartSecondHit();
+                    return true;
+                }
                 if (!StepAnim(attackFps, false))
                 {
                     if (comboQueued)
@@ -642,7 +652,7 @@ private void FixedUpdate()
                 return true;
 
             case AttackState.Hit2:
-                if (!StepAnim(attackFps, false))
+                if (!StepAnim(attackFps * secondHitSpeed, false))
                 {
                     // Fin del combo: regresa directo a caminar
                     EndAttack();
@@ -657,7 +667,8 @@ private void FixedUpdate()
     // ---------- GOLPE (daño + cuadro rojo) ----------
 
 
-    private bool DoHit(out Vector2 dir)
+    // finisher: 2do golpe del combo; además del daño aturde y empuja a los enemigos comunes (IStaggerable)
+    private bool DoHit(out Vector2 dir, bool finisher = false)
     {
         dir = lastMoveDirection;
 
@@ -735,6 +746,13 @@ private void FixedUpdate()
                 hitThisSwing.Add(damageable))
             {
                 damageable.TakeDamage(stats.Attack);
+
+                if (finisher)
+                {
+                    IStaggerable staggerable = hit.GetComponentInParent<IStaggerable>();
+                    if (staggerable != null)
+                        staggerable.Stagger(origin);
+                }
             }
         }
 

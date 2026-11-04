@@ -207,7 +207,7 @@ public class DialogueUI : MonoBehaviour
     {
         if (continueHintText == null) return;
 
-        string message = ControlHints.Format("{continue}: continuar   ·   {skip}: saltar");
+        string message = ControlHints.Cap("continue") + " Continuar      " + ControlHints.Cap("skip") + " Saltar";
 
         if (continueHintText.text != message)
             continueHintText.text = message;

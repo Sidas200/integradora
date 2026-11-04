@@ -46,6 +46,9 @@ public class MainMenuStyle : MonoBehaviour
             layer.AddComponent<PetalFall>().Setup(petals);
         }
 
+        // Confirmación de nueva partida con el estilo del resto de la UI
+        UiSkin.StyleConfirm(transform.Find("ConfirmNewGame"));
+
         if (buttons == null) return;
         for (int i = 0; i < buttons.Length; i++)
         {

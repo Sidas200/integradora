@@ -13,6 +13,10 @@ public static class OutdoorAmbience
     public struct Profile
     {
         [Header("Cielo")]
+        [Tooltip("Sprite del cielo en Resources (vacío = cielo de día).")]
+        public string skyResource;
+        [Tooltip("Prefijo de las nubes en Resources, numeradas desde 1 (vacío = nubes blancas).")]
+        public string cloudResource;
         public Color skyTint;
         public Color cloudTint;
 
@@ -35,6 +39,9 @@ public static class OutdoorAmbience
         [Tooltip("Largo de la sombra respecto a la altura del objeto.")]
         public float shadowLength;
         public float shadowAlpha;
+
+        [Header("Tormenta (rayos al fondo y sobre el escenario durante la pelea)")]
+        public bool storm;
     }
 
     // Mediodía soleado
@@ -71,17 +78,20 @@ public static class OutdoorAmbience
         shadowAlpha = 0.32f,
     };
 
-    // Arena del guardián: se conserva su luz dramática; solo cambian cielo y sombras
+    // Arena del guardián: se conserva su luz dramática; cielo de tormenta con rayos (StormLightning)
     public static readonly Profile Dramatic = new Profile
     {
-        skyTint = new Color(0.55f, 0.5f, 0.78f),
-        cloudTint = new Color(0.62f, 0.56f, 0.8f),
+        skyResource = "Environment/sky_storm",
+        skyTint = Color.white,
+        cloudResource = "Environment/cloud_boss_", // nubes moradas de tormenta
+        cloudTint = Color.white,
         overrideAmbient = false,
         shimmer = 0f,
         sunPatches = 0,
         shadowAngle = 96f,
         shadowLength = 0.7f,
         shadowAlpha = 0.22f,
+        storm = true,
     };
 
     public static Profile For(string sceneName)
@@ -116,5 +126,6 @@ public static class OutdoorAmbience
         SceneManager.MoveGameObjectToScene(go, scene);
         go.AddComponent<SkyParallax>().Setup(profile);
         go.AddComponent<SunLight>().Setup(profile);
+        if (profile.storm) go.AddComponent<StormLightning>();
     }
 }

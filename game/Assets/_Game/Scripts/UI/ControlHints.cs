@@ -77,6 +77,10 @@ public static class ControlHints
         }
     }
 
+    // Tecla o botón resaltado como tecla dorada (pausa, diálogo)
+    public static string Cap(string action) =>
+        "<b><color=#F6D58E><mark=#F6D58E2A> " + Key(action) + " </mark></color></b>";
+
     // Reemplaza {accion} por la tecla o botón actual, p. ej. "Pulsa {interact} para hablar".
     // Las llaves que no son una acción conocida se dejan igual.
     public static string Format(string text)

@@ -279,14 +279,15 @@ public class PauseMenu : MonoBehaviour
         if (controlsList == null)
             return;
 
-        string list = ControlHints.Format(
-            "{move}: mover\n" +
-            "{attack}: atacar   ·   {dash}: esquivar\n" +
-            "{interact}: interactuar\n" +
-            "{potion}: poción   ·   {amrita}: Gota de Amrita\n" +
-            "{inventory}: inventario   ·   {pause}: pausa\n\n") + message;
+        // Dos filas de teclas resaltadas (como teclas doradas) y abajo cómo moverse por el menú
+        string list =
+            Cap("move") + ": Mover     " + Cap("attack") + ": Atacar     " + Cap("dash") + ": Esquivar     " + Cap("interact") + ": Interactuar\n" +
+            Cap("potion") + ": Poción     " + Cap("amrita") + ": Gota de Amrita     " + Cap("inventory") + ": Inventario     " + Cap("pause") + ": Pausa\n" +
+            "<size=82%><color=#C9B3BC>" + message + "</color></size>";
 
         if (controlsList.text != list)
             controlsList.text = list;
     }
+
+    private static string Cap(string action) => ControlHints.Cap(action);
 }

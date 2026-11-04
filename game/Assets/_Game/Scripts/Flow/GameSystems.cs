@@ -18,6 +18,9 @@ public class GameSystems : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        // Estilo de la UI (marcos, listones, sakura) sobre lo que armó el builder
+        UiSkin.Apply(transform);
+
         var module = GetComponentInChildren<InputSystemUIInputModule>();
         if (module != null && module.actionsAsset == null) module.AssignDefaultActions();
     }
