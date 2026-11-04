@@ -748,13 +748,13 @@ MonoBehaviour:
   - {fileID: -8448687372052530630, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
   - {fileID: -4802869434953224507, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
   idleFrontFrames:
-    start: 0
+    start: 24
     count: 12
   idleRightFrames:
-    start: 12
+    start: 0
     count: 12
   idleLeftFrames:
-    start: 24
+    start: 12
     count: 12
   idleBackFrames:
     start: 36

@@ -96,9 +96,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Texture2D idleSheet;
     [Tooltip("Se llena solo. Úsalo para ver qué número tiene cada frame.")]
     [SerializeField] private Sprite[] idleAllFrames;
-    [SerializeField] private FrameRange idleFrontFrames = new FrameRange(0, 12);
-    [SerializeField] private FrameRange idleRightFrames = new FrameRange(12, 12);
-    [SerializeField] private FrameRange idleLeftFrames = new FrameRange(24, 12);
+    [SerializeField] private FrameRange idleFrontFrames = new FrameRange(24, 12);
+    [SerializeField] private FrameRange idleRightFrames = new FrameRange(0, 12);
+    [SerializeField] private FrameRange idleLeftFrames = new FrameRange(12, 12);
     [SerializeField] private FrameRange idleBackFrames = new FrameRange(36, 12);
 
     [Header("Velocidad de animación")]
