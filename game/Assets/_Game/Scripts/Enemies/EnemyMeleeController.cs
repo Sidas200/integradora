@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class EnemyMeleeController : MonoBehaviour
+public class EnemyMeleeController : MonoBehaviour, IStaggerable
 {
     [Header("Referencias")]
     [SerializeField] private Transform player;
@@ -34,7 +34,7 @@ public class EnemyMeleeController : MonoBehaviour
     [Header("Attack Warning")]
     [SerializeField] private float attackWindup = 0.4f;
     [Tooltip("Multiplica la velocidad de ataque: aviso y espera entre golpes (1.3 = 30% más rápido).")]
-    [SerializeField, Min(0.1f)] private float attackSpeed = 1.3f;
+    [SerializeField, Min(0.1f)] private float attackSpeed = 1.45f;
     [SerializeField] private GameObject attackWarningFX;
 
     // Dos patrones: golpe horizontal o vertical, siempre hacia delante (hacia el lado del
@@ -79,8 +79,15 @@ public class EnemyMeleeController : MonoBehaviour
 [SerializeField] private float hitStunDuration = 0.15f;
 [SerializeField] private float knockbackSpeed = 1.5f;
 
+[Tooltip("2do golpe del combo: retroceso un poco mayor y un instante aturdido.")]
+[SerializeField] private float staggerKnockbackTime = 0.15f;
+[SerializeField] private float staggerKnockbackSpeed = 2.2f;
+[SerializeField] private float staggerStunDuration = 0.3f;
+
 private float hitStunTimer;
+private float staggerTimer;
 private Vector2 knockbackDirection;
+private float currentKnockbackSpeed;
 
     private void Awake()
     {
@@ -113,6 +120,7 @@ private Vector2 knockbackDirection;
         if (!active.Contains(this)) active.Add(this);
         CancelAttackWarning();
         hitStunTimer = 0f;
+        staggerTimer = 0f;
         if (attackFX != null)
             attackFX.SetActive(false);
     }
@@ -158,7 +166,15 @@ private Vector2 knockbackDirection;
             hitStunTimer -= Time.fixedDeltaTime;
 
             // Retroceder al recibir un golpe
-            rb.linearVelocity = knockbackDirection * knockbackSpeed;
+            rb.linearVelocity = knockbackDirection * currentKnockbackSpeed;
+            return;
+        }
+
+        // Aturdido tras el 2do golpe del combo: quieto un instante
+        if (staggerTimer > 0f)
+        {
+            staggerTimer -= Time.fixedDeltaTime;
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
@@ -202,6 +218,21 @@ private Vector2 knockbackDirection;
             : Vector2.up;
 
         hitStunTimer = hitStunDuration;
+        currentKnockbackSpeed = knockbackSpeed;
+    }
+
+    // 2do golpe del combo: retrocede un poco más y queda aturdido un instante.
+    // Respeta la super armadura: si ya está preparando su golpe, no se interrumpe.
+    public void Stagger(Vector2 from)
+    {
+        if (!isActiveAndEnabled || preparingAttack)
+            return;
+
+        Vector2 direction = rb.position - from;
+        knockbackDirection = direction.sqrMagnitude > 0.001f ? direction.normalized : Vector2.up;
+        hitStunTimer = staggerKnockbackTime;
+        currentKnockbackSpeed = staggerKnockbackSpeed;
+        staggerTimer = staggerStunDuration;
     }
 
     // GAME-09: DETECCIÓN
@@ -385,7 +416,7 @@ private void DetectPlayer()
     private void HandleAttack()
     {
         // Cancelar si está aturdido o no detecta al jugador
-        if (hitStunTimer > 0f || !PlayerDetected || player == null)
+        if (hitStunTimer > 0f || staggerTimer > 0f || !PlayerDetected || player == null)
         {
             CancelAttackWarning();
             return;

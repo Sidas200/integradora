@@ -6,7 +6,7 @@ using UnityEngine;
 // 2) tras el aviso dispara un orbe que viaja hasta la marca,
 // 3) al llegar explota: daña una sola vez si el jugador sigue dentro del círculo.
 [RequireComponent(typeof(Rigidbody2D), typeof(EnemyHealth))]
-public class EnemyRangedController : MonoBehaviour
+public class EnemyRangedController : MonoBehaviour, IStaggerable
 {
     [Header("Detección y distancia")]
     [SerializeField] private float detectionRange = 3.2f;
@@ -18,9 +18,14 @@ public class EnemyRangedController : MonoBehaviour
     [SerializeField] private float attackCooldown = 2.4f;
     [SerializeField] private float telegraphTime = 0.9f;
     [Tooltip("Multiplica la velocidad de ataque: carga y espera entre disparos (1.3 = 30% más rápido).")]
-    [SerializeField, Min(0.1f)] private float attackSpeed = 1.3f;
+    [SerializeField, Min(0.1f)] private float attackSpeed = 1.45f;
     [SerializeField] private float projectileSpeed = 2.6f;
     [SerializeField, Min(1)] private int damage = 12;
+
+    [Header("Aturdido (2do golpe del combo)")]
+    [SerializeField] private float staggerKnockbackTime = 0.15f;
+    [SerializeField] private float staggerKnockbackSpeed = 2.2f;
+    [SerializeField] private float staggerStunDuration = 0.3f;
 
     // La bola hace daño al tocar al jugador mientras avanza; si la esquiva, rebota una vez y desaparece
     [Header("Disparo")]
@@ -49,6 +54,9 @@ public class EnemyRangedController : MonoBehaviour
     private float nextAttack;
     private bool attacking;
     private float stunTimer;
+    private float staggerTimer;
+    private float knockbackTimer;
+    private Vector2 knockbackDir;
 
     public void Setup(Sprite telegraph, Sprite orb, SpriteRenderer bodyRenderer)
     {
@@ -68,6 +76,17 @@ public class EnemyRangedController : MonoBehaviour
             // Al recibir un golpe responde con un disparo en cuanto pueda (no espera su recarga)
             if (!attacking) nextAttack = Mathf.Min(nextAttack, Time.time);
         };
+    }
+
+    // 2do golpe del combo: retrocede un poco y queda aturdido un instante (no dispara mientras).
+    // Respeta la super armadura: si ya está cargando o disparando, no se interrumpe.
+    public void Stagger(Vector2 from)
+    {
+        if (!isActiveAndEnabled || attacking) return;
+        Vector2 d = rb.position - from;
+        knockbackDir = d.sqrMagnitude > 0.001f ? d.normalized : Vector2.up;
+        knockbackTimer = staggerKnockbackTime;
+        staggerTimer = staggerStunDuration;
     }
 
     private bool Flashing => feedback != null && feedback.IsFlashing;
@@ -90,6 +109,8 @@ public class EnemyRangedController : MonoBehaviour
         // Muerto o escena descargada: limpia el orbe
         StopAllCoroutines();
         attacking = false;
+        staggerTimer = 0f;
+        knockbackTimer = 0f;
         if (projectile != null) projectile.SetActive(false);
         if (body != null) body.color = Color.white;
     }
@@ -108,6 +129,8 @@ public class EnemyRangedController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (knockbackTimer > 0f) { knockbackTimer -= Time.fixedDeltaTime; rb.linearVelocity = knockbackDir * staggerKnockbackSpeed; return; }
+        if (staggerTimer > 0f) { staggerTimer -= Time.fixedDeltaTime; rb.linearVelocity = Vector2.zero; return; }
         if (stunTimer > 0f) { stunTimer -= Time.fixedDeltaTime; rb.linearVelocity = Vector2.zero; return; }
         if (!PlayerAlive() || attacking) { rb.linearVelocity = Vector2.zero; return; }
 
@@ -124,7 +147,7 @@ public class EnemyRangedController : MonoBehaviour
 
     private void Update()
     {
-        if (attacking || !PlayerAlive() || Time.time < nextAttack) return;
+        if (attacking || staggerTimer > 0f || knockbackTimer > 0f || !PlayerAlive() || Time.time < nextAttack) return;
         if (Vector2.Distance(player.position, transform.position) > detectionRange) return;
         StartCoroutine(Attack());
     }

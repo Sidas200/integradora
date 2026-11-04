@@ -6,7 +6,7 @@ using UnityEngine;
 // - Si falla: queda atontado igual (un poco más), lo que abre una ventana para pegarle.
 // - Si Tsuki sale de su rango de vista, deja de seguirla.
 [RequireComponent(typeof(Rigidbody2D))]
-public class SlimeController : MonoBehaviour
+public class SlimeController : MonoBehaviour, IStaggerable
 {
     private enum State { Idle, Chase, Charge, Lunge, Recoil, Stunned }
 
@@ -34,7 +34,7 @@ public class SlimeController : MonoBehaviour
     [SerializeField, Min(1)] private int attackDamage = 6;
     [SerializeField] private float attackCooldown = 0.4f;
     [Tooltip("Multiplica la velocidad de ataque: carga y espera entre saltos (1.3 = 30% más rápido).")]
-    [SerializeField, Min(0.1f)] private float attackSpeed = 1.3f;
+    [SerializeField, Min(0.1f)] private float attackSpeed = 1.45f;
 
     [Header("Después del salto")]
     [SerializeField] private float recoilSpeed = 1.6f;
@@ -45,6 +45,10 @@ public class SlimeController : MonoBehaviour
     [Header("Reacción al recibir daño")]
     [SerializeField] private float hitStunDuration = 0.15f;
     [SerializeField] private float knockbackSpeed = 1.5f;
+    [Tooltip("2do golpe del combo: retroceso un poco mayor y un instante atontado.")]
+    [SerializeField] private float staggerKnockbackTime = 0.15f;
+    [SerializeField] private float staggerKnockbackSpeed = 2.2f;
+    [SerializeField] private float staggerStunDuration = 0.3f;
 
     public bool PlayerDetected { get; private set; }
 
@@ -58,6 +62,7 @@ public class SlimeController : MonoBehaviour
     private Vector2 lungeStart;
     private float hitTimer;
     private Vector2 knockbackDir;
+    private float currentKnockbackSpeed;
     private readonly Collider2D[] overlap = new Collider2D[8];
 
     public void Setup(Transform visualTransform, Telegraph warningTelegraph)
@@ -145,7 +150,7 @@ public class SlimeController : MonoBehaviour
         if (hitTimer > 0f && state != State.Lunge)
         {
             hitTimer -= Time.fixedDeltaTime;
-            rb.linearVelocity = knockbackDir * knockbackSpeed;
+            rb.linearVelocity = knockbackDir * currentKnockbackSpeed;
             return;
         }
 
@@ -229,6 +234,24 @@ public class SlimeController : MonoBehaviour
         if (state == State.Charge || state == State.Lunge)
             return;
         hitTimer = hitStunDuration;
+        currentKnockbackSpeed = knockbackSpeed;
+    }
+
+    // 2do golpe del combo: retrocede un poco más y queda atontado un instante (se tambalea).
+    // Respeta la super armadura: cargando o saltando no se interrumpe.
+    public void Stagger(Vector2 from)
+    {
+        if (!isActiveAndEnabled || state == State.Charge || state == State.Lunge) return;
+        Vector2 d = rb.position - from;
+        knockbackDir = d.sqrMagnitude > 0.001f ? d.normalized : Vector2.up;
+        hitTimer = staggerKnockbackTime;
+        currentKnockbackSpeed = staggerKnockbackSpeed;
+        float total = staggerKnockbackTime + staggerStunDuration;
+        if (state != State.Stunned || stateTimer < total)
+        {
+            state = State.Stunned;
+            stateTimer = total;
+        }
     }
 
     private void HideWarning()
