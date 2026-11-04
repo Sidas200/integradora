@@ -91,9 +91,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private FrameRange attackLeft1Frames = new FrameRange(48, 8);
     [SerializeField] private FrameRange attackLeft2Frames = new FrameRange(56, 8);
 
+    [Header("Parado (idle)")]
+    [Tooltip("Imagen de Tsuki parado ya cortada (Sprite Mode: Multiple). Si está vacía usa el 1er frame de caminar.")]
+    [SerializeField] private Texture2D idleSheet;
+    [Tooltip("Se llena solo. Úsalo para ver qué número tiene cada frame.")]
+    [SerializeField] private Sprite[] idleAllFrames;
+    [SerializeField] private FrameRange idleFrontFrames = new FrameRange(0, 12);
+    [SerializeField] private FrameRange idleRightFrames = new FrameRange(12, 12);
+    [SerializeField] private FrameRange idleLeftFrames = new FrameRange(24, 12);
+    [SerializeField] private FrameRange idleBackFrames = new FrameRange(36, 12);
+
     [Header("Velocidad de animación")]
     [SerializeField] private float walkFps = 10f;
     [SerializeField] private float attackFps = 30f;
+    [SerializeField] private float idleFps = 8f;
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
@@ -151,10 +162,15 @@ public class PlayerController : MonoBehaviour
     private Sprite[] attackRight2;
     private Sprite[] attackLeft1;
     private Sprite[] attackLeft2;
+    private Sprite[] idleRight;
+    private Sprite[] idleFront;
+    private Sprite[] idleLeft;
+    private Sprite[] idleBack;
 
     // Estado de la animación
     private Sprite[] currentAnim;
     private Sprite[] lastWalkAnim;
+    private Sprite[] lastIdleAnim;
     private float animTimer;
     private int animFrame;
 
@@ -848,8 +864,13 @@ private void FixedUpdate()
         attackRight2 = GetFrames(attackRight2Frames, "Attack Right 2");
         attackLeft1 = GetFrames(attackLeft1Frames, "Attack Left 1");
         attackLeft2 = GetFrames(attackLeft2Frames, "Attack Left 2");
+        idleFront = GetFrames(idleAllFrames, idleFrontFrames, "Idle Front");
+        idleRight = GetFrames(idleAllFrames, idleRightFrames, "Idle Right");
+        idleLeft = GetFrames(idleAllFrames, idleLeftFrames, "Idle Left");
+        idleBack = GetFrames(idleAllFrames, idleBackFrames, "Idle Back");
 
         lastWalkAnim = walkFront;
+        lastIdleAnim = idleFront;
         if (walkFront.Length > 0)
             sr.sprite = walkFront[0];
     }
@@ -861,15 +882,23 @@ private void FixedUpdate()
             Debug.LogWarning("No hay frames. Asigna el Sprite Sheet en el Inspector.");
             return new Sprite[0];
         }
+        return GetFrames(allFrames, range, nombre);
+    }
 
-        int start = Mathf.Clamp(range.start, 0, allFrames.Length - 1);
-        int count = Mathf.Clamp(range.count, 0, allFrames.Length - start);
+    private Sprite[] GetFrames(Sprite[] frames, FrameRange range, string nombre)
+    {
+        // El sheet de parado es opcional: sin él se usa el 1er frame de caminar
+        if (frames == null || frames.Length == 0)
+            return new Sprite[0];
+
+        int start = Mathf.Clamp(range.start, 0, frames.Length - 1);
+        int count = Mathf.Clamp(range.count, 0, frames.Length - start);
 
         if (start != range.start || count != range.count)
-            Debug.LogWarning($"{nombre}: el rango {range.start}-{range.start + range.count - 1} se sale del sprite sheet (tiene {allFrames.Length} frames).");
+            Debug.LogWarning($"{nombre}: el rango {range.start}-{range.start + range.count - 1} se sale del sprite sheet (tiene {frames.Length} frames).");
 
         Sprite[] result = new Sprite[count];
-        System.Array.Copy(allFrames, start, result, 0, count);
+        System.Array.Copy(frames, start, result, 0, count);
         return result;
     }
 
@@ -883,23 +912,27 @@ private void FixedUpdate()
     [ContextMenu("Recargar frames del Sprite Sheet")]
     private void LoadFramesFromSheet()
     {
-        if (spriteSheet == null)
-        {
-            allFrames = new Sprite[0];
-            return;
-        }
+        allFrames = LoadSheet(spriteSheet);
+        idleAllFrames = LoadSheet(idleSheet);
+    }
 
-        string path = UnityEditor.AssetDatabase.GetAssetPath(spriteSheet);
+    private static Sprite[] LoadSheet(Texture2D sheet)
+    {
+        if (sheet == null)
+            return new Sprite[0];
+
+        string path = UnityEditor.AssetDatabase.GetAssetPath(sheet);
 
         // Ordena los frames como se leen: de arriba a abajo y de izquierda a derecha
-        allFrames = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path)
+        Sprite[] frames = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path)
             .OfType<Sprite>()
             .OrderByDescending(s => s.rect.y)
             .ThenBy(s => s.rect.x)
             .ToArray();
 
-        if (allFrames.Length == 0)
-            Debug.LogWarning("La imagen no tiene sprites. Ponle Sprite Mode: Multiple y córtala en el Sprite Editor.");
+        if (frames.Length == 0)
+            Debug.LogWarning($"{sheet.name} no tiene sprites. Ponle Sprite Mode: Multiple y córtala en el Sprite Editor.");
+        return frames;
     }
 #endif
 
@@ -917,21 +950,35 @@ private void FixedUpdate()
         if (dir.sqrMagnitude > 0f)
         {
             Sprite[] walk;
+            Sprite[] idle;
             if (Mathf.Abs(dir.x) >= Mathf.Abs(dir.y))
+            {
                 walk = dir.x > 0 ? walkRight : walkLeft;
+                idle = dir.x > 0 ? idleRight : idleLeft;
+            }
             else
+            {
                 walk = dir.y > 0 ? walkBack : walkFront;
+                idle = dir.y > 0 ? idleBack : idleFront;
+            }
 
             if (walk == null || walk.Length == 0)
                 return;
 
             lastWalkAnim = walk;
+            lastIdleAnim = idle;
             SetAnim(walk);
             StepAnim(walkFps, true);
         }
+        else if (lastIdleAnim != null && lastIdleAnim.Length > 0)
+        {
+            // Quieto: animación de parado hacia la última dirección
+            SetAnim(lastIdleAnim);
+            StepAnim(idleFps, true);
+        }
         else
         {
-            // Quieto: primer frame de la última dirección
+            // Sin sheet de parado: primer frame de la última dirección
             currentAnim = null;
             if (lastWalkAnim != null && lastWalkAnim.Length > 0)
                 sr.sprite = lastWalkAnim[0];

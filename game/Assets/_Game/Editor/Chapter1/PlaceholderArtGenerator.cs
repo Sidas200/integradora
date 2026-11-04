@@ -34,6 +34,7 @@ namespace Game.EditorTools.Chapter1
         private static readonly Dictionary<string, string> DesignedArt = new Dictionary<string, string>
         {
             { "placeholder_forge", "Assets/_Game/Art/Props/forge_workbench.png" },
+            { "placeholder_npc_researcher", "Assets/_Game/Art/Characters/npc_researcher.png" },
         };
 
         public static Sprite Load(string name)

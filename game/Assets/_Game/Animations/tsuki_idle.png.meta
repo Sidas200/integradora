@@ -1,0 +1,1367 @@
+fileFormatVersion: 2
+guid: eb7af863119c341b9bc6c31946d2e379
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8723671089147839557
+    second: tsuki_idle_0
+  - first:
+      213: -3107470628270626971
+    second: tsuki_idle_1
+  - first:
+      213: 448448842892894751
+    second: tsuki_idle_2
+  - first:
+      213: -2960094042449072861
+    second: tsuki_idle_3
+  - first:
+      213: -3205755123081383240
+    second: tsuki_idle_4
+  - first:
+      213: -5420058739645782308
+    second: tsuki_idle_5
+  - first:
+      213: 6529959079485216762
+    second: tsuki_idle_6
+  - first:
+      213: -7395574883408848165
+    second: tsuki_idle_7
+  - first:
+      213: -7952015191829725845
+    second: tsuki_idle_8
+  - first:
+      213: 8905837244244082323
+    second: tsuki_idle_9
+  - first:
+      213: 4641663608173469142
+    second: tsuki_idle_10
+  - first:
+      213: -1440728539986672377
+    second: tsuki_idle_11
+  - first:
+      213: 3956845185981144473
+    second: tsuki_idle_12
+  - first:
+      213: -8636937474857334166
+    second: tsuki_idle_13
+  - first:
+      213: 7062881562702532722
+    second: tsuki_idle_14
+  - first:
+      213: -4875626875054464663
+    second: tsuki_idle_15
+  - first:
+      213: -4460820908149871502
+    second: tsuki_idle_16
+  - first:
+      213: 8746590978589418307
+    second: tsuki_idle_17
+  - first:
+      213: -7918551328977420948
+    second: tsuki_idle_18
+  - first:
+      213: -497748202835284228
+    second: tsuki_idle_19
+  - first:
+      213: 448521047290896291
+    second: tsuki_idle_20
+  - first:
+      213: 8744970083594813484
+    second: tsuki_idle_21
+  - first:
+      213: 2303914094721495055
+    second: tsuki_idle_22
+  - first:
+      213: -4010749509239498101
+    second: tsuki_idle_23
+  - first:
+      213: 5994547386153060297
+    second: tsuki_idle_24
+  - first:
+      213: 6198000285577089177
+    second: tsuki_idle_25
+  - first:
+      213: 477435279658139794
+    second: tsuki_idle_26
+  - first:
+      213: 3809625704660468549
+    second: tsuki_idle_27
+  - first:
+      213: -5896476838071872869
+    second: tsuki_idle_28
+  - first:
+      213: 5797501126971763423
+    second: tsuki_idle_29
+  - first:
+      213: 7847027781211762815
+    second: tsuki_idle_30
+  - first:
+      213: -821529389797461526
+    second: tsuki_idle_31
+  - first:
+      213: 4115175213770764672
+    second: tsuki_idle_32
+  - first:
+      213: -279566384590247536
+    second: tsuki_idle_33
+  - first:
+      213: -3119904263687122968
+    second: tsuki_idle_34
+  - first:
+      213: -7519562695392233244
+    second: tsuki_idle_35
+  - first:
+      213: 5123624117540962305
+    second: tsuki_idle_36
+  - first:
+      213: -7460678163084004134
+    second: tsuki_idle_37
+  - first:
+      213: -5300437631938081275
+    second: tsuki_idle_38
+  - first:
+      213: 2995081830040129106
+    second: tsuki_idle_39
+  - first:
+      213: -3898042620284271856
+    second: tsuki_idle_40
+  - first:
+      213: -5929727010119962133
+    second: tsuki_idle_41
+  - first:
+      213: 6354387188203346458
+    second: tsuki_idle_42
+  - first:
+      213: 2445441496831823429
+    second: tsuki_idle_43
+  - first:
+      213: -3479408597964450386
+    second: tsuki_idle_44
+  - first:
+      213: -6106209784164100665
+    second: tsuki_idle_45
+  - first:
+      213: -8448687372052530630
+    second: tsuki_idle_46
+  - first:
+      213: -4802869434953224507
+    second: tsuki_idle_47
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: tsuki_idle_0
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5448006b2a4b01970800000000000000
+      internalID: 8723671089147839557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_1
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56728fb7deb00e4d0800000000000000
+      internalID: -3107470628270626971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_2
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f12e09cb8d5393600800000000000000
+      internalID: 448448842892894751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_3
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32da212d622abe6d0800000000000000
+      internalID: -2960094042449072861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_4
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b278db43bed283d0800000000000000
+      internalID: -3205755123081383240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_5
+      rect:
+        serializedVersion: 2
+        x: 362
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd669a10b4518c4b0800000000000000
+      internalID: -5420058739645782308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_6
+      rect:
+        serializedVersion: 2
+        x: 430
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af79d828f231f9a50800000000000000
+      internalID: 6529959079485216762
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_7
+      rect:
+        serializedVersion: 2
+        x: 498
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bda5d94b3d3ad5990800000000000000
+      internalID: -7395574883408848165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_8
+      rect:
+        serializedVersion: 2
+        x: 566
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6dba7a8054c4a190800000000000000
+      internalID: -7952015191829725845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_9
+      rect:
+        serializedVersion: 2
+        x: 634
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39ebc9ad9c3e79b70800000000000000
+      internalID: 8905837244244082323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_10
+      rect:
+        serializedVersion: 2
+        x: 702
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6dd990485708a6040800000000000000
+      internalID: 4641663608173469142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_11
+      rect:
+        serializedVersion: 2
+        x: 770
+        y: 231
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 705c354b601810ce0800000000000000
+      internalID: -1440728539986672377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_12
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99dde9d7bb989e630800000000000000
+      internalID: 3956845185981144473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_13
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6a8ed7802f632880800000000000000
+      internalID: -8636937474857334166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_14
+      rect:
+        serializedVersion: 2
+        x: 161
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2705a8b4c55640260800000000000000
+      internalID: 7062881562702532722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_15
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 961e707703b465cb0800000000000000
+      internalID: -4875626875054464663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_16
+      rect:
+        serializedVersion: 2
+        x: 297
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27c671bb40bf712c0800000000000000
+      internalID: -4460820908149871502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_17
+      rect:
+        serializedVersion: 2
+        x: 365
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34365725722226970800000000000000
+      internalID: 8746590978589418307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_18
+      rect:
+        serializedVersion: 2
+        x: 433
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6d7a944587ab1290800000000000000
+      internalID: -7918551328977420948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_19
+      rect:
+        serializedVersion: 2
+        x: 501
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfee96e85a4a719f0800000000000000
+      internalID: -497748202835284228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_20
+      rect:
+        serializedVersion: 2
+        x: 569
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3af5f022487793600800000000000000
+      internalID: 448521047290896291
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_21
+      rect:
+        serializedVersion: 2
+        x: 637
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c20461c45ff5c5970800000000000000
+      internalID: 8744970083594813484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_22
+      rect:
+        serializedVersion: 2
+        x: 705
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f00f3e899a529ff10800000000000000
+      internalID: 2303914094721495055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_23
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 154
+        width: 23
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8a15ba3294f658c0800000000000000
+      internalID: -4010749509239498101
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_24
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c746e45619e03350800000000000000
+      internalID: 5994547386153060297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_25
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 990979bdb68b30650800000000000000
+      internalID: 6198000285577089177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_26
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29043477bd030a600800000000000000
+      internalID: 477435279658139794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_27
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5430c75e4628ed430800000000000000
+      internalID: 3809625704660468549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_28
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9258608e818b2ea0800000000000000
+      internalID: -5896476838071872869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_29
+      rect:
+        serializedVersion: 2
+        x: 363
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fda241afe8cd47050800000000000000
+      internalID: 5797501126971763423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_30
+      rect:
+        serializedVersion: 2
+        x: 431
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f70bfb1113e36ec60800000000000000
+      internalID: 7847027781211762815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_31
+      rect:
+        serializedVersion: 2
+        x: 499
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae134946f575994f0800000000000000
+      internalID: -821529389797461526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_32
+      rect:
+        serializedVersion: 2
+        x: 567
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0817c45cd0a0c1930800000000000000
+      internalID: 4115175213770764672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_33
+      rect:
+        serializedVersion: 2
+        x: 635
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 099ab5bbad7ce1cf0800000000000000
+      internalID: -279566384590247536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_34
+      rect:
+        serializedVersion: 2
+        x: 703
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8efc3b52a9fd3b4d0800000000000000
+      internalID: -3119904263687122968
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_35
+      rect:
+        serializedVersion: 2
+        x: 771
+        y: 77
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e8fdd2a19525a790800000000000000
+      internalID: -7519562695392233244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_36
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10047a02df4ca1740800000000000000
+      internalID: 5123624117540962305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_37
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad43dd13db8567890800000000000000
+      internalID: -7460678163084004134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_38
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50ec7328e001176b0800000000000000
+      internalID: -5300437631938081275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_39
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25ec4c84e0ba09920800000000000000
+      internalID: 2995081830040129106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_40
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0138f9ab3ee57e9c0800000000000000
+      internalID: -3898042620284271856
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_41
+      rect:
+        serializedVersion: 2
+        x: 362
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be1b2ca83b065bda0800000000000000
+      internalID: -5929727010119962133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_42
+      rect:
+        serializedVersion: 2
+        x: 430
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1a572e0b715f2850800000000000000
+      internalID: 6354387188203346458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_43
+      rect:
+        serializedVersion: 2
+        x: 498
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54e09a9b514ffe120800000000000000
+      internalID: 2445441496831823429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_44
+      rect:
+        serializedVersion: 2
+        x: 566
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea593e99058a6bfc0800000000000000
+      internalID: -3479408597964450386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_45
+      rect:
+        serializedVersion: 2
+        x: 634
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c552eaad82624ba0800000000000000
+      internalID: -6106209784164100665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_46
+      rect:
+        serializedVersion: 2
+        x: 702
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3afa72299b30ca80800000000000000
+      internalID: -8448687372052530630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_idle_47
+      rect:
+        serializedVersion: 2
+        x: 770
+        y: 4
+        width: 26
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.7346939}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ce280312b7c85db0800000000000000
+      internalID: -4802869434953224507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      tsuki_idle_0: 8723671089147839557
+      tsuki_idle_1: -3107470628270626971
+      tsuki_idle_10: 4641663608173469142
+      tsuki_idle_11: -1440728539986672377
+      tsuki_idle_12: 3956845185981144473
+      tsuki_idle_13: -8636937474857334166
+      tsuki_idle_14: 7062881562702532722
+      tsuki_idle_15: -4875626875054464663
+      tsuki_idle_16: -4460820908149871502
+      tsuki_idle_17: 8746590978589418307
+      tsuki_idle_18: -7918551328977420948
+      tsuki_idle_19: -497748202835284228
+      tsuki_idle_2: 448448842892894751
+      tsuki_idle_20: 448521047290896291
+      tsuki_idle_21: 8744970083594813484
+      tsuki_idle_22: 2303914094721495055
+      tsuki_idle_23: -4010749509239498101
+      tsuki_idle_24: 5994547386153060297
+      tsuki_idle_25: 6198000285577089177
+      tsuki_idle_26: 477435279658139794
+      tsuki_idle_27: 3809625704660468549
+      tsuki_idle_28: -5896476838071872869
+      tsuki_idle_29: 5797501126971763423
+      tsuki_idle_3: -2960094042449072861
+      tsuki_idle_30: 7847027781211762815
+      tsuki_idle_31: -821529389797461526
+      tsuki_idle_32: 4115175213770764672
+      tsuki_idle_33: -279566384590247536
+      tsuki_idle_34: -3119904263687122968
+      tsuki_idle_35: -7519562695392233244
+      tsuki_idle_36: 5123624117540962305
+      tsuki_idle_37: -7460678163084004134
+      tsuki_idle_38: -5300437631938081275
+      tsuki_idle_39: 2995081830040129106
+      tsuki_idle_4: -3205755123081383240
+      tsuki_idle_40: -3898042620284271856
+      tsuki_idle_41: -5929727010119962133
+      tsuki_idle_42: 6354387188203346458
+      tsuki_idle_43: 2445441496831823429
+      tsuki_idle_44: -3479408597964450386
+      tsuki_idle_45: -6106209784164100665
+      tsuki_idle_46: -8448687372052530630
+      tsuki_idle_47: -4802869434953224507
+      tsuki_idle_5: -5420058739645782308
+      tsuki_idle_6: 6529959079485216762
+      tsuki_idle_7: -7395574883408848165
+      tsuki_idle_8: -7952015191829725845
+      tsuki_idle_9: 8905837244244082323
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
