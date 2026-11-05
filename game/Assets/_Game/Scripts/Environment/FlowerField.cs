@@ -34,10 +34,11 @@ public class FlowerField : MonoBehaviour
     [SerializeField] private float clearRadius = 0.35f;
 
     [Header("Animación")]
-    [SerializeField] private Vector2 fps = new Vector2(6f, 9f);
+    [Tooltip("Cuadros por segundo (mínimo, máximo): un vaivén completo dura unos 6 s, como brisa muy suave.")]
+    [SerializeField] private Vector2 fps = new Vector2(1.2f, 1.8f);
     [Tooltip("Al pasar Tsuki cerca, la flor se agita más rápido un momento.")]
     [SerializeField] private float rustleRadius = 0.14f;
-    [SerializeField] private float rustleSpeed = 2.5f;
+    [SerializeField] private float rustleSpeed = 1.8f;
     [SerializeField] private float rustleTime = 0.6f;
 
     private class Flower

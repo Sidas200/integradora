@@ -36,6 +36,17 @@ public class BossFx : MonoBehaviour
             if (ps != null) Destroy(ps.gameObject);
     }
 
+    // Con el juego detenido (escena de la espada) las partículas siguen moviéndose
+    public void SetUnscaledTime(bool unscaled)
+    {
+        foreach (var ps in new[] { fire, dust, debris, sparks })
+        {
+            if (ps == null) continue;
+            var main = ps.main;
+            main.useUnscaledTime = unscaled;
+        }
+    }
+
     // ---------------------------------------------------------------- avisos
 
     // Llamas que brotan dentro de la elipse marcada mientras dura el aviso.
@@ -96,7 +107,8 @@ public class BossFx : MonoBehaviour
             Emit(debris, center + dir * 0.1f, new Vector2(dir.x * Random.Range(0.6f, 1.2f), Random.Range(1.2f, 2f)),
                 Random.Range(0.04f, 0.07f), Random.Range(0.5f, 0.8f), Color.white);
         }
-        CameraShake.Shake(0.05f, 0.35f);
+        // Golpe al suelo: rebote marcado y corto (más grande el golpe, más fuerte)
+        CameraShake.Impact(Mathf.Lerp(0.025f, 0.045f, Mathf.InverseLerp(0.4f, 1.8f, radius)), 0.45f);
     }
 
     // Llamarlo en cada paso de la embestida: polvo detrás y chispas en el suelo.
@@ -118,6 +130,37 @@ public class BossFx : MonoBehaviour
             Emit(dust, position, new Vector2(dir.x, dir.y * 0.5f) * Random.Range(0.3f, 0.6f), Random.Range(0.08f, 0.13f), 0.6f, DustColor);
         }
         CameraShake.Shake(0.03f, 0.2f);
+    }
+
+    // Escombro que cae del cielo (fase 2 de Varn): polvo alrededor y trozos que saltan.
+    public void RockImpact(Vector2 position, float radius)
+    {
+        for (int i = 0; i < 18; i++)
+        {
+            float a = i / 18f * Mathf.PI * 2f;
+            var dir = new Vector2(Mathf.Cos(a), Mathf.Sin(a) * 0.5f);
+            Emit(dust, position + dir * radius * 0.6f, dir * Random.Range(0.25f, 0.5f), Random.Range(0.08f, 0.13f), Random.Range(0.4f, 0.6f), DustColor);
+        }
+        for (int i = 0; i < 7; i++)
+        {
+            var dir = Random.insideUnitCircle.normalized;
+            Emit(debris, position, new Vector2(dir.x * Random.Range(0.4f, 0.9f), Random.Range(0.8f, 1.4f)),
+                Random.Range(0.03f, 0.05f), Random.Range(0.4f, 0.6f), Color.white);
+        }
+        CameraShake.Shake(0.03f, 0.18f);
+    }
+
+    // Frente de la grieta de la espada: brasas carmesí que suben, chispas y trozos de piso.
+    public void RiftSparks(Vector2 position, Vector2 dir)
+    {
+        var side = new Vector2(-dir.y, dir.x);
+        for (int i = 0; i < 2; i++)
+            Emit(fire, position + side * Random.Range(-0.05f, 0.05f), new Vector2(0f, Random.Range(0.3f, 0.7f)) + side * Random.Range(-0.2f, 0.2f),
+                Random.Range(0.06f, 0.11f), Random.Range(0.3f, 0.5f), new Color(1f, 0.3f, 0.45f));
+        Emit(sparks, position, dir * Random.Range(0.3f, 0.8f) + side * Random.Range(-0.6f, 0.6f) + Vector2.up * 0.4f,
+            0.025f, Random.Range(0.2f, 0.4f), new Color(1f, 0.6f, 0.75f));
+        if (Random.value < 0.35f)
+            Emit(debris, position, new Vector2(Random.Range(-0.4f, 0.4f), Random.Range(0.7f, 1.2f)), Random.Range(0.025f, 0.04f), 0.5f, Color.white);
     }
 
     // Despertar: chispas doradas que suben y un temblor largo.
