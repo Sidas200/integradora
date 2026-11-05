@@ -20,7 +20,7 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
     [Tooltip("Multiplica la velocidad de ataque: carga y espera entre disparos (1.3 = 30% más rápido).")]
     [SerializeField, Min(0.1f)] private float attackSpeed = 1.45f;
     [SerializeField] private float projectileSpeed = 2.6f;
-    [SerializeField, Min(1)] private int damage = 12;
+    [SerializeField, Min(1)] private int damage = 20;
 
     [Header("Aturdido (2do golpe del combo)")]
     [SerializeField] private float staggerKnockbackTime = 0.15f;

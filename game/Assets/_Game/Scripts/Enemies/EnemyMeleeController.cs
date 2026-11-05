@@ -19,7 +19,7 @@ public class EnemyMeleeController : MonoBehaviour, IStaggerable
    [Header("Ataque")]
     [SerializeField] private float attackRange = 0.35f;
     [SerializeField] private float attackCooldown = 1.5f;
-    [SerializeField, Min(1)] private int attackDamage = 10;
+    [SerializeField, Min(1)] private int attackDamage = 20;
 
     [Header("Hitbox")]
     [SerializeField] private Transform attackPoint;
@@ -54,6 +54,26 @@ public class EnemyMeleeController : MonoBehaviour, IStaggerable
     private Telegraph band;
     private Vector2 attackDir;
     private Vector2 attackCenter;
+
+    // Con animador (Lobo del Velo) se ve en 8 direcciones: se pone alerta al ver al jugador, se
+    // agacha mientras carga y se lanza a morder en la dirección en la que mira.
+    [Header("Animación por direcciones (opcional)")]
+    [SerializeField] private float walkFps = 6f;
+    [SerializeField] private float deathFps = 5f;
+    [Tooltip("Pausa al descubrir al jugador (frame de alerta) antes de perseguirlo.")]
+    [SerializeField] private float alertDuration = 0.35f;
+    [Tooltip("Tiempo que se ve el frame del mordisco.")]
+    [SerializeField] private float attackPoseDuration = 0.25f;
+    [Tooltip("Distancia que avanza al morder, dentro de la franja marcada.")]
+    [SerializeField] private float lungeDistance = 0.3f;
+    [SerializeField] private float lungeDuration = 0.1f;
+
+    private GuardianVarnAnimator anim;
+    private EnemyHealth health;
+    private Vector2 facing = Vector2.down;
+    private float alertTimer;
+    private float attackPoseTimer;
+    private float lungeTimer;
 
     // Varios golems persiguiendo al jugador se reparten lugares a su alrededor en vez de
     // amontonarse, y se separan entre ellos mientras se acercan.
@@ -92,6 +112,10 @@ private float currentKnockbackSpeed;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponentInChildren<GuardianVarnAnimator>();
+        health = GetComponent<EnemyHealth>();
+        if (health != null)
+            health.Died += OnDied;
 
         if (attackFX != null)
         {
@@ -111,6 +135,7 @@ private float currentKnockbackSpeed;
 
     private void OnDestroy()
     {
+        if (health != null) health.Died -= OnDied;
         if (band != null) Destroy(band.gameObject);
     }
 
@@ -121,6 +146,10 @@ private float currentKnockbackSpeed;
         CancelAttackWarning();
         hitStunTimer = 0f;
         staggerTimer = 0f;
+        alertTimer = 0f;
+        attackPoseTimer = 0f;
+        lungeTimer = 0f;
+        PlayerDetected = false;
         if (attackFX != null)
             attackFX.SetActive(false);
     }
@@ -156,6 +185,7 @@ private float currentKnockbackSpeed;
         UpdateAttackPoint();
         FacePlayer();
         HandleAttack();
+        UpdateAnimation();
     }
 
   // GAME-101: Controlar empuje y pausa al recibir daño
@@ -178,13 +208,22 @@ private float currentKnockbackSpeed;
             return;
         }
 
+        // Mordisco: se lanza hacia delante dentro de la franja que marcó
+        if (lungeTimer > 0f)
+        {
+            lungeTimer -= Time.fixedDeltaTime;
+            rb.linearVelocity = attackDir * (lungeDistance / Mathf.Max(0.01f, lungeDuration));
+            return;
+        }
+
         // Continuar persiguiendo cuando termina la reacción
         ChasePlayer();
     }
 
     private void FacePlayer()
     {
-        if (!PlayerDetected || player == null || enemySprite == null)
+        // Con animación por direcciones no se voltea: cada dirección tiene su propio dibujo
+        if (anim != null || !PlayerDetected || player == null || enemySprite == null)
             return;
 
         float differenceX = player.position.x - transform.position.x;
@@ -266,6 +305,8 @@ private void DetectPlayer()
         return;
 
     PlayerDetected = detectedNow;
+    if (PlayerDetected && anim != null)
+        alertTimer = alertDuration;
 
     Debug.Log(
         PlayerDetected
@@ -295,8 +336,8 @@ private void DetectPlayer()
             return;
         }
 
-        // Quieto mientras prepara el golpe: la franja marca dónde cae
-        if (preparingAttack)
+        // Quieto mientras prepara el golpe (la franja marca dónde cae) o mientras se pone alerta
+        if (preparingAttack || alertTimer > 0f || attackPoseTimer > 0f)
         {
             rb.linearVelocity = Vector2.zero;
             return;
@@ -415,12 +456,19 @@ private void DetectPlayer()
     // GAME-11 / GAME-101: Ataque con advertencia previa
     private void HandleAttack()
     {
+        if (alertTimer > 0f) alertTimer -= Time.deltaTime;
+        if (attackPoseTimer > 0f) attackPoseTimer -= Time.deltaTime;
+
         // Cancelar si está aturdido o no detecta al jugador
         if (hitStunTimer > 0f || staggerTimer > 0f || !PlayerDetected || player == null)
         {
             CancelAttackWarning();
             return;
         }
+
+        // Recién alerta: todavía no ataca
+        if (alertTimer > 0f)
+            return;
 
         float distance = Vector2.Distance(
             transform.position,
@@ -460,10 +508,13 @@ private void DetectPlayer()
 
         // Patrón según dónde está el jugador: más a los lados = golpe horizontal hacia ese lado,
         // más arriba/abajo = golpe vertical hacia ese lado. Siempre hacia delante.
+        // Con animación por direcciones el mordisco sale en la dirección (de 8) en la que mira.
         Vector2 toPlayer = (Vector2)player.position - (Vector2)transform.position;
-        attackDir = Mathf.Abs(toPlayer.x) >= Mathf.Abs(toPlayer.y)
-            ? new Vector2(Mathf.Sign(toPlayer.x), 0f)
-            : new Vector2(0f, Mathf.Sign(toPlayer.y));
+        attackDir = anim != null
+            ? Snap8(toPlayer)
+            : Mathf.Abs(toPlayer.x) >= Mathf.Abs(toPlayer.y)
+                ? new Vector2(Mathf.Sign(toPlayer.x), 0f)
+                : new Vector2(0f, Mathf.Sign(toPlayer.y));
         attackCenter = transform.position;
         if (band != null)
             band.ShowLineGrowing(attackCenter, attackDir, bandLength, bandWidth, warningTimer, Telegraph.Danger);
@@ -509,6 +560,11 @@ private void DetectPlayer()
         ShowAttackFX();
         if (band != null)
             band.Impact();
+        if (anim != null)
+        {
+            attackPoseTimer = attackPoseDuration;
+            lungeTimer = lungeDuration;
+        }
 
         bool hitPlayer = CheckAttackHitbox();
 
@@ -595,6 +651,52 @@ private void DetectPlayer()
         }
 
         return false;
+    }
+
+    private static Vector2 Snap8(Vector2 dir)
+    {
+        if (dir.sqrMagnitude < 0.0001f) return Vector2.down;
+        float angle = Mathf.Round(Mathf.Atan2(dir.y, dir.x) / (Mathf.PI / 4f)) * (Mathf.PI / 4f);
+        return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+    }
+
+    // Elige el clip según lo que está haciendo y hacia dónde mira
+    private void UpdateAnimation()
+    {
+        if (anim == null)
+            return;
+
+        if (preparingAttack || attackPoseTimer > 0f)
+            facing = attackDir;
+        else if (PlayerDetected && player != null)
+            facing = (Vector2)player.position - rb.position;
+        else if (rb.linearVelocity.sqrMagnitude > 0.01f)
+            facing = rb.linearVelocity;
+
+        if (hitStunTimer > 0f || staggerTimer > 0f)
+            anim.PlayFacing("Hurt", facing, 1f, false);
+        else if (attackPoseTimer > 0f)
+            anim.PlayFacing("Attack", facing, 1f, false);
+        else if (preparingAttack)
+            anim.PlayFacing("Windup", facing, 1f, false);
+        else if (alertTimer > 0f)
+            anim.PlayFacing("Alert", facing, 1f, false);
+        else if (rb.linearVelocity.sqrMagnitude > 0.01f)
+            anim.PlayFacing("Walk", facing, walkFps * Mathf.Max(0.5f, rb.linearVelocity.magnitude / moveSpeed), true);
+        else
+            anim.PlayFacing("Idle", facing, 1f, false);
+    }
+
+    // EnemyHealth apaga al enemigo al morir: una copia del sprite cae y desaparece
+    private void OnDied()
+    {
+        if (anim == null)
+            return;
+
+        var copy = anim.SpawnCopy();
+        copy.name = name + "_Muerte";
+        copy.PlayFacing("Death", facing, deathFps, false);
+        Destroy(copy.gameObject, 2f / deathFps + 0.8f);
     }
 
     // MOSTRAR EFECTO VISUAL

@@ -1689,9 +1689,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::GuardianSummons
   minionPrefabs:
-  - {fileID: 1022313869848776908, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
-  - {fileID: 444685471437639773, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
-  - {fileID: 4811869618449077184, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+  - {fileID: 8482060167325708381, guid: 143d1eed30b4c47aabc60a108fb3c1f3, type: 3}
   summonCircle: {fileID: 21300000, guid: b6a8d259bf34849d795ed6d9eed2d9b5, type: 3}
   thresholds:
   - 0.75

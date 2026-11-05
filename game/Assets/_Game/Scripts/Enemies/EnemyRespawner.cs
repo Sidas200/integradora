@@ -15,7 +15,7 @@ public class EnemyRespawner : MonoBehaviour
     [Tooltip("Segundos mínimos entre que muere y reaparece.")]
     [SerializeField] private float respawnDelay = 20f;
     [Tooltip("Distancia mínima entre el jugador y el punto donde reaparece.")]
-    [SerializeField] private float minPlayerDistance = 3f;
+    [SerializeField] private float minPlayerDistance = 5f;
     [Tooltip("Margen fuera de la pantalla (fracción de la vista) para que no aparezca a la vista.")]
     [SerializeField] private float offscreenMargin = 0.15f;
 

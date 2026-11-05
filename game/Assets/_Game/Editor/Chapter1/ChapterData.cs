@@ -41,9 +41,9 @@ namespace Game.EditorTools.Chapter1
         // con el set completo un golpe de Custodio (10) quita 5 y la embestida de Varn (20) quita 15.
         public static List<EquipmentItem> LeatherSet() => new List<EquipmentItem>
         {
-            Piece("Equip_CascoCuero", "Casco de cuero", "CascoCuero", EquipmentSlot.Head, defense: 1, health: 0, speed: 0f),
-            Piece("Equip_PecheraCuero", "Pechera de cuero", "PecheraCuero", EquipmentSlot.Chest, defense: 4, health: 0, speed: 0f),
-            Piece("Equip_BotasCuero", "Botas de cuero", "BotasCuero", EquipmentSlot.Feet, defense: 1, health: 0, speed: 0.1f),
+            Piece("Equip_CascoCuero", "Casco de cuero", "CascoCuero", EquipmentSlot.Head, defense: 2, health: 0, speed: 0f),
+            Piece("Equip_PecheraCuero", "Pechera de cuero", "PecheraCuero", EquipmentSlot.Chest, defense: 6, health: 0, speed: 0f),
+            Piece("Equip_BotasCuero", "Botas de cuero", "BotasCuero", EquipmentSlot.Feet, defense: 2, health: 0, speed: 0.1f),
         };
 
         private static EquipmentItem Piece(string asset, string name, string material, EquipmentSlot slot, int defense, int health, float speed)

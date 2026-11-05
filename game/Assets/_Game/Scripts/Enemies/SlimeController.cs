@@ -52,7 +52,9 @@ public class SlimeController : MonoBehaviour, IStaggerable
     [SerializeField] private float staggerStunDuration = 0.3f;
 
     [Header("Explosión al morir")]
-    [SerializeField, Min(0)] private int explosionDamage = 8;
+    [SerializeField, Min(0)] private int explosionDamage = 20;
+    [Tooltip("Radio de la explosión respecto al ancho del slime (2 = el doble).")]
+    [SerializeField, Min(0.1f)] private float explosionAreaScale = 2f;
 
     public bool PlayerDetected { get; private set; }
 
@@ -82,11 +84,11 @@ public class SlimeController : MonoBehaviour, IStaggerable
         if (TryGetComponent<EnemyHealth>(out var health)) health.Died += Explode;
     }
 
-    // El área es del tamaño del slime: el ancho de su sprite
+    // El área es el doble del ancho de su sprite
     private void Explode()
     {
         var body = visual != null ? visual.GetComponentInChildren<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
-        float radius = body != null && body.sprite != null ? body.bounds.extents.x : 0.13f;
+        float radius = (body != null && body.sprite != null ? body.bounds.extents.x : 0.13f) * explosionAreaScale;
         Vector2 at = body != null ? new Vector2(body.bounds.center.x, rb.position.y) : rb.position;
         SlimeExplosion.Spawn(body, at, radius, explosionDamage);
     }

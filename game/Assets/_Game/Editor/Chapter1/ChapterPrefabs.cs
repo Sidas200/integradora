@@ -86,6 +86,9 @@ namespace Game.EditorTools.Chapter1
             so.FindProperty("walkFps").floatValue = 8f;
             so.FindProperty("attackFps").floatValue = 16f;
             so.FindProperty("spriteSheet").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Texture2D>(SpriteSheetPath);
+            // Arte del corte a distancia y del esqueleto cuando la alcanza un rayo
+            so.FindProperty("slashSprite").objectReferenceValue = FirstSprite("Assets/_Game/Art/enemies/slash.png");
+            so.FindProperty("shockSprite").objectReferenceValue = FirstSprite("Assets/_Game/Art/Characters/tsuki_shock.png");
             var allFrames = so.FindProperty("allFrames");
             allFrames.arraySize = frames.Length;
             for (int i = 0; i < frames.Length; i++) allFrames.GetArrayElementAtIndex(i).objectReferenceValue = frames[i];
@@ -101,6 +104,9 @@ namespace Game.EditorTools.Chapter1
             PrefabUtility.SaveAsPrefabAsset(root, PlayerPath);
             Object.DestroyImmediate(root);
         }
+
+        private static Sprite FirstSprite(string path) =>
+            System.Linq.Enumerable.FirstOrDefault(System.Linq.Enumerable.OfType<Sprite>(AssetDatabase.LoadAllAssetsAtPath(path)));
 
         // NPC con la raíz en los pies, sprite en "Visual", sombra, obstáculo pequeño y marcador "!".
         public static GameObject CreateNpc(string name, string sprite, Vector3 position, Transform parent, out GameObject marker)

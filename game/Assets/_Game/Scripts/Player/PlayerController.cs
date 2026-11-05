@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Esquiva perfecta (dash a tiempo)")]
     [Tooltip("Segundos desde que empieza el dash en los que un golpe se esquiva sin daño.")]
-    [SerializeField] private float perfectDodgeWindow = 0.18f;
+    [SerializeField] private float perfectDodgeWindow = 0.22f;
     [Tooltip("Velocidad del mundo durante la cámara lenta (Tsuki se mueve normal).")]
     [SerializeField, Range(0.05f, 1f)] private float slowMotionScale = 0.3f;
     [Tooltip("Duración de la cámara lenta en segundos reales.")]
@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Velocidad en alturas del jugador por segundo.")]
     [SerializeField] private float slashSpeed = 6f;
     [Tooltip("Daño respecto al ataque normal.")]
-    [SerializeField, Range(0.1f, 2f)] private float slashDamageScale = 0.7f;
+    [SerializeField, Range(0.1f, 2f)] private float slashDamageScale = 0.5f;
     [SerializeField] private float slashCooldown = 1.2f;
     [Tooltip("Frame de la animación del 2do golpe (levanta la espada y corta) en que sale el corte.")]
     [SerializeField, Min(0)] private int slashReleaseFrame = 2;

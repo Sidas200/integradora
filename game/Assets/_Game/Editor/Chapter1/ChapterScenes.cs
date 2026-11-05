@@ -392,6 +392,8 @@ namespace Game.EditorTools.Chapter1
                 if (ranged != null) range = new SerializedObject(ranged).FindProperty("detectionRange").floatValue;
                 var slime = health.GetComponent<SlimeController>();
                 if (slime != null) range = new SerializedObject(slime).FindProperty("detectionRange").floatValue;
+                var fragmento = health.GetComponent<FragmentoErranteController>();
+                if (fragmento != null) range = new SerializedObject(fragmento).FindProperty("detectionRange").floatValue;
                 foreach (Transform m in markers)
                 {
                     if (!m.name.StartsWith("Spawn_") && !m.name.StartsWith("SavePoint_")) continue;

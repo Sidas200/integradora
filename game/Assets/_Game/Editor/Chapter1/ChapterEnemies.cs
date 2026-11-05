@@ -12,33 +12,47 @@ namespace Game.EditorTools.Chapter1
         public const string RangedPath = ChapterPrefabs.Folder + "/Enemy_Ranged.prefab";
         public const string GuardianPath = ChapterPrefabs.Folder + "/Guardian_Varn.prefab";
         public const string SlimePath = ChapterPrefabs.Folder + "/Enemy_Slime.prefab";
+        public const string FragmentoPath = ChapterPrefabs.Folder + "/Enemy_Fragmento.prefab";
 
         private const string BaseMeleePath = "Assets/_Game/Prefabs/enemies/Enemy_Melee.prefab";
+
+        // Vida de los enemigos comunes: 4 golpes cuerpo a cuerpo con la espada sin mejorar (15 de daño),
+        // 3 con la mejorada (25) y 3 dobles cortes a distancia (12, solo con la mejorada)
+        private const int CommonEnemyHealth = 60;
 
         public static void BuildAll()
         {
             BuildMeleeVariant();
             BuildSlime();
             BuildRanged();
+            BuildFragmento();
             BuildGuardian();
         }
 
         // Variante del Enemy_Melee de Yahir: conserva su IA y cambios futuros del prefab base.
+        // Se ve como el Lobo del Velo (8 direcciones, pivote en las patas).
         private static void BuildMeleeVariant()
         {
             var basePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BaseMeleePath);
             var root = (GameObject)PrefabUtility.InstantiatePrefab(basePrefab);
             root.name = "Enemy_Melee_Ch1";
 
-            var baseRenderer = root.GetComponent<SpriteRenderer>();
-            baseRenderer.enabled = false;
-            // El sprite de kratos tiene el pivote al centro: se sube media altura para dejar la raíz en los pies
-            var visual = AddVisual(root.transform, baseRenderer.sprite, baseRenderer.sprite.bounds.size.y * 0.5f);
+            root.GetComponent<SpriteRenderer>().enabled = false;
+            var clips = EnemyFramesImport.LoadClips(EnemyFramesImport.Lobo);
+            var idle = System.Array.Find(clips, c => c.name == "Idle_Sur");
+            var visual = AddVisual(root.transform, idle.frames[0], 0f);
+            visual.gameObject.AddComponent<GuardianVarnAnimator>().SetClips(clips);
 
             var col = root.GetComponent<CircleCollider2D>();
             col.radius = 0.1f;
             col.offset = new Vector2(0f, 0.04f);
-            Finish(root, visual, 1f, 0.16f, 0.22f);
+            // Cuerpo de cuatro patas: más ancho y bajo que el humano de antes
+            Finish(root, visual, 1.2f, 0.17f, 0.16f);
+
+            // El zarpazo ya viene dibujado en el frame de ataque: sin el slash suelto del prefab base
+            var melee = root.GetComponent<EnemyMeleeController>();
+            UiFactory.SetRef(melee, "attackFX", null);
+            root.transform.Find("AttackFX").gameObject.SetActive(false);
 
             // Aviso de ataque: círculo rojo en el suelo que parpadea durante el windup
             var warning = root.transform.Find("AttackWarningFX");
@@ -49,10 +63,9 @@ namespace Game.EditorTools.Chapter1
             tele.SetDefaults(0.6f, Telegraph.Danger);
             warning.gameObject.AddComponent<DetachedChild>();
 
-            SetFloat(root.GetComponent<EnemyMeleeController>(), "attackWindup", 0.6f);
-            SetFloat(root.GetComponent<EnemyMeleeController>(), "detectionRange", 1.9f);
-            // Vidas: 3 golpes con la espada despertada (25 de daño), 4 sin ella (15)
-            SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", 60);
+            SetFloat(melee, "attackWindup", 0.6f);
+            SetFloat(melee, "detectionRange", 1.9f);
+            SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", CommonEnemyHealth);
             UiFactory.SetRef(root.GetComponent<EnemyHitFeedback>(), "spriteRenderer", visual);
 
             PrefabUtility.SaveAsPrefabAsset(root, MeleePath);
@@ -87,8 +100,8 @@ namespace Game.EditorTools.Chapter1
             ai.Setup(visual.transform, warning.GetComponent<Telegraph>());
             SetFloat(ai, "detectionRange", 1.5f);
             SetFloat(ai, "moveSpeed", 1.0f);
-            SetInt(ai, "attackDamage", 6);
-            SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", 52);
+            SetInt(ai, "attackDamage", 20);
+            SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", CommonEnemyHealth);
             UiFactory.SetRef(root.GetComponent<EnemyHitFeedback>(), "spriteRenderer", visual);
 
             PrefabUtility.SaveAsPrefabAsset(root, SlimePath);
@@ -103,13 +116,36 @@ namespace Game.EditorTools.Chapter1
             Finish(root, visual, 0.8f, 0.16f, 0.26f);
 
             var health = root.AddComponent<EnemyHealth>();
-            SetInt(health, "maxHealth", 56);
+            SetInt(health, "maxHealth", CommonEnemyHealth);
             var feedback = root.AddComponent<EnemyHitFeedback>();
             UiFactory.SetRef(feedback, "spriteRenderer", visual);
             var ranged = root.AddComponent<EnemyRangedController>();
             ranged.Setup(PlaceholderArtGenerator.Load("placeholder_telegraph_circle"), PlaceholderArtGenerator.Load("placeholder_projectile"), visual);
 
             PrefabUtility.SaveAsPrefabAsset(root, RangedPath);
+            Object.DestroyImmediate(root);
+        }
+
+        // Fragmento Errante: el refuerzo que invoca Varn. Levita hacia Tsuki y suelta una onda de
+        // choque a su alrededor (FragmentoErranteController); animación en 8 direcciones.
+        private static void BuildFragmento()
+        {
+            var root = NewEnemyRoot("Enemy_Fragmento", RigidbodyType2D.Dynamic, 0.09f);
+            var clips = EnemyFramesImport.LoadClips(EnemyFramesImport.Fragmento);
+            var idle = System.Array.Find(clips, c => c.name == "Idle_Sur");
+            var visual = AddVisual(root.transform, idle.frames[0], 0f);
+            visual.gameObject.AddComponent<GuardianVarnAnimator>().SetClips(clips);
+            // Levita: el sprite sube y baja sobre su sombra
+            visual.gameObject.AddComponent<FloatBob>();
+            Finish(root, visual, 0.9f, 0.18f, 0.3f);
+
+            var health = root.AddComponent<EnemyHealth>();
+            SetInt(health, "maxHealth", CommonEnemyHealth);
+            var feedback = root.AddComponent<EnemyHitFeedback>();
+            UiFactory.SetRef(feedback, "spriteRenderer", visual);
+            root.AddComponent<FragmentoErranteController>().Setup(PlaceholderArtGenerator.Load("placeholder_telegraph_circle"), visual);
+
+            PrefabUtility.SaveAsPrefabAsset(root, FragmentoPath);
             Object.DestroyImmediate(root);
         }
 
@@ -127,8 +163,8 @@ namespace Game.EditorTools.Chapter1
             Finish(root, visual, 2.2f, 0.28f, 0.38f);
 
             var health = root.AddComponent<EnemyHealth>();
-            // 15 golpes con la espada despertada (25 de daño)
-            SetInt(health, "maxHealth", 375);
+            // 18 golpes con la espada despertada (25 de daño)
+            SetInt(health, "maxHealth", 450);
             SetFloat(health, "invulnerableTime", 0.35f);
             var feedback = root.AddComponent<EnemyHitFeedback>();
             UiFactory.SetRef(feedback, "spriteRenderer", visual);

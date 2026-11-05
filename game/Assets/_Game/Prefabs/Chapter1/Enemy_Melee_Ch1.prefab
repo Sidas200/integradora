@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 988142086997248288}
   - component: {fileID: 4343312551116594260}
+  - component: {fileID: 982333884173887942}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -26,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 5699880134403818279}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.23125, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -81,17 +82,214 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 632852632730893196, guid: fca613c61b1584535ac5eb9a03955904, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6943f6eb91ca44f3e98b68126ba88b08, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.2825, y: 0.4625}
+  m_Size: {x: 0.8, y: 0.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!114 &982333884173887942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5699880134403818279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f291c162495743bbb5856346b7887a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::GuardianVarnAnimator
+  clips:
+  - name: Alert_Este
+    frames:
+    - {fileID: 21300000, guid: 776779e440c1749df8172b1a6a7898da, type: 3}
+  - name: Alert_Noreste
+    frames:
+    - {fileID: 21300000, guid: 7e9a85abee74b4fac834176c44483518, type: 3}
+  - name: Alert_Noroeste
+    frames:
+    - {fileID: 21300000, guid: a05bc9b393310491c910b85e63c02117, type: 3}
+  - name: Alert_Norte
+    frames:
+    - {fileID: 21300000, guid: 4396811d9c3a44418aaf2b38ce548f90, type: 3}
+  - name: Alert_Oeste
+    frames:
+    - {fileID: 21300000, guid: 0674e94930fc644ad9c89ce24b0e38f2, type: 3}
+  - name: Alert_Sur
+    frames:
+    - {fileID: 21300000, guid: 64e4a91705dd14e70b07c7e302095417, type: 3}
+  - name: Alert_Sureste
+    frames:
+    - {fileID: 21300000, guid: f0c9a2346251e44c39caf47595b78781, type: 3}
+  - name: Alert_Suroeste
+    frames:
+    - {fileID: 21300000, guid: a9a832bac8eec4bf5bba4407c2fa9653, type: 3}
+  - name: Attack_Este
+    frames:
+    - {fileID: 21300000, guid: ed872f1aed5804ddcb18a3578c324c2b, type: 3}
+  - name: Attack_Noreste
+    frames:
+    - {fileID: 21300000, guid: 1fb4a98c4071e4e048abe61f37f64d75, type: 3}
+  - name: Attack_Noroeste
+    frames:
+    - {fileID: 21300000, guid: 4e0d7e6559de14643a2c8af1f84b5a48, type: 3}
+  - name: Attack_Norte
+    frames:
+    - {fileID: 21300000, guid: 2d5815482fe33470585436d13f54b956, type: 3}
+  - name: Attack_Oeste
+    frames:
+    - {fileID: 21300000, guid: 41987b26aaa704048b2d07bac726047e, type: 3}
+  - name: Attack_Sur
+    frames:
+    - {fileID: 21300000, guid: e9667609502b0493e82f35886e6cd604, type: 3}
+  - name: Attack_Sureste
+    frames:
+    - {fileID: 21300000, guid: 1cfecc1f21fc34890a58f5de161c321f, type: 3}
+  - name: Attack_Suroeste
+    frames:
+    - {fileID: 21300000, guid: 1c2525f8d69ab4b2da6520e0f6f02a92, type: 3}
+  - name: Death_Este
+    frames:
+    - {fileID: 21300000, guid: 0ecb4708dbb044cdab7e8ed7b7d561fa, type: 3}
+    - {fileID: 21300000, guid: d3959c801ecca4a58870cbbad9231d05, type: 3}
+  - name: Death_Noreste
+    frames:
+    - {fileID: 21300000, guid: e584ff3fe61144f6197e20005d9f80ed, type: 3}
+    - {fileID: 21300000, guid: 1d4099c59945342c8aa3237d25f4eca7, type: 3}
+  - name: Death_Noroeste
+    frames:
+    - {fileID: 21300000, guid: d1e76e947e748457aaa27fcc1c15ef63, type: 3}
+    - {fileID: 21300000, guid: 8c8bd3d247bc047bb9399077f5651c81, type: 3}
+  - name: Death_Norte
+    frames:
+    - {fileID: 21300000, guid: 0887c7d6af23f4341b12df9cd9662885, type: 3}
+    - {fileID: 21300000, guid: 49921b556399b42c88e6ab5de8d85370, type: 3}
+  - name: Death_Oeste
+    frames:
+    - {fileID: 21300000, guid: b449cca18aa644e70a1545831593cd8f, type: 3}
+    - {fileID: 21300000, guid: 9511261636a7c470f831979e632ea3d4, type: 3}
+  - name: Death_Sur
+    frames:
+    - {fileID: 21300000, guid: 4e3d6d20a226649b5b3ab76e2db37e96, type: 3}
+    - {fileID: 21300000, guid: 5c587fdc661c34c5c9dd54b5993e9bd4, type: 3}
+  - name: Death_Sureste
+    frames:
+    - {fileID: 21300000, guid: b6a1bd3ea6cba48cba35a5d050d02ed3, type: 3}
+    - {fileID: 21300000, guid: 683ae06bf3360430ab7daaa6bf93720d, type: 3}
+  - name: Death_Suroeste
+    frames:
+    - {fileID: 21300000, guid: 85eebfbf0b76d4abba9a41be32a8e1be, type: 3}
+    - {fileID: 21300000, guid: 3ec040fc49be1422996b26c832e4fa9b, type: 3}
+  - name: Hurt_Este
+    frames:
+    - {fileID: 21300000, guid: 87eb48d3e95d6451d8233cec72d77fe6, type: 3}
+  - name: Hurt_Noreste
+    frames:
+    - {fileID: 21300000, guid: 6f49bb231e0e540bd91e6ea061d41653, type: 3}
+  - name: Hurt_Noroeste
+    frames:
+    - {fileID: 21300000, guid: 3364304e4dc6e4855b23b9bb36047077, type: 3}
+  - name: Hurt_Norte
+    frames:
+    - {fileID: 21300000, guid: 0345b1afaa9c44325b09381c1aac1490, type: 3}
+  - name: Hurt_Oeste
+    frames:
+    - {fileID: 21300000, guid: d650c70e25c314e4cb76e2374f53eb60, type: 3}
+  - name: Hurt_Sur
+    frames:
+    - {fileID: 21300000, guid: 5bf1f54fed8fb4045b384fdfd5f03bb6, type: 3}
+  - name: Hurt_Sureste
+    frames:
+    - {fileID: 21300000, guid: 7922bc61735e04e4fb4d1cad04004f0d, type: 3}
+  - name: Hurt_Suroeste
+    frames:
+    - {fileID: 21300000, guid: 5306b4a7ac2cc4520a035ef0357705ed, type: 3}
+  - name: Idle_Este
+    frames:
+    - {fileID: 21300000, guid: f68b80a916b8c44b5bb8791ef234e09b, type: 3}
+  - name: Idle_Noreste
+    frames:
+    - {fileID: 21300000, guid: fe4d3b43b5af34499854c23d4c87c491, type: 3}
+  - name: Idle_Noroeste
+    frames:
+    - {fileID: 21300000, guid: 1f023fb0da21c4d9dad92326833b9b11, type: 3}
+  - name: Idle_Norte
+    frames:
+    - {fileID: 21300000, guid: 6b0449e4afe89427ba1de6a40ea26402, type: 3}
+  - name: Idle_Oeste
+    frames:
+    - {fileID: 21300000, guid: f79fab946c18346bdbd712197cdac7fe, type: 3}
+  - name: Idle_Sur
+    frames:
+    - {fileID: 21300000, guid: 6943f6eb91ca44f3e98b68126ba88b08, type: 3}
+  - name: Idle_Sureste
+    frames:
+    - {fileID: 21300000, guid: 64004a683f1094a3c89b42f1ed141fe6, type: 3}
+  - name: Idle_Suroeste
+    frames:
+    - {fileID: 21300000, guid: 2e78489c69574453583f543146e5d836, type: 3}
+  - name: Walk_Este
+    frames:
+    - {fileID: 21300000, guid: 9674962e1c6f84d28834d5db77a2bbd9, type: 3}
+    - {fileID: 21300000, guid: 5cb510035c1534e24920c7182a96233f, type: 3}
+  - name: Walk_Noreste
+    frames:
+    - {fileID: 21300000, guid: e76966ae0af5648ac98596330f76d067, type: 3}
+    - {fileID: 21300000, guid: 6f4225ddcc2c441f4b747f7e81a5fe39, type: 3}
+  - name: Walk_Noroeste
+    frames:
+    - {fileID: 21300000, guid: 548f632b028a7432091f48b57ae1c83e, type: 3}
+    - {fileID: 21300000, guid: 2df83547c4cab4250a86fb10561184b1, type: 3}
+  - name: Walk_Norte
+    frames:
+    - {fileID: 21300000, guid: effbd7e092b144cbbbb84f21ff793ed3, type: 3}
+    - {fileID: 21300000, guid: 58c6be9a99f6344958b1b348bfb2eb5a, type: 3}
+  - name: Walk_Oeste
+    frames:
+    - {fileID: 21300000, guid: ed1a96b6439074598a22c464320f52fd, type: 3}
+    - {fileID: 21300000, guid: 877c31c1d8a7645ee8ed9f8fc52b19ae, type: 3}
+  - name: Walk_Sur
+    frames:
+    - {fileID: 21300000, guid: e8e3d47439f42492588ff3b5138d9c2e, type: 3}
+    - {fileID: 21300000, guid: a8a07772520e84963b28ab7f4189ba78, type: 3}
+  - name: Walk_Sureste
+    frames:
+    - {fileID: 21300000, guid: dc6ad05f420a5415cb7b7789c65a5e1b, type: 3}
+    - {fileID: 21300000, guid: a07fd57057b5b460ba10c428c5fbe538, type: 3}
+  - name: Walk_Suroeste
+    frames:
+    - {fileID: 21300000, guid: 3b23c9ebf2f454e6484363fc75ff09b2, type: 3}
+    - {fileID: 21300000, guid: 2ccea85cc0c20449fb28b283cdf856f5, type: 3}
+  - name: Windup_Este
+    frames:
+    - {fileID: 21300000, guid: 9ead8c3f6d2c946ddb9acd630dedc5db, type: 3}
+  - name: Windup_Noreste
+    frames:
+    - {fileID: 21300000, guid: 8e229d409160b4ae3b8eb9d64d10d518, type: 3}
+  - name: Windup_Noroeste
+    frames:
+    - {fileID: 21300000, guid: 54537e853d07643aba55f6bf633afffa, type: 3}
+  - name: Windup_Norte
+    frames:
+    - {fileID: 21300000, guid: fae577ebf6150434c893122274cafa69, type: 3}
+  - name: Windup_Oeste
+    frames:
+    - {fileID: 21300000, guid: cf2244276435f4730949377dcb7a604a, type: 3}
+  - name: Windup_Sur
+    frames:
+    - {fileID: 21300000, guid: 6dd254d3eb7474a1b88608f039b52d6a, type: 3}
+  - name: Windup_Sureste
+    frames:
+    - {fileID: 21300000, guid: afbe171623fa7491e8e9be91f1ca8985, type: 3}
+  - name: Windup_Suroeste
+    frames:
+    - {fileID: 21300000, guid: 92bab68fc573a4331b5671902a79272d, type: 3}
 --- !u!1 &6152225007272924073
 GameObject:
   m_ObjectHideFlags: 0
@@ -158,8 +356,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.22}
-  m_Radius: 0.16
+  m_Offset: {x: 0, y: 0.16}
+  m_Radius: 0.17
 --- !u!1 &7236364820713267794
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,7 +385,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.015, y: 0.005, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 402298096345544363}
@@ -321,6 +519,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4492480789061150374, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
+      propertyPath: attackFX
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4492480789061150374, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
       propertyPath: attackWindup
       value: 0.6
       objectReference: {fileID: 0}
@@ -419,22 +621,22 @@ MonoBehaviour:
   m_AlphaCutoff: 0.1
   m_ApplyToSortingLayers: 000000004d60ecc5f1b34e8f1bb0b31903dbfc79i
   m_ShapePath:
-  - {x: 0.06, y: 0.02, z: 0}
-  - {x: 0.042426404, y: 0.037677668, z: 0}
-  - {x: -0.0000000026226832, y: 0.045, z: 0}
-  - {x: -0.042426404, y: 0.037677668, z: 0}
-  - {x: -0.06, y: 0.019999998, z: 0}
-  - {x: -0.0424264, y: 0.002322327, z: 0}
-  - {x: 7.1549283e-10, y: -0.005000001, z: 0}
-  - {x: 0.04242642, y: 0.002322336, z: 0}
+  - {x: 0.072000004, y: 0.02, z: 0}
+  - {x: 0.05091169, y: 0.041213203, z: 0}
+  - {x: -0.00000000314722, y: 0.05, z: 0}
+  - {x: -0.05091169, y: 0.041213203, z: 0}
+  - {x: -0.072000004, y: 0.019999998, z: 0}
+  - {x: -0.050911684, y: -0.001213208, z: 0}
+  - {x: 8.585915e-10, y: -0.010000002, z: 0}
+  - {x: 0.050911706, y: -0.0012131972, z: 0}
   m_ShapePathHash: 0
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 5912923179209863847}
   m_ShadowShape2DProvider:
-    rid: 1937313212651274612
+    rid: 1937313234699681792
   m_ShadowCastingSource: 1
   m_ShadowMesh:
-    rid: 1937313212651274613
+    rid: 1937313234699681793
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: -1
@@ -442,16 +644,16 @@ MonoBehaviour:
   m_PreviousShadowShape2DSource: {fileID: 0}
   m_PreviousShadowShape2DProviderHash: 0
   m_SelectionSources:
-    rid: 1937313212651274614
+    rid: 1937313234699681794
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1937313212651274612
+    - rid: 1937313234699681792
       type: {class: ShadowShape2DProvider_SpriteRenderer, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
-    - rid: 1937313212651274613
+    - rid: 1937313234699681793
       type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Vertices:
@@ -655,7 +857,7 @@ MonoBehaviour:
         m_FlipX: 0
         m_FlipY: 0
         m_InitialTrim: 0.01
-    - rid: 1937313212651274614
+    - rid: 1937313234699681794
       type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 0

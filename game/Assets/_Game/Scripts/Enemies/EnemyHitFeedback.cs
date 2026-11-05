@@ -30,8 +30,8 @@ public class EnemyHitFeedback : MonoBehaviour
         meleeController = GetComponent<EnemyMeleeController>();
         slimeController = GetComponent<SlimeController>();
 
-        // El enemigo a distancia ya es carmesí: un tinte rojo no se distinguía
-        if (GetComponent<EnemyRangedController>() != null)
+        // El enemigo a distancia y el Fragmento ya son carmesí: un tinte rojo no se distinguía
+        if (GetComponent<EnemyRangedController>() != null || GetComponent<FragmentoErranteController>() != null)
             blink = true;
 
         if (spriteRenderer == null)
