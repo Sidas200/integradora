@@ -22,18 +22,6 @@ public static class GamepadInput
     public static bool LeftShoulderPressed => AnyPressed(Button.LeftShoulder);
     public static bool RightShoulderPressed => AnyPressed(Button.RightShoulder);
 
-    // Flecha izquierda de la cruceta (la cruceta también mueve a Tsuki)
-    public static bool DpadLeftPressed
-    {
-        get
-        {
-            var pads = Gamepad.all;
-            for (int i = 0; i < pads.Count; i++)
-                if (pads[i].dpad.left.wasPressedThisFrame) return true;
-            return false;
-        }
-    }
-
     // Inventario: View/Back en Xbox y Thor; touchpad (o Create) en PlayStation.
     public static bool InventoryPressed
     {

@@ -5,7 +5,6 @@ using UnityEngine;
 // - Si la golpea: hace daño, rebota hacia atrás y queda atontado.
 // - Si falla: queda atontado igual (un poco más), lo que abre una ventana para pegarle.
 // - Si Tsuki sale de su rango de vista, deja de seguirla.
-// - Al morir revienta (SlimeExplosion): daña a Tsuki si está dentro de un área de su tamaño.
 [RequireComponent(typeof(Rigidbody2D))]
 public class SlimeController : MonoBehaviour, IStaggerable
 {
@@ -51,9 +50,6 @@ public class SlimeController : MonoBehaviour, IStaggerable
     [SerializeField] private float staggerKnockbackSpeed = 2.2f;
     [SerializeField] private float staggerStunDuration = 0.3f;
 
-    [Header("Explosión al morir")]
-    [SerializeField, Min(0)] private int explosionDamage = 8;
-
     public bool PlayerDetected { get; private set; }
 
     private Rigidbody2D rb;
@@ -79,16 +75,6 @@ public class SlimeController : MonoBehaviour, IStaggerable
     {
         rb = GetComponent<Rigidbody2D>();
         bounce = GetComponent<SlimeBounce>();
-        if (TryGetComponent<EnemyHealth>(out var health)) health.Died += Explode;
-    }
-
-    // El área es del tamaño del slime: el ancho de su sprite
-    private void Explode()
-    {
-        var body = visual != null ? visual.GetComponentInChildren<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
-        float radius = body != null && body.sprite != null ? body.bounds.extents.x : 0.13f;
-        Vector2 at = body != null ? new Vector2(body.bounds.center.x, rb.position.y) : rb.position;
-        SlimeExplosion.Spawn(body, at, radius, explosionDamage);
     }
 
     private void Start()

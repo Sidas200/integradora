@@ -113,17 +113,13 @@ namespace Game.EditorTools.Chapter1
             Object.DestroyImmediate(root);
         }
 
-        public static void BuildGuardian()
+        private static void BuildGuardian()
         {
             var root = NewEnemyRoot("Guardian_Varn", RigidbodyType2D.Kinematic, 0.16f);
             // Un cuerpo cinemático empujaría a Tsuki a través de los bordes de la arena:
             // sus pies son trigger y el daño de la embestida se calcula aparte.
             root.GetComponent<CircleCollider2D>().isTrigger = true;
-            GuardianVarnImport.EnsureAtlas();
-            var clips = GuardianVarnImport.LoadClips();
-            var intro = System.Array.Find(clips, c => c.name == GuardianVarnAnimator.Intro);
-            var visual = AddVisual(root.transform, intro.frames[0], 0f);
-            visual.gameObject.AddComponent<GuardianVarnAnimator>().SetClips(clips);
+            var visual = AddVisual(root.transform, PlaceholderArtGenerator.Load("placeholder_guardian"), 0f);
             Finish(root, visual, 2.2f, 0.28f, 0.38f);
 
             var health = root.AddComponent<EnemyHealth>();

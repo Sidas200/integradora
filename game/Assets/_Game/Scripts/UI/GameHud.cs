@@ -48,13 +48,6 @@ public class GameHud : MonoBehaviour
     // Pista bajo la vida ("Tab: Inventario · Esc: Pausa") que crea el builder; cambia con el dispositivo.
     private TMP_Text inventoryHint;
 
-    // Contador de pociones de la esquina inferior izquierda (lo arma UiSkin al aplicar el estilo)
-    private TMP_Text potionCount;
-    private TMP_Text potionKey;
-    private Image potionIcon;
-    private CanvasGroup potionGroup;
-    private MaterialData potion;
-
     private void Awake()
     {
         Instance = this;
@@ -76,43 +69,9 @@ public class GameHud : MonoBehaviour
 
     private void Update()
     {
-        UpdatePotions();
         if (inventoryHint == null) return;
         string message = ControlHints.Format("{inventory}: Inventario   ·   {pause}: Pausa");
         if (inventoryHint.text != message) inventoryHint.text = message;
-    }
-
-    private void UpdatePotions()
-    {
-        if (potionCount == null)
-        {
-            potionCount = UiNav.FindLabel(transform, "PotionCount");
-            if (potionCount == null) return;
-            potionKey = UiNav.FindLabel(transform, "PotionKey");
-            var box = potionCount.transform.parent;
-            potionIcon = box.Find("PotionIcon")?.GetComponent<Image>();
-            potionGroup = box.GetComponent<CanvasGroup>();
-            if (potionGroup == null) potionGroup = box.gameObject.AddComponent<CanvasGroup>();
-        }
-
-        if (potionIcon != null && potion != null && potionIcon.sprite != potion.icon)
-        {
-            potionIcon.sprite = potion.icon;
-            potionIcon.enabled = potion.icon != null;
-        }
-
-        int have = potion != null ? AmountOf(potion.id) : 0;
-        string count = "x" + have;
-        if (potionCount.text != count) potionCount.text = count;
-        // Sin pociones el panel se atenúa; el cuadro de diálogo lo taparía, así que se esconde
-        bool dialogue = DialogueUI.Instance != null && DialogueUI.Instance.IsOpen;
-        potionGroup.alpha = dialogue ? 0f : have > 0 ? 1f : 0.55f;
-
-        if (potionKey != null)
-        {
-            string key = ControlHints.Key("potion");
-            if (potionKey.text != key) potionKey.text = key;
-        }
     }
 
     private void HandleFlagChanged(string flag) => RefreshObjective(true);
@@ -174,10 +133,6 @@ public class GameHud : MonoBehaviour
                 bossState.text = "¡Vulnerable! Ataca ahora";
                 bossState.color = new Color(0.6f, 1f, 0.7f);
                 break;
-            case GuardianBoss.State.Guard:
-                bossState.text = "¡Se cubre! Golpéalo de cerca para chocar";
-                bossState.color = new Color(1f, 0.82f, 0.3f);
-                break;
             case GuardianBoss.State.Telegraph:
                 bossState.text = "¡Cuidado! Sal de la zona roja";
                 bossState.color = new Color(1f, 0.55f, 0.55f);
@@ -215,8 +170,6 @@ public class GameHud : MonoBehaviour
             inventory.OnAmountChanged += HandleAmountChanged;
             RefreshMaterials();
         }
-        var itemUser = player != null ? player.GetComponent<ItemUser>() : null;
-        potion = itemUser != null ? itemUser.Potion : null;
         playerHealth = player != null ? player.GetComponent<Health>() : null;
         if (playerHealth == null) return;
         playerHealth.HealthChanged += UpdateHealth;

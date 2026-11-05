@@ -18,8 +18,6 @@ public static class ChapterObjectives
     public static string Current()
     {
         if (!StoryFlags.Has(SwordPickup.Flag)) return "Busca algo útil en la cabaña";
-        if (!StoryFlags.Has(IslandVanish.Flag) && !StoryFlags.Has(CombatTutorial.DoneFlag))
-            return "Entrena con el muñeco de práctica (en la explanada de abajo)";
         if (!StoryFlags.Has(IslandVanish.Flag)) return "Cruza el puente";
         if (!StoryFlags.Has(ResearcherFallEvent.Flag)) return "Busca a alguien que te explique dónde estás";
         if (!StoryFlags.Has(CampBriefing)) return "Ve al campamento de Kaede (oeste)";

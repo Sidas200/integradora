@@ -6,9 +6,6 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float smoothSpeed = 5f;
     [SerializeField] private Vector3 offset = new Vector3(0f, 0f, -10f);
 
-    public Transform Target => target;
-    public Vector3 Offset => offset;
-
     // Coloca la cámara directo sobre el objetivo (al aparecer en una escena)
     public void SnapToTarget()
     {
