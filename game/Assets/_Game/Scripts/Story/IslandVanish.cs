@@ -190,7 +190,8 @@ public class IslandVanish : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (done || !StoryFlags.Has(SwordPickup.Flag)) return;
+        // Con la espada y el entrenamiento terminado (el puente también está cerrado hasta entonces)
+        if (done || !StoryFlags.Has(SwordPickup.Flag) || !StoryFlags.Has(CombatTutorial.DoneFlag)) return;
         if (other.GetComponentInParent<PlayerController>() == null) return;
         done = true;
         StartCoroutine(Vanish());

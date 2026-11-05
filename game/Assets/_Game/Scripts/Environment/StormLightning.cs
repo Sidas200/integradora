@@ -38,7 +38,11 @@ public class StormLightning : MonoBehaviour
     [SerializeField] private float strikeRadius = 0.22f;
     [SerializeField, Min(1)] private int strikeDamage = 14;
     [Tooltip("Probabilidad de que el rayo apunte cerca de Tsuki en vez de a un punto cualquiera.")]
-    [SerializeField, Range(0f, 1f)] private float aimAtPlayerChance = 0.55f;
+    [SerializeField, Range(0f, 1f)] private float aimAtPlayerChance = 0.65f;
+    [Tooltip("Los rayos que apuntan a Tsuki la siguen durante esta parte del aviso y luego se fijan.")]
+    [SerializeField, Range(0f, 1f)] private float trackFraction = 0.6f;
+    [Tooltip("Velocidad con que el aviso sigue a Tsuki (unidades por segundo).")]
+    [SerializeField] private float trackSpeed = 0.8f;
     [SerializeField] private float aimSpread = 0.4f;
     [SerializeField] private float strikeHeight = 1.45f;
     [SerializeField] private float framesPerSecond = 22f;
@@ -140,6 +144,8 @@ public class StormLightning : MonoBehaviour
 
     private bool FightActive()
     {
+        // Durante un choque de poder no caen rayos sobre la arena
+        if (PowerClash.InProgress) return false;
         if (boss == null || !boss.isActiveAndEnabled) return false;
         if (boss.Current == GuardianBoss.State.Dormant || boss.Current == GuardianBoss.State.Dead) return false;
         if (player == null)
@@ -180,7 +186,18 @@ public class StormLightning : MonoBehaviour
 
         var warning = GetWarning();
         warning.ShowCircle(point, strikeRadius, warningTime, Telegraph.Danger);
-        yield return new WaitForSeconds(warningTime);
+        // Si apuntaba a Tsuki, el círculo la persigue un rato y después se queda quieto: hay que
+        // salirse en el último momento (o esquivar con un dash perfecto)
+        bool tracking = player != null && Vector2.Distance(point, player.position) <= aimSpread * 1.5f;
+        for (float t = 0f; t < warningTime; t += Time.deltaTime)
+        {
+            if (tracking && t < warningTime * trackFraction && player != null)
+            {
+                point = Vector2.MoveTowards(point, player.position, trackSpeed * Time.deltaTime);
+                warning.transform.position = new Vector3(point.x, point.y, warning.transform.position.z);
+            }
+            yield return null;
+        }
 
         var sr = NewBolt("Lightning_Strike", "UI", -20);
         sr.transform.position = new Vector3(point.x, point.y, 0f);
@@ -198,8 +215,13 @@ public class StormLightning : MonoBehaviour
                 warning.Impact(0.2f);
                 if (sky != null) sky.Flash = Mathf.Max(sky.Flash, 0.8f);
                 CameraShake.Shake(0.035f, 0.15f);
-                if (player != null && FightActive() && CombatUtil.InsideIsoCircle(player.position, point, strikeRadius))
-                    CombatUtil.DamagePlayer(player.gameObject, strikeDamage, point);
+                if (player != null && FightActive() && CombatUtil.InsideIsoCircle(player.position, point, strikeRadius) &&
+                    CombatUtil.DamagePlayer(player.gameObject, strikeDamage, point))
+                {
+                    // Electrocutada: se le ve el esqueleto un momento
+                    var controller = player.GetComponentInParent<PlayerController>();
+                    if (controller != null) controller.Electrocute();
+                }
             }
             yield return new WaitForSeconds(frameTime);
         }
