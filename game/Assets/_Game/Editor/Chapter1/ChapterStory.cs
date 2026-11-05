@@ -77,6 +77,60 @@ namespace Game.EditorTools.Chapter1
                 props, ChapterTiles.Bridge, Get("island_vanish"), blocker,
                 new[] { markers.Find("Door_Cabin").gameObject, markers.Find("Exit_CabinInside").gameObject });
             vanish.SetCollisions(gridGo.transform.Find("Collisions").GetComponent<Tilemap>(), ChapterTiles.Collision, bridgeStart);
+
+            AddCombatTutorial(root, markers);
+        }
+
+        // Entrenamiento al salir de la cabaña: muñeco de práctica en la explanada de arena de abajo y el
+        // puente cerrado hasta vencer al enemigo de prueba. Público para aplicarlo a una escena ya hecha.
+        public static void AddCombatTutorial(Transform root, Transform markers)
+        {
+            var door = markers.Find("Door_Cabin");
+            var bridgeStart = markers.Find("Bridge_Start");
+
+            var spawn = new GameObject("Tutorial_Spawn").transform;
+            spawn.SetParent(root, false);
+            // Al centro de la explanada de arena (la zona plana más grande de la isla)
+            spawn.position = door.position + new Vector3(-0.41f, -2.47f, 0f);
+
+            var crystal = AddIslandSaveCrystal(root, door);
+
+            var tutorial = new GameObject("CombatTutorial");
+            tutorial.transform.SetParent(root, false);
+            var melee = AssetDatabase.LoadAssetAtPath<GameObject>(ChapterEnemies.MeleePath);
+            tutorial.AddComponent<CombatTutorial>().Setup(melee, melee,
+                AssetDatabase.LoadAssetAtPath<MaterialData>("Assets/_Game/Scripts/ScriptableObjects/Pocion.asset"),
+                PlaceholderArtGenerator.Load("placeholder_telegraph_circle"), spawn, door, crystal);
+
+            // Barrera en la entrada del puente (cubre el disparador de IslandVanish)
+            var gate = new GameObject("TutorialBridgeGate");
+            gate.transform.SetParent(root, false);
+            gate.transform.position = bridgeStart.position;
+            gate.AddComponent<BoxCollider2D>().size = new Vector2(0.75f, 0.6f);
+            gate.AddComponent<FlagGate>().Setup(CombatTutorial.DoneFlag, "Antes de cruzar, termina el entrenamiento con el muñeco de práctica.");
+        }
+
+        // Cristal de guardado de la isla, en el lado derecho de la explanada (paso del entrenamiento)
+        public static Transform AddIslandSaveCrystal(Transform root, Transform door)
+        {
+            var go = new GameObject("SaveCrystal_Island");
+            go.transform.SetParent(root, false);
+            go.transform.position = door.position + new Vector3(0.34f, -2.62f, 0f);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = PlaceholderArtGenerator.Load("placeholder_save_crystal");
+            sr.sortingLayerName = "Sprites";
+            sr.spriteSortPoint = SpriteSortPoint.Pivot;
+            go.AddComponent<BoxCollider2D>().size = new Vector2(0.2f, 0.1f);
+            ChapterPrefabs.AddBlobShadow(go.transform, 0.5f);
+
+            var respawn = new GameObject("Spawn_SaveIsland").transform;
+            respawn.SetParent(root, false);
+            respawn.position = door.position + new Vector3(0.14f, -2.47f, 0f);
+
+            var save = go.AddComponent<SavePoint>();
+            save.Configure("Guardar partida", 0.55f, ChapterPrefabs.CreateMarker(go.transform, 0.42f));
+            save.Setup("island", respawn, sr);
+            return go.transform;
         }
 
         private static void OpenField(Transform root, Transform markers)

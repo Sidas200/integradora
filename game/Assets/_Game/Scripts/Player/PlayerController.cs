@@ -244,6 +244,20 @@ public class PlayerController : MonoBehaviour
     // Capítulo 1: sin la espada carmesí Tsuki no puede atacar (lo controla PlayerStoryState)
     public bool AttackEnabled { get; set; } = true;
 
+    // El corte a distancia se desbloquea con el Módulo de espada (lo controla PlayerStoryState)
+    public bool SlashEnabled { get; set; } = true;
+    private float nextSlashLockedHint;
+
+    // Un golpe cuerpo a cuerpo alcanzó a algo (true = 2do golpe del combo). Lo usa el tutorial.
+    public event System.Action<bool> HitLanded;
+
+    // En el dash o justo al empezarlo: un golpe ahora se esquivaría
+    public bool IsDodging => IsPerfectDodge();
+
+    // Respuesta de esquiva perfecta (cámara lenta y destello) para ataques que no pasan por Health,
+    // como el ataque de práctica del tutorial
+    public void PerfectDodgeFeedback() => OnPerfectDodge();
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -712,6 +726,17 @@ private void FixedUpdate()
         if (isDashing || !AttackEnabled)
             return;
 
+        if (!SlashEnabled)
+        {
+            // Aviso de cómo conseguirlo, sin repetirlo a cada botón
+            if (Time.unscaledTime >= nextSlashLockedHint && GameHud.Instance != null)
+            {
+                nextSlashLockedHint = Time.unscaledTime + 4f;
+                GameHud.Instance.ShowToast("El corte a distancia se desbloquea al forjar el Módulo de espada.");
+            }
+            return;
+        }
+
         // Durante el primer corte: se guarda el segundo
         if (attackState == AttackState.Slash)
         {
@@ -930,6 +955,9 @@ private void FixedUpdate()
                 }
             }
         }
+
+        if (hitThisSwing.Count > 0)
+            HitLanded?.Invoke(finisher);
 
         // =========================
         // MOSTRAR HITBOX VISUAL
@@ -1301,6 +1329,19 @@ private void FixedUpdate()
     }
 
     public void SpawnDashGhost() => SpawnGhost();
+
+    // Corte a distancia de demostración (al desbloquearlo): llamarlo dos veces seguidas hace el doble
+    public void DemoSlash(Vector2 dir)
+    {
+        aimWithKeyboard = true;
+        lastMoveDirection = dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.right;
+        if (attackState == AttackState.Slash)
+        {
+            if (!secondSlash) slashQueued = true;
+            return;
+        }
+        StartSlash(false);
+    }
 
     // ---------- RAYO ----------
 
