@@ -9437,10 +9437,10 @@ MonoBehaviour:
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 7128699323755633215}
   m_ShadowShape2DProvider:
-    rid: 8748772644707893819
+    rid: 1937313212651274624
   m_ShadowCastingSource: 1
   m_ShadowMesh:
-    rid: 8748772644707893820
+    rid: 1937313212651274625
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: -1
@@ -9448,16 +9448,16 @@ MonoBehaviour:
   m_PreviousShadowShape2DSource: {fileID: 0}
   m_PreviousShadowShape2DProviderHash: 0
   m_SelectionSources:
-    rid: 8748772644707893821
+    rid: 1937313212651274626
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8748772644707893819
+    - rid: 1937313212651274624
       type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
-    - rid: 8748772644707893820
+    - rid: 1937313212651274625
       type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Vertices: []
@@ -9471,7 +9471,7 @@ MonoBehaviour:
         m_FlipX: 0
         m_FlipY: 0
         m_InitialTrim: 0
-    - rid: 8748772644707893821
+    - rid: 1937313212651274626
       type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 0
@@ -9508,6 +9508,8 @@ MonoBehaviour:
   spriteRenderer: {fileID: 8243485360079346179}
   flashColor: {r: 1, g: 0, b: 0, a: 1}
   flashDuration: 0.15
+  blink: 0
+  blinkCount: 3
 --- !u!114 &4910939718433913912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9533,8 +9535,39 @@ MonoBehaviour:
   slamTelegraph: 1.2
   slamRadius: 0.95
   slamDamage: 36
+  shockwaveRadiusScale: 1.8
+  shockwaveDelay: 0.45
+  shockwaveDamage: 20
+  fistReachScale: 0.6
+  fistSlamScale: 0.8
+  fistHitRange: 0.28
+  swordSlamScale: 1.15
+  swordChargeWidthScale: 1.3
+  swordHitRange: 0.4
+  debrisCount: 4
+  debrisWarning: 1
+  debrisInterval: 0.18
+  debrisRadius: 0.24
+  debrisSpread: 0.9
+  debrisDamage: 18
+  debrisEnemyDamage: 40
+  guardEvery: 2
+  guardTime: 2
+  guardHitRange: 0.8
+  stunTime: 2
+  drawSwordTime: 2
+  guardColor: {r: 1, g: 0.82, b: 0.3, a: 1}
+  riftTelegraph: 0.75
+  riftWidth: 0.3
+  riftSpeed: 7
+  riftDamage: 26
+  contactDamage: 12
+  contactRange: 0.3
   vulnerableTime: 1.3
   enragedTimeScale: 0.75
+  attackSpeed: 1.32
+  shieldColor: {r: 0.55, g: 0.8, b: 1, a: 1}
+  shieldGlowScale: 1.18
   body: {fileID: 8243485360079346179}
   circleSprite: {fileID: 21300000, guid: 82c72872dabf641f5b3b3166dc8178c9, type: 3}
   lineSprite: {fileID: 21300000, guid: 89564fcccb88e42709aac3252d399227, type: 3}
@@ -9636,6 +9669,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6122326856423982220}
   - component: {fileID: 8243485360079346179}
+  - component: {fileID: 8608852342740109718}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -9707,17 +9741,312 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 95315d9c6fe3d4ce5b29235bc9d53acd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8e6235627dfaa4ccb9d258569606e54f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.6, y: 0.76}
+  m_Size: {x: 1.5, y: 1.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!114 &8608852342740109718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7919445343306101084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f291c162495743bbb5856346b7887a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::GuardianVarnAnimator
+  clips:
+  - name: CambioFase_SacaEspadaDelPecho
+    frames:
+    - {fileID: 21300000, guid: 09cf0ce4fd5ee4c5889c97093da6077e, type: 3}
+    - {fileID: 21300000, guid: aaad8574ceef040ccb84504d1c2afb92, type: 3}
+    - {fileID: 21300000, guid: 7fad1212c595f4dbb9903d84aa85c454, type: 3}
+    - {fileID: 21300000, guid: bb34b4e0390bb4f19b68c39fdf1d0c41, type: 3}
+    - {fileID: 21300000, guid: 6bcf3cbe81e5242b38bede2b6eeca071, type: 3}
+    - {fileID: 21300000, guid: c3c0fa7c0699d4570a6de0910dc70d3e, type: 3}
+    - {fileID: 21300000, guid: 953a3370fb4f34e53abbbb241fcbed51, type: 3}
+    - {fileID: 21300000, guid: cb5ccc835fd0e4212bc376a1a5ca3ca9, type: 3}
+    - {fileID: 21300000, guid: 0bc1f470037ba41f9a845b7fb0d8ce09, type: 3}
+    - {fileID: 21300000, guid: 4274f980e7b494789b4f843f28968dd0, type: 3}
+    - {fileID: 21300000, guid: b1c52012ddb794ba2b1562a7ae93521a, type: 3}
+  - name: Derrota_SeArrodilla_Acepta
+    frames:
+    - {fileID: 21300000, guid: 761bbfe0fbd9b43b5ab1dfb11f9dedef, type: 3}
+    - {fileID: 21300000, guid: 4e1340dc2816848adb5438b9873e0289, type: 3}
+    - {fileID: 21300000, guid: 78afa21e788034585ab2f9bd520e087f, type: 3}
+    - {fileID: 21300000, guid: 292233bc6a3e84de19d7eb5580307c16, type: 3}
+    - {fileID: 21300000, guid: 35aa2f1bc50eb4dc9a35d28f20bc50d9, type: 3}
+    - {fileID: 21300000, guid: 31026c92e26154a98b24173386d0e922, type: 3}
+    - {fileID: 21300000, guid: bbfb3cec9896349ef9a3e4f5a7dba0d1, type: 3}
+    - {fileID: 21300000, guid: 7a1dce5359c0e43eab28ea4559dc4526, type: 3}
+  - name: Fase1_Punios_Combo
+    frames:
+    - {fileID: 21300000, guid: 163753ef400ba4253998851715289e90, type: 3}
+    - {fileID: 21300000, guid: c493cffb8654e42048d920f8243f9e12, type: 3}
+    - {fileID: 21300000, guid: ad19bdbd419e04cf684f39c5b27de5b2, type: 3}
+    - {fileID: 21300000, guid: 5e1a8f993f2ec4fe7aa687b22aeb020c, type: 3}
+    - {fileID: 21300000, guid: 766b223433519477ea67ba7add44885d, type: 3}
+    - {fileID: 21300000, guid: a903558853eb8454aba416853acc21f0, type: 3}
+    - {fileID: 21300000, guid: 09b73bdde73a449b39ea89654d3f89d2, type: 3}
+    - {fileID: 21300000, guid: 8318a6f90d3024e798444da54d0a7d26, type: 3}
+  - name: Fase1_Punios_GolpeSuelo
+    frames:
+    - {fileID: 21300000, guid: c93d0bc90eab44fdbb59662220a8cf2e, type: 3}
+    - {fileID: 21300000, guid: 565553e7e68a849a39c3133abf04953c, type: 3}
+    - {fileID: 21300000, guid: 8dfded0a0396645e79318812c264edfe, type: 3}
+    - {fileID: 21300000, guid: db034de5633f243329db2798d5c1b8a0, type: 3}
+    - {fileID: 21300000, guid: afe03ee90f85c490c97bcd458320b9b7, type: 3}
+    - {fileID: 21300000, guid: 308c57087ccb04420aa92e3cbb9042dc, type: 3}
+  - name: Fase2_Espada_CorteHorizontal
+    frames:
+    - {fileID: 21300000, guid: 25a323938b5bf459c88e425578b0d81d, type: 3}
+    - {fileID: 21300000, guid: af2fdcee2e55c4f988f0cab44fa510d6, type: 3}
+    - {fileID: 21300000, guid: 0be3969d7d9b148a2bd87bd3bbf17b39, type: 3}
+    - {fileID: 21300000, guid: 77f182ecbb0b745ad8bd6c99294c3f10, type: 3}
+    - {fileID: 21300000, guid: 5f4d409b656ac419f88e8cd87328e3dc, type: 3}
+    - {fileID: 21300000, guid: 20a875010570c434f84080703fc9d9c0, type: 3}
+    - {fileID: 21300000, guid: aed02152fe32f498b832ebdd1ee7e3c6, type: 3}
+    - {fileID: 21300000, guid: 26b5801d56ca74b73a45f536063a0cd2, type: 3}
+  - name: Fase2_Espada_CorteVertical
+    frames:
+    - {fileID: 21300000, guid: d73144346787c4388acd2d386219a9d0, type: 3}
+    - {fileID: 21300000, guid: 0132b911888564aab9a5c4902d23147b, type: 3}
+    - {fileID: 21300000, guid: c20f2d0cca3e444da9ae34f8c7da5a9f, type: 3}
+    - {fileID: 21300000, guid: 677db468c2da0428f91488b6100792b6, type: 3}
+    - {fileID: 21300000, guid: 3d116dd343dac4a2886028a1cce93787, type: 3}
+    - {fileID: 21300000, guid: fad26cf426856468aa90227b6469133d, type: 3}
+    - {fileID: 21300000, guid: 9a68cd170c4414f76af83843c43a0e50, type: 3}
+  - name: Intro_Trono_SeLevanta_DesapareceTrono
+    frames:
+    - {fileID: 21300000, guid: 8e6235627dfaa4ccb9d258569606e54f, type: 3}
+    - {fileID: 21300000, guid: fa12de3d4dbaa41c085b01e6bec565db, type: 3}
+    - {fileID: 21300000, guid: 40b00e596291644ecbe07a935b346229, type: 3}
+    - {fileID: 21300000, guid: d6427bd595ee145f6b4c388aefa0bfd1, type: 3}
+    - {fileID: 21300000, guid: df4ca9d8073984ce99e06851bb937756, type: 3}
+    - {fileID: 21300000, guid: 545b2d59c4f68422a81c44cf680b57c0, type: 3}
+    - {fileID: 21300000, guid: 4b48971d929f14c5faf160bc13fd3556, type: 3}
+    - {fileID: 21300000, guid: eb2a6be2440c048c6adabe674c25f158, type: 3}
+    - {fileID: 21300000, guid: 488857a66b1ab4dd585373378c2eeb1c, type: 3}
+    - {fileID: 21300000, guid: 8c41cb2e4c722465fb8f99a5e5c5b7ec, type: 3}
+    - {fileID: 21300000, guid: fcd53c8b645ce41938f43010e4c5174c, type: 3}
+    - {fileID: 21300000, guid: c3ec0c027b92c467991454602ac9e7a9, type: 3}
+  - name: Idle_Este
+    frames:
+    - {fileID: 21300000, guid: def1e87b8000d484ea39f55e83a4f037, type: 3}
+    - {fileID: 21300000, guid: fcf988d6f4e5b43f38a2ab0c55535af5, type: 3}
+    - {fileID: 21300000, guid: eec3a95d423bc44ac8ad3db45fc98361, type: 3}
+    - {fileID: 21300000, guid: eef84e50bdad34e89844960722082122, type: 3}
+  - name: Idle_Noreste
+    frames:
+    - {fileID: 21300000, guid: c81cfebc66af449cb93c30fe0d376085, type: 3}
+    - {fileID: 21300000, guid: ba14be04dbbd94b2c866e007dc440ad3, type: 3}
+    - {fileID: 21300000, guid: 35f4d8e49951f42008b7bdc0938650e3, type: 3}
+    - {fileID: 21300000, guid: 81758d39b4f1346948532fc992b596ea, type: 3}
+  - name: Idle_Noroeste
+    frames:
+    - {fileID: 21300000, guid: ed77b2538f9064ac2913da1b32951767, type: 3}
+    - {fileID: 21300000, guid: d353ccf97787f4f4dbafff264d634817, type: 3}
+    - {fileID: 21300000, guid: 15a19e49e23a14f09bf7270bcbe4d484, type: 3}
+    - {fileID: 21300000, guid: 9bf5947477e7f404d8cc8f253094ffa8, type: 3}
+  - name: Idle_Norte
+    frames:
+    - {fileID: 21300000, guid: b4025b24085ca44c8b5a7755ee8debb4, type: 3}
+    - {fileID: 21300000, guid: e548ecca9903348109754c73b547488f, type: 3}
+    - {fileID: 21300000, guid: be2af753c184c4bf7846b935a811f15d, type: 3}
+    - {fileID: 21300000, guid: 52d03468ef18c440d9d347b7df072c0b, type: 3}
+  - name: Idle_Oeste
+    frames:
+    - {fileID: 21300000, guid: d9ecc633b71a440708cc44c69e90e749, type: 3}
+    - {fileID: 21300000, guid: 7a673ab75223248919de3d4a37fcbfda, type: 3}
+    - {fileID: 21300000, guid: a0a058516aea840919c502738d771bb8, type: 3}
+    - {fileID: 21300000, guid: b5ef6632b33bd4e2197fb87fb5fdf6dc, type: 3}
+  - name: Idle_Sur
+    frames:
+    - {fileID: 21300000, guid: df4650ef4462148d18551f2cbd74543b, type: 3}
+    - {fileID: 21300000, guid: bb2a61c49f41e4846bf74853622049b4, type: 3}
+    - {fileID: 21300000, guid: bf4f98f5109d64897b8d13e9cb7d0ffc, type: 3}
+    - {fileID: 21300000, guid: 65821b2140b4d4548bcabe356eafea6e, type: 3}
+  - name: Idle_Sureste
+    frames:
+    - {fileID: 21300000, guid: cabc4022bdf3c4527b372ecda870f55c, type: 3}
+    - {fileID: 21300000, guid: 11761955921aa4d1d87c72f901f54c47, type: 3}
+    - {fileID: 21300000, guid: 92df8a47f4cc9460e8f1431896dfd53a, type: 3}
+    - {fileID: 21300000, guid: 942faf233075e4f379d5a555e039f226, type: 3}
+  - name: Idle_Suroeste
+    frames:
+    - {fileID: 21300000, guid: 2fd9f01dbb52449c1ade4c6fd7a13048, type: 3}
+    - {fileID: 21300000, guid: b64f5b713658a44e691b206fc599b53e, type: 3}
+    - {fileID: 21300000, guid: 2aab9c142b95d47f59777591371e4fab, type: 3}
+    - {fileID: 21300000, guid: d36c9e59a1e18495cb7ed600b115b45c, type: 3}
+  - name: ShieldDash_Este
+    frames:
+    - {fileID: 21300000, guid: 630ea59c8dadc4295a743cde3ab86b50, type: 3}
+    - {fileID: 21300000, guid: e8569fdb4be8c4121948927572e8e7f7, type: 3}
+    - {fileID: 21300000, guid: b833de69c977f4a269997d32ea2f1360, type: 3}
+    - {fileID: 21300000, guid: c9cc8092676334cfe9783e0ae39d3671, type: 3}
+    - {fileID: 21300000, guid: 7df970b9ac07048639fa348018abecb7, type: 3}
+    - {fileID: 21300000, guid: 21a5b962e4fe343cf8d2073dac16eb4c, type: 3}
+    - {fileID: 21300000, guid: c64d999ce5c1a4491b9b70a9ef84ade7, type: 3}
+    - {fileID: 21300000, guid: 71c67a41fa5654bf48599018e47426d3, type: 3}
+  - name: ShieldDash_Noreste
+    frames:
+    - {fileID: 21300000, guid: 048745caf5a1945aaadda7d9b7895089, type: 3}
+    - {fileID: 21300000, guid: 1582166aadd6f4bcfb7942eb241ec798, type: 3}
+    - {fileID: 21300000, guid: e673ca8487e8b4610bbb898e9413a4a9, type: 3}
+    - {fileID: 21300000, guid: 35c385493045c43ae8d3610c1a2b5fe0, type: 3}
+    - {fileID: 21300000, guid: 608e847fe4834487eaa8495cd324eaf3, type: 3}
+    - {fileID: 21300000, guid: d88c2433b16a546949c0bdb7e8300aba, type: 3}
+    - {fileID: 21300000, guid: afc3f3904626b498d802571633954626, type: 3}
+    - {fileID: 21300000, guid: 0c9669a59900a4eb1b0c60e00d57992a, type: 3}
+  - name: ShieldDash_Noroeste
+    frames:
+    - {fileID: 21300000, guid: 66fee45d7dc2542989a1e48d3e2ee80b, type: 3}
+    - {fileID: 21300000, guid: 25d6426ee4b704d91b29010f201e8042, type: 3}
+    - {fileID: 21300000, guid: 5a6a4f23a5fc14abe8fb407f8649a41c, type: 3}
+    - {fileID: 21300000, guid: 7ee711fea7d934e558e217d6dd1edabc, type: 3}
+    - {fileID: 21300000, guid: b1974586850e64af887dfa6feac5e23b, type: 3}
+    - {fileID: 21300000, guid: 147a961badc724eaea4a03421ee5f239, type: 3}
+    - {fileID: 21300000, guid: 1d1bb63a2cbb945dc9d78bee9f89ffd4, type: 3}
+    - {fileID: 21300000, guid: 1eba44872d88f4ddea29a1f68f4a1139, type: 3}
+  - name: ShieldDash_Norte
+    frames:
+    - {fileID: 21300000, guid: 963bc79bba9ef4c38b39898d6b0ab095, type: 3}
+    - {fileID: 21300000, guid: df32eac7f0f8e4c92a7001ea686e0e41, type: 3}
+    - {fileID: 21300000, guid: 14dc04d73c7f04a6dbf25a59f760c1cc, type: 3}
+    - {fileID: 21300000, guid: 68f263ace91284711a3b70777c041f46, type: 3}
+    - {fileID: 21300000, guid: 06d7e0df3ac414cd6b797a96bc2cc078, type: 3}
+    - {fileID: 21300000, guid: d1ec81848a7344acea497d48152c6f4d, type: 3}
+    - {fileID: 21300000, guid: dc08c1c07fe844a4fa07c8a35144a3be, type: 3}
+    - {fileID: 21300000, guid: 42e6a3223580f4153ab8805b6bac39bf, type: 3}
+  - name: ShieldDash_Oeste
+    frames:
+    - {fileID: 21300000, guid: c0cb3d7291045495d99f38b221acf3bd, type: 3}
+    - {fileID: 21300000, guid: 35527b447a0c34b86b20175f57632105, type: 3}
+    - {fileID: 21300000, guid: 9e30c0a823e574e63b5f6d028f3ac5d4, type: 3}
+    - {fileID: 21300000, guid: 232d03a134e1c4cd79cd057ac147684f, type: 3}
+    - {fileID: 21300000, guid: 87d6a0010aade409687dfde28dadbbd0, type: 3}
+    - {fileID: 21300000, guid: 4cf350d4e93284a4c9fe89c36e838efd, type: 3}
+    - {fileID: 21300000, guid: 5515d6a951cc3484eaf85fce25e70d39, type: 3}
+    - {fileID: 21300000, guid: 11e30fb15e666442f832a8610561f50b, type: 3}
+  - name: ShieldDash_Sur
+    frames:
+    - {fileID: 21300000, guid: c729f3eb529df4b248a50a8cc26034e4, type: 3}
+    - {fileID: 21300000, guid: 3222d1ebda4aa40e3931d42b9cce346b, type: 3}
+    - {fileID: 21300000, guid: 854b9071c3dcf4c7185477464e44e46d, type: 3}
+    - {fileID: 21300000, guid: b65f8a313e0e843b9a11f897755d1821, type: 3}
+    - {fileID: 21300000, guid: f59b17f792fec4814a611068cec5dfa3, type: 3}
+    - {fileID: 21300000, guid: cb23afd4a55cc45eb8b1c3606b6059da, type: 3}
+    - {fileID: 21300000, guid: ee78d4a12f05d48c3a314e29d6824ff5, type: 3}
+    - {fileID: 21300000, guid: f159d55fcce9b4cb59ebaf7a2b9d6ad2, type: 3}
+  - name: ShieldDash_Sureste
+    frames:
+    - {fileID: 21300000, guid: 9b1e83d059387454f9e0156d3243801e, type: 3}
+    - {fileID: 21300000, guid: c921cd1ce66e64154876eefc1b0f0427, type: 3}
+    - {fileID: 21300000, guid: 74edbbd745ac94969968a3be70529553, type: 3}
+    - {fileID: 21300000, guid: 8512ebff5fd2c466aad3dba068a7cd00, type: 3}
+    - {fileID: 21300000, guid: cf7dec076d0eb46e1bd3626f72f4e708, type: 3}
+    - {fileID: 21300000, guid: bac66dcd8408844dd9ac15d9ebbc8477, type: 3}
+    - {fileID: 21300000, guid: fa14648ed4bdc43518621e10492288ef, type: 3}
+    - {fileID: 21300000, guid: a9aef138683684667a309a363b0ae2d2, type: 3}
+  - name: ShieldDash_Suroeste
+    frames:
+    - {fileID: 21300000, guid: d8ac103e699ac4351bec39f95653ed15, type: 3}
+    - {fileID: 21300000, guid: 0f860e4210fbe4fe2b136a43c701caf3, type: 3}
+    - {fileID: 21300000, guid: 93d6bb7814390445db3565dacd261935, type: 3}
+    - {fileID: 21300000, guid: 544db18c7be7d4b22b5ae43a0f7aff18, type: 3}
+    - {fileID: 21300000, guid: 97c9650528bc54a34a01389dffee3f8d, type: 3}
+    - {fileID: 21300000, guid: 637331a661e3c41fc9d83dd6bb6bbaef, type: 3}
+    - {fileID: 21300000, guid: f39aa8aeebdf14a8fb5ae65e71538b90, type: 3}
+    - {fileID: 21300000, guid: c3807070930624c6ca4dd5ef9c2879dc, type: 3}
+  - name: Walk_Este
+    frames:
+    - {fileID: 21300000, guid: 2a193369d61664e7897abc7a9b1b2581, type: 3}
+    - {fileID: 21300000, guid: 0508fd876babf403da00b34af9606c89, type: 3}
+    - {fileID: 21300000, guid: d12b9eb75b24f4e1088239d5b5e9a69a, type: 3}
+    - {fileID: 21300000, guid: 99e339e2406b74dc1b605f06a404b5ca, type: 3}
+    - {fileID: 21300000, guid: 9b65d9573728641c38c8633a515b7c3a, type: 3}
+    - {fileID: 21300000, guid: 12964defb96544e22b9124d280fa5511, type: 3}
+    - {fileID: 21300000, guid: c6fd6a08505a5446bb382f7e44bfa46e, type: 3}
+    - {fileID: 21300000, guid: 39e47c00783164e32913ea235820df5d, type: 3}
+  - name: Walk_Noreste
+    frames:
+    - {fileID: 21300000, guid: 2162448dc8ebd42c2b68fcb9780bcfa3, type: 3}
+    - {fileID: 21300000, guid: 7ded8becd6e2a4ef6a9ddb344c0b193f, type: 3}
+    - {fileID: 21300000, guid: 07a1cd5b9982548b79462e39f5adc9b4, type: 3}
+    - {fileID: 21300000, guid: 963faf60449dc48769891e041885f272, type: 3}
+    - {fileID: 21300000, guid: 57f182c39cfa0455c97ff13d4cadb57a, type: 3}
+    - {fileID: 21300000, guid: 18ab247cb2dd74d6d9314a56ed37c548, type: 3}
+    - {fileID: 21300000, guid: aae67e54563f64412a0f692154dc66ce, type: 3}
+    - {fileID: 21300000, guid: b4e68f4630c5346358bcf3069a0a5d4e, type: 3}
+  - name: Walk_Noroeste
+    frames:
+    - {fileID: 21300000, guid: 76ca1fcd8f60c4f1cb027418fb12f0cf, type: 3}
+    - {fileID: 21300000, guid: 46d280f9dd24f40ff94c71823a621fae, type: 3}
+    - {fileID: 21300000, guid: 44e75e5ebfc064acfab33edb9f755a05, type: 3}
+    - {fileID: 21300000, guid: 9e46c81b96184439e98dadb9dc0d52a4, type: 3}
+    - {fileID: 21300000, guid: 063bd54780e6446e99f7f762855c9583, type: 3}
+    - {fileID: 21300000, guid: 72da5d7bc420c4c488ae33c7d8dc681f, type: 3}
+    - {fileID: 21300000, guid: a0996c133511e4f8f810f9bbfe94c174, type: 3}
+    - {fileID: 21300000, guid: 0d9e1bd2ed63c4a688684adc1f249cb8, type: 3}
+  - name: Walk_Norte
+    frames:
+    - {fileID: 21300000, guid: 6e9895aa38c9e4db686072b5a302cc4b, type: 3}
+    - {fileID: 21300000, guid: 6a3ad74c75f99499c80e1f770d2f623c, type: 3}
+    - {fileID: 21300000, guid: a7b9da293d4c248bfa37b7b417e44a62, type: 3}
+    - {fileID: 21300000, guid: 9f5b26ee5ab234711bb627bc9d2f93a4, type: 3}
+    - {fileID: 21300000, guid: 5a076d5a91a384d68a474895bbe7a025, type: 3}
+    - {fileID: 21300000, guid: 6dcdf232ca4ba404a88f4038a0fb9c29, type: 3}
+    - {fileID: 21300000, guid: 5885b254a3018423eac7cb8ec84767b7, type: 3}
+    - {fileID: 21300000, guid: 9b1a4e496fbc74e5c826434caf240688, type: 3}
+  - name: Walk_Oeste
+    frames:
+    - {fileID: 21300000, guid: a661207ac95cd404d88cbf3b1e89ea6a, type: 3}
+    - {fileID: 21300000, guid: a830239018f2446b98db1e138546cab9, type: 3}
+    - {fileID: 21300000, guid: ed65d53c0fb484c22a74604abd754dfd, type: 3}
+    - {fileID: 21300000, guid: bf6f7fd248152452cac4c3aae7473684, type: 3}
+    - {fileID: 21300000, guid: df3b8a1c564c24e61817ca82dcf29539, type: 3}
+    - {fileID: 21300000, guid: 40505a400fd744e118d0233e9d766931, type: 3}
+    - {fileID: 21300000, guid: 9612ecc4fe98d45f08e2bea4d58c114c, type: 3}
+    - {fileID: 21300000, guid: c53f20c76f00f419b9ed341f3a65460d, type: 3}
+  - name: Walk_Sur
+    frames:
+    - {fileID: 21300000, guid: 7c1c76d14b1fc4673a186e5ba377f670, type: 3}
+    - {fileID: 21300000, guid: cddf3e58a1cb64067aa0cffea52a56f0, type: 3}
+    - {fileID: 21300000, guid: 1b08b6f19b4e64f4090fce04c220479b, type: 3}
+    - {fileID: 21300000, guid: 537bbf26c3fdc403c8420b7435e528cb, type: 3}
+    - {fileID: 21300000, guid: 2698b0a9602e84e8889d8b557eae7d34, type: 3}
+    - {fileID: 21300000, guid: d6b68cf06a4e64621b13c6d91f97e0b6, type: 3}
+    - {fileID: 21300000, guid: 973fc9b0666ae412794a5bcc3f1460d7, type: 3}
+    - {fileID: 21300000, guid: 0df039a2722764127b75a60d4ad1f95b, type: 3}
+  - name: Walk_Sureste
+    frames:
+    - {fileID: 21300000, guid: fe1935143c9fc43e3874305286652ac3, type: 3}
+    - {fileID: 21300000, guid: f548bd44ea22b4495a04b960f5210665, type: 3}
+    - {fileID: 21300000, guid: 539984a1728fc40d5a0ac4a33fe9097c, type: 3}
+    - {fileID: 21300000, guid: 881603576c0e44bfe84535005158f49a, type: 3}
+    - {fileID: 21300000, guid: 6140d7f6d57aa45669b366f1f927ef67, type: 3}
+    - {fileID: 21300000, guid: e4f424878f0594074a34b4b6624fe25d, type: 3}
+    - {fileID: 21300000, guid: 76285faed32864fe58e9f134c6d2a967, type: 3}
+    - {fileID: 21300000, guid: ee8a9a1d4e4f74a1daea9e8ec9508ca1, type: 3}
+  - name: Walk_Suroeste
+    frames:
+    - {fileID: 21300000, guid: 431558a65b7d645dbb18021a2f2ee77d, type: 3}
+    - {fileID: 21300000, guid: fa16089d7160c4114b6c396609748d03, type: 3}
+    - {fileID: 21300000, guid: c54b945301c574b68936c2c127901321, type: 3}
+    - {fileID: 21300000, guid: 5e113a7332719423eaac799a7246f457, type: 3}
+    - {fileID: 21300000, guid: 4e87a885c1e45414399d59e1e4d211b9, type: 3}
+    - {fileID: 21300000, guid: 630ece653f21a429a9087e48a88f6df8, type: 3}
+    - {fileID: 21300000, guid: a35414398d4f943a3ba2b5004cf37bd1, type: 3}
+    - {fileID: 21300000, guid: f1a05adb587ee44529e173f5a0d350e7, type: 3}
 --- !u!1 &8304377430252727131
 GameObject:
   m_ObjectHideFlags: 0

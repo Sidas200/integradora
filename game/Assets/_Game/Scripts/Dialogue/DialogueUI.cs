@@ -24,20 +24,38 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private TMP_Text continueHintText;
     [SerializeField] private float charsPerSecond = 45f;
 
-    [Header("Busto de Tsuki")]
-    [Tooltip("Busto que acompaña la caja: a color cuando habla, en grises cuando habla alguien más.")]
-    [SerializeField] private string bustSpeaker = "Tsuki";
-    [SerializeField] private string bustResource = "Portraits/tsuki_bust";
-    [SerializeField] private string bustGrayResource = "Portraits/tsuki_bust_gray";
+    [Header("Bustos")]
+    [Tooltip("Bustos que acompañan la caja: a color cuando ese personaje habla, en grises cuando habla otro. " +
+             "Tsuki va a la derecha; Varn a la izquierda, volteado para que la mire.")]
+    [SerializeField] private BustSlot[] busts =
+    {
+        new BustSlot { speaker = "Tsuki", resource = "Portraits/tsuki_bust", grayResource = "Portraits/tsuki_bust_gray" },
+        new BustSlot { speaker = "Varn", resource = "Portraits/varn_bust", grayResource = "Portraits/varn_bust_gray", leftSide = true, flip = true },
+    };
     [SerializeField] private Vector2 bustSize = new Vector2(380f, 522f);
     [SerializeField] private float bustFadeSpeed = 8f;
 
-    private Image bust;
-    private Sprite bustColor, bustGray;
-    private bool bustTalking;
-    private float bustLit;
-    private RectTransform bodyRect, hintRect;
-    private Vector2 bodySize, hintPos;
+    [Serializable]
+    public class BustSlot
+    {
+        public string speaker;
+        public string resource;
+        public string grayResource;
+        [Tooltip("Del lado izquierdo de la caja (si no, del derecho).")]
+        public bool leftSide;
+        [Tooltip("Voltea la imagen horizontalmente.")]
+        public bool flip;
+
+        [NonSerialized] public Image image;
+        [NonSerialized] public Sprite color, gray;
+        [NonSerialized] public bool talking;
+        [NonSerialized] public float lit;
+    }
+
+    // Lo que ocupan el texto, el nombre y el retrato chico sin bustos (se recorren para no taparse)
+    private RectTransform bodyRect, hintRect, nameRect;
+    private Vector2 bodySize, bodyPos, hintPos, namePos;
+    private bool layoutCaptured;
 
     private DialogueData current;
     private int lineIndex;
@@ -78,61 +96,100 @@ public class DialogueUI : MonoBehaviour
         CreateBust();
     }
 
-    // El busto se arma en código para no depender de reconstruir el prefab GameSystems.
-    // Va a la derecha de la caja, apoyado en su borde inferior y sobresaliendo por arriba.
+    // Los bustos se arman en código para no depender de reconstruir el prefab GameSystems.
+    // Van a un lado de la caja, apoyados en su borde inferior y sobresaliendo por arriba.
     private void CreateBust()
     {
-        bustColor = Resources.Load<Sprite>(bustResource);
-        bustGray = Resources.Load<Sprite>(bustGrayResource);
-        if (panel == null || bustColor == null) return;
+        if (panel == null) return;
+        foreach (var slot in busts)
+        {
+            slot.color = Resources.Load<Sprite>(slot.resource);
+            slot.gray = Resources.Load<Sprite>(slot.grayResource);
+            if (slot.color == null) continue;
 
-        var go = new GameObject("SpeakerBust", typeof(RectTransform));
-        var rt = (RectTransform)go.transform;
-        rt.SetParent(panel.transform, false);
-        rt.anchorMin = rt.anchorMax = new Vector2(1f, 0f);
-        rt.pivot = new Vector2(1f, 0f);
-        rt.anchoredPosition = new Vector2(-12f, 0f);
-        rt.sizeDelta = bustSize;
-        bust = go.AddComponent<Image>();
-        bust.sprite = bustColor;
-        bust.preserveAspect = true;
-        bust.raycastTarget = false;
-        go.SetActive(false);
-
-        if (bodyText != null) { bodyRect = bodyText.rectTransform; bodySize = bodyRect.sizeDelta; }
-        if (continueHint != null) { hintRect = continueHint.transform as RectTransform; hintPos = hintRect.anchoredPosition; }
+            var go = new GameObject("SpeakerBust_" + slot.speaker, typeof(RectTransform));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(panel.transform, false);
+            float side = slot.leftSide ? 0f : 1f;
+            rt.anchorMin = rt.anchorMax = new Vector2(side, 0f);
+            // Pivote al centro para poder voltearlo sin que cambie de lugar
+            rt.pivot = new Vector2(0.5f, 0f);
+            rt.anchoredPosition = new Vector2(slot.leftSide ? 12f + bustSize.x / 2f : -12f - bustSize.x / 2f, 0f);
+            rt.sizeDelta = bustSize;
+            slot.image = go.AddComponent<Image>();
+            slot.image.sprite = slot.color;
+            slot.image.preserveAspect = true;
+            slot.image.raycastTarget = false;
+            go.SetActive(false);
+        }
     }
 
-    private bool IsBustSpeaker(DialogueData.Line line) => line.speaker == bustSpeaker;
+    // Se toma al abrir el primer diálogo: UiSkin reacomoda la caja al iniciar, después de Awake
+    private void CaptureLayout()
+    {
+        if (layoutCaptured) return;
+        layoutCaptured = true;
+        if (bodyText != null) { bodyRect = bodyText.rectTransform; bodySize = bodyRect.sizeDelta; bodyPos = bodyRect.anchoredPosition; }
+        if (continueHint != null) { hintRect = continueHint.transform as RectTransform; hintPos = hintRect.anchoredPosition; }
+        if (nameBox != null) { nameRect = nameBox.transform as RectTransform; namePos = nameRect.anchoredPosition; }
+    }
 
-    // El busto solo aparece en conversaciones donde Tsuki dice algo; el texto se acorta para no taparse.
+    private BustSlot BustFor(string speaker)
+    {
+        foreach (var slot in busts)
+            if (slot.image != null && slot.speaker == speaker) return slot;
+        return null;
+    }
+
+    // Cada busto aparece solo en conversaciones donde su personaje dice algo; el texto (y el nombre,
+    // si hay busto a la izquierda) se recorren para no taparse.
     private void SetupBust()
     {
-        if (bust == null) return;
-        bool show = current.lines.Exists(IsBustSpeaker);
-        bust.gameObject.SetActive(show);
-        float room = show ? bustSize.x - 20f : 0f;
-        if (bodyRect != null) bodyRect.sizeDelta = new Vector2(bodySize.x - room, bodySize.y);
-        if (hintRect != null) hintRect.anchoredPosition = hintPos - new Vector2(room, 0f);
-        bustTalking = false;
-        bustLit = 0f;
-        ApplyBust();
+        CaptureLayout();
+        float left = 0f, right = 0f;
+        foreach (var slot in busts)
+        {
+            if (slot.image == null) continue;
+            bool show = current.lines.Exists(l => l.speaker == slot.speaker);
+            slot.image.gameObject.SetActive(show);
+            slot.talking = false;
+            slot.lit = 0f;
+            ApplyBust(slot);
+            if (!show) continue;
+            if (slot.leftSide) left = Mathf.Max(left, 12f + bustSize.x + 20f - bodyPos.x);
+            else right = Mathf.Max(right, bustSize.x - 20f);
+        }
+        left = Mathf.Max(0f, left);
+        if (bodyRect != null)
+        {
+            bodyRect.anchoredPosition = bodyPos + new Vector2(left, 0f);
+            bodyRect.sizeDelta = new Vector2(bodySize.x - left - right, bodySize.y);
+        }
+        if (hintRect != null) hintRect.anchoredPosition = hintPos - new Vector2(right, 0f);
+        if (nameRect != null) nameRect.anchoredPosition = namePos + new Vector2(left, 0f);
+        leftBustShown = left > 0f;
     }
+
+    private bool leftBustShown;
 
     private void UpdateBust()
     {
-        if (bust == null || !bust.gameObject.activeSelf) return;
-        bustLit = Mathf.MoveTowards(bustLit, bustTalking ? 1f : 0f, bustFadeSpeed * Time.unscaledDeltaTime);
-        ApplyBust();
+        foreach (var slot in busts)
+        {
+            if (slot.image == null || !slot.image.gameObject.activeSelf) continue;
+            slot.lit = Mathf.MoveTowards(slot.lit, slot.talking ? 1f : 0f, bustFadeSpeed * Time.unscaledDeltaTime);
+            ApplyBust(slot);
+        }
     }
 
     // Encendido: sprite a color, tamaño completo. Apagado: sprite en grises, más oscuro y un poco más chico.
-    private void ApplyBust()
+    private void ApplyBust(BustSlot slot)
     {
-        bust.sprite = bustLit > 0.5f || bustGray == null ? bustColor : bustGray;
-        float v = Mathf.Lerp(0.7f, 1f, bustLit);
-        bust.color = new Color(v, v, v, 1f);
-        bust.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.95f, 1f, bustLit);
+        slot.image.sprite = slot.lit > 0.5f || slot.gray == null ? slot.color : slot.gray;
+        float v = Mathf.Lerp(0.7f, 1f, slot.lit);
+        slot.image.color = new Color(v, v, v, 1f);
+        float scale = Mathf.Lerp(0.95f, 1f, slot.lit);
+        slot.image.rectTransform.localScale = new Vector3(slot.flip ? -scale : scale, scale, 1f);
     }
 
     private void OnDestroy()
@@ -256,9 +313,12 @@ public class DialogueUI : MonoBehaviour
 
         nameBox.SetActive(!narration);
         speakerText.text = line.speaker;
-        bustTalking = IsBustSpeaker(line);
-        // Cuando Tsuki habla, su busto ya lo representa: no se repite el retrato pequeño
-        portraitFrame.SetActive(line.portrait != null && !(bustTalking && bust != null && bust.gameObject.activeSelf));
+        foreach (var slot in busts) slot.talking = slot.image != null && slot.speaker == line.speaker;
+        // Si el que habla tiene busto, ya lo representa: no se repite el retrato pequeño.
+        // Con un busto a la izquierda el retrato quedaría debajo, así que tampoco se muestra.
+        var speakerBust = BustFor(line.speaker);
+        bool bustShown = speakerBust != null && speakerBust.image.gameObject.activeSelf;
+        portraitFrame.SetActive(line.portrait != null && !bustShown && !leftBustShown);
         portrait.sprite = line.portrait;
         bodyText.fontStyle = narration ? FontStyles.Italic : FontStyles.Normal;
         shownScheme = ControlHints.Current;

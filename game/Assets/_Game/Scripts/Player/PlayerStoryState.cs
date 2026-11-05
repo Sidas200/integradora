@@ -1,6 +1,7 @@
 using UnityEngine;
 
-// Aplica al jugador lo que depende de la historia: sin la espada carmesí no puede atacar.
+// Aplica al jugador lo que depende de la historia: sin la espada carmesí no puede atacar, y el corte a
+// distancia llega con el Módulo de espada (la primera vez se celebra con SlashUnlockScene).
 [RequireComponent(typeof(PlayerController))]
 public class PlayerStoryState : MonoBehaviour
 {
@@ -31,8 +32,9 @@ public class PlayerStoryState : MonoBehaviour
     private void HandleStats()
     {
         if (stats.SwordLevel < 1 || SessionState.Instance == null) return;
-        if (StoryFlags.Set(ChapterObjectives.SwordUpgraded) && GameHud.Instance != null)
-            GameHud.Instance.ShowToast($"¡La espada carmesí despertó! Daño: 15 → {stats.Attack}");
+        Apply();
+        if (StoryFlags.Set(ChapterObjectives.SwordUpgraded))
+            gameObject.AddComponent<SlashUnlockScene>().Setup(stats.Attack);
     }
 
     private void HandleFlag(string flag)
@@ -44,5 +46,6 @@ public class PlayerStoryState : MonoBehaviour
     {
         // Sin SessionState (escenas de prueba del equipo) se deja atacar normal
         controller.AttackEnabled = SessionState.Instance == null || StoryFlags.Has(SwordPickup.Flag);
+        controller.SlashEnabled = SessionState.Instance == null || (stats != null && stats.SwordLevel >= 1);
     }
 }

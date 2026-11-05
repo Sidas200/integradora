@@ -320,18 +320,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4492480789061150374, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
-      propertyPath: attackDamage
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 4492480789061150374, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
-      propertyPath: attackWindup
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 4492480789061150374, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
-      propertyPath: detectionRange
-      value: 1.5
-      objectReference: {fileID: 0}
     - target: {fileID: 7161399166550526004, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
       propertyPath: m_Radius
       value: 0.09
@@ -346,7 +334,7 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 82c72872dabf641f5b3b3166dc8178c9, type: 3}
     - target: {fileID: 7975218813766905995, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
       propertyPath: maxHealth
-      value: 60
+      value: 52
       objectReference: {fileID: 0}
     - target: {fileID: 8001616300592986565, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
       propertyPath: m_Enabled
@@ -442,10 +430,10 @@ MonoBehaviour:
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 2226502995675607467}
   m_ShadowShape2DProvider:
-    rid: 8748772644707893811
+    rid: 1937313212651274616
   m_ShadowCastingSource: 1
   m_ShadowMesh:
-    rid: 8748772644707893812
+    rid: 1937313212651274617
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: -1
@@ -453,16 +441,16 @@ MonoBehaviour:
   m_PreviousShadowShape2DSource: {fileID: 0}
   m_PreviousShadowShape2DProviderHash: 0
   m_SelectionSources:
-    rid: 8748772644707893813
+    rid: 1937313212651274618
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8748772644707893811
+    - rid: 1937313212651274616
       type: {class: ShadowShape2DProvider_SpriteRenderer, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
-    - rid: 8748772644707893812
+    - rid: 1937313212651274617
       type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Vertices:
@@ -666,7 +654,7 @@ MonoBehaviour:
         m_FlipX: 0
         m_FlipY: 0
         m_InitialTrim: 0.01
-    - rid: 8748772644707893813
+    - rid: 1937313212651274618
       type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 0
@@ -713,12 +701,17 @@ MonoBehaviour:
   hitRadius: 0.12
   attackDamage: 6
   attackCooldown: 0.4
+  attackSpeed: 1.45
   recoilSpeed: 1.6
   recoilTime: 0.25
   stunAfterHit: 1.5
   stunAfterMiss: 2
   hitStunDuration: 0.15
   knockbackSpeed: 1.5
+  staggerKnockbackTime: 0.15
+  staggerKnockbackSpeed: 2.2
+  staggerStunDuration: 0.3
+  explosionDamage: 8
 --- !u!4 &5295656040892839335 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4075933655755013577, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}

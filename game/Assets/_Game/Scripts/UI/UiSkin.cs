@@ -71,6 +71,8 @@ public static class UiSkin
             Tint(hint, UiArt.TextMuted);
         }
 
+        PotionCounter(hud as RectTransform);
+
         var toast = R(hud, "Toast");
         if (toast != null)
         {
@@ -97,6 +99,50 @@ public static class UiSkin
             Tint(boss.Find("Name"), UiArt.TextGold);
             StyleBar(R(boss, "Bar"), false);
         }
+    }
+
+    // Pociones: panel en la esquina inferior izquierda con el ícono, la cantidad y el botón para usarla.
+    // GameHud pone el ícono de la poción y actualiza "PotionCount" y "PotionKey".
+    private static void PotionCounter(RectTransform hud)
+    {
+        if (hud == null || hud.Find("PotionCounter") != null) return;
+        var box = Child(hud, "PotionCounter");
+        box.anchorMin = box.anchorMax = box.pivot = new Vector2(0f, 0f);
+        box.anchoredPosition = new Vector2(36f, 36f);
+        box.sizeDelta = new Vector2(180f, 84f);
+        Panel(box, PanelTop, PanelBottom, false);
+
+        var icon = Child(box, "PotionIcon");
+        icon.anchorMin = icon.anchorMax = icon.pivot = new Vector2(0f, 0.5f);
+        icon.anchoredPosition = new Vector2(16f, 0f);
+        icon.sizeDelta = new Vector2(56f, 56f);
+        var img = icon.gameObject.AddComponent<Image>();
+        img.preserveAspect = true;
+        img.raycastTarget = false;
+        img.enabled = false;
+
+        var font = Text(hud.Find("HealthFrame/HealthText"));
+        var count = NewText(box, "PotionCount", font, 36, new Vector2(84f, 10f), new Vector2(84f, 44f));
+        count.fontStyle = FontStyles.Bold;
+        count.text = "x0";
+        GoldTitle(count);
+        var key = NewText(box, "PotionKey", font, 20, new Vector2(86f, -20f), new Vector2(92f, 24f));
+        key.color = UiArt.TextMuted;
+    }
+
+    private static TMP_Text NewText(RectTransform parent, string name, TMP_Text fontSource, float size, Vector2 pos, Vector2 box)
+    {
+        var rt = Child(parent, name);
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0f, 0.5f);
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = box;
+        var t = rt.gameObject.AddComponent<TextMeshProUGUI>();
+        if (fontSource != null) t.font = fontSource.font;
+        t.fontSize = size;
+        t.alignment = TextAlignmentOptions.Left;
+        t.textWrappingMode = TextWrappingModes.NoWrap;
+        t.raycastTarget = false;
+        return t;
     }
 
     // Vida: rombo con la cara de Tsuki a la izquierda, nombre y números, barra carmesí fina y sakura.
@@ -145,12 +191,21 @@ public static class UiSkin
     // Rombo dorado con la cara de Tsuki (recorte del busto del diálogo con una máscara girada 45°)
     private static void Portrait(RectTransform frame)
     {
-        var bust = Resources.Load<Sprite>("Portraits/tsuki_bust");
-        var holder = Child(frame, "PortraitDiamond");
-        holder.anchorMin = holder.anchorMax = holder.pivot = new Vector2(0f, 0.5f);
-        holder.pivot = new Vector2(0.5f, 0.5f);
+        var holder = PortraitDiamond(frame, Resources.Load<Sprite>("Portraits/tsuki_bust"), new Vector2(28f, -118f), 80f, false);
+        holder.anchorMin = holder.anchorMax = new Vector2(0f, 0.5f);
         holder.anchoredPosition = new Vector2(-10f, 0f);
-        holder.sizeDelta = new Vector2(80f, 80f);
+    }
+
+    // Panel del tema (degradado oscuro con marco dorado) para UI que se arma en código fuera del HUD
+    public static void ThemePanel(RectTransform rt) => Panel(rt, PanelTop, PanelBottom, false);
+
+    // Rombo dorado con la cara de un busto del diálogo (466x640). faceOffset: cuánto se corre el busto
+    // para que la cara quede al centro (a escala 0.5). flip: voltea la cara.
+    public static RectTransform PortraitDiamond(RectTransform parent, Sprite bust, Vector2 faceOffset, float size, bool flip)
+    {
+        var holder = Child(parent, "PortraitDiamond");
+        holder.anchorMin = holder.anchorMax = holder.pivot = new Vector2(0.5f, 0.5f);
+        holder.sizeDelta = new Vector2(size, size);
         holder.localRotation = Quaternion.Euler(0f, 0f, 45f);
 
         var back = Stretch(holder, "Mask", 4f);
@@ -167,10 +222,11 @@ public static class UiSkin
             upright.localRotation = Quaternion.Euler(0f, 0f, -45f);
             var face = Child(upright, "Face");
             face.anchorMin = face.anchorMax = face.pivot = new Vector2(0.5f, 0.5f);
-            // el busto mide 466x640; la cara está arriba a la izquierda del centro
-            float k = 0.5f;
+            // el busto mide 466x640; se corre para que la cara quede al centro del rombo
+            float k = 0.5f * size / 80f;
             face.sizeDelta = new Vector2(466f, 640f) * k;
-            face.anchoredPosition = new Vector2(28f, -118f) * k;
+            face.anchoredPosition = new Vector2(flip ? -faceOffset.x : faceOffset.x, faceOffset.y) * k;
+            if (flip) face.localScale = new Vector3(-1f, 1f, 1f);
             var img = face.gameObject.AddComponent<Image>();
             img.sprite = bust;
             img.raycastTarget = false;
@@ -182,6 +238,7 @@ public static class UiSkin
         bImg.type = Image.Type.Sliced;
         bImg.pixelsPerUnitMultiplier = 1f / Px;
         bImg.raycastTarget = false;
+        return holder;
     }
 
     private static void StyleBar(RectTransform bar, bool crimson)
