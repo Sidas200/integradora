@@ -3,11 +3,11 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-// Usa items consumibles del inventario: Poción (Q / RB / R1) y Gota de Amrita (G / LB / L1).
+// Usa items consumibles del inventario: Poción (Q / flecha izquierda / RB / R1) y Gota de Amrita (G / LB / L1).
 // Va en el mismo objeto que el componente Health del jugador.
 public class ItemUser : MonoBehaviour
 {
-    [Header("Poción (tecla Q, RB / R1 con mando)")]
+    [Header("Poción (tecla Q; flecha izquierda o RB / R1 con mando)")]
     [SerializeField] private MaterialData potion;
     [SerializeField] private int potionHeal = 30;
 
@@ -17,6 +17,8 @@ public class ItemUser : MonoBehaviour
 
     // Para que el jefe u otros scripts se suscriban desde código
     public event Action AmritaUsed;
+
+    public MaterialData Potion => potion;
 
     private Health health;
     private Inventory inventory;
@@ -36,7 +38,7 @@ public class ItemUser : MonoBehaviour
 
         var keyboard = Keyboard.current;
 
-        if ((keyboard != null && keyboard.qKey.wasPressedThisFrame) || GamepadInput.RightShoulderPressed) UsePotion();
+        if ((keyboard != null && keyboard.qKey.wasPressedThisFrame) || GamepadInput.RightShoulderPressed || GamepadInput.DpadLeftPressed) UsePotion();
         if ((keyboard != null && keyboard.gKey.wasPressedThisFrame) || GamepadInput.LeftShoulderPressed) UseAmrita();
     }
 
@@ -53,6 +55,7 @@ public class ItemUser : MonoBehaviour
         if (health.CurrentHealth >= health.MaxHealth)
         {
             Debug.Log("Vida llena: no se gasta la Poción.");
+            if (GameHud.Instance != null) GameHud.Instance.ShowToast("Tu vida ya está llena.", 1.5f);
             return false;
         }
 
@@ -60,6 +63,7 @@ public class ItemUser : MonoBehaviour
         if (inv == null || !inv.TryConsume(potion.id, 1))
         {
             Debug.Log("No tienes Pociones.");
+            if (GameHud.Instance != null) GameHud.Instance.ShowToast("No tienes Pociones.", 1.5f);
             return false;
         }
 

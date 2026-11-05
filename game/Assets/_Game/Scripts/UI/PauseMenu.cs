@@ -281,7 +281,7 @@ public class PauseMenu : MonoBehaviour
 
         // Dos filas de teclas resaltadas (como teclas doradas) y abajo cómo moverse por el menú
         string list =
-            Cap("move") + ": Mover     " + Cap("attack") + ": Atacar     " + Cap("dash") + ": Esquivar     " + Cap("interact") + ": Interactuar\n" +
+            Cap("move") + ": Mover     " + Cap("attack") + ": Atacar     " + Cap("slash") + ": Corte     " + Cap("dash") + ": Esquivar     " + Cap("interact") + ": Interactuar\n" +
             Cap("potion") + ": Poción     " + Cap("amrita") + ": Gota de Amrita     " + Cap("inventory") + ": Inventario     " + Cap("pause") + ": Pausa\n" +
             "<size=82%><color=#C9B3BC>" + message + "</color></size>";
 

@@ -333,6 +333,7 @@ namespace Game.EditorTools.Chapter1
             var arena = encounter.AddComponent<GuardianArena>();
             arena.Setup(boss, permit, Get("guardian_sleeping"), Get("guardian_intro"), Get("guardian_again"), Get("guardian_defeat"));
             arena.SetRetreatExit(markers.Find("Exit_ToZone2").gameObject);
+            arena.SetSwordDialogue(Get("guardian_sword"));
             // Refuerzos que Varn invoca al 75, 50 y 25% de vida
             var summons = encounter.AddComponent<GuardianSummons>();
             var minions = System.Array.ConvertAll(new[] { ChapterEnemies.MeleePath, ChapterEnemies.RangedPath, ChapterEnemies.SlimePath },

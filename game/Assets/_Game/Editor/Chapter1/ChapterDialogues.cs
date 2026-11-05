@@ -72,7 +72,7 @@ namespace Game.EditorTools.Chapter1
             {
                 L(Narrator, "Una espada carmesí, sin filo. Pesa menos de lo que parece."),
                 L(Tsuki, "Es como si me estuviera esperando... Me la llevo."),
-                L(Narrator, "Obtuviste la Espada carmesí. {attack}: atacar. {dash}: esquivar."),
+                L(Narrator, "Obtuviste la Espada carmesí. {attack}: atacar. {slash}: corte a distancia. {dash}: esquivar."),
             });
             Make("island_vanish", new[]
             {
@@ -207,6 +207,14 @@ namespace Game.EditorTools.Chapter1
             {
                 L(Varn, "Volviste. Tu terquedad es casi digna de respeto."),
                 L(Narrator, "Sal de las zonas rojas antes del golpe. Ataca cuando Varn quede vulnerable."),
+            });
+            Make("guardian_sword", new[]
+            {
+                L(Narrator, "Varn hunde la mano en su pecho y arranca una espada de luz roja. El cielo se cierra sobre el umbral."),
+                L(Varn, "Hace siglos que nadie me obligaba a desenvainar."),
+                L(Varn, "Se acabó el juego, humano. Ahora sí voy a tomarte en serio."),
+                L(Tsuki, "...Bien. Yo tampoco pienso contenerme."),
+                L(Narrator, "Varn encadena sus ataques y su golpe al suelo lanza una onda. Sal también del círculo grande."),
             });
             Make("guardian_defeat", new[]
             {

@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private enum AttackState { None, Hit1, Wait1, Hit2 }
+    private enum AttackState { None, Hit1, Wait1, Hit2, Slash }
 
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 15f;
@@ -61,6 +61,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Tiempo de espera después de terminar el combo antes de poder atacar otra vez")]
     [SerializeField] private float attackCooldown = 0.1f;
     [SerializeField] private float attackVisibleTime = 0.15f;
+    [Tooltip("Solo contra el jefe: el golpe llega más lejos (1.3 = 30% más de alcance) y es un poco más ancho.")]
+    [SerializeField, Min(1f)] private float bossReachScale = 1.35f;
     [Tooltip("Muestra el cuadro rojo del golpe (solo para depurar). El área siempre se ve en la escena con el jugador seleccionado.")]
     [SerializeField] private bool showAttackBox;
     [SerializeField] private Color attackColor = new Color(1f, 0f, 0f, 0.5f);
@@ -69,6 +71,24 @@ public class PlayerController : MonoBehaviour
     [Header("Combo")]
     [Tooltip("Segundos que se queda en el último frame del 1er golpe esperando el 2do clic")]
     [SerializeField] private float comboWindow = 0.8f;
+
+    [Header("Corte a distancia (clic derecho / K / Círculo PS5 / B Xbox)")]
+    [Tooltip("Arte del corte que sale volando (Art/enemies/slash, con la curva hacia la derecha).")]
+    [SerializeField] private Sprite slashSprite;
+    [SerializeField] private Color slashColor = new Color(1f, 0.3f, 0.4f, 0.9f);
+    [Tooltip("Alcance en alturas del jugador (el golpe normal llega a 'attackReach').")]
+    [SerializeField] private float slashRange = 3f;
+    [Tooltip("Ancho del corte en alturas del jugador.")]
+    [SerializeField] private float slashWidth = 0.9f;
+    [Tooltip("Velocidad en alturas del jugador por segundo.")]
+    [SerializeField] private float slashSpeed = 6f;
+    [Tooltip("Daño respecto al ataque normal.")]
+    [SerializeField, Range(0.1f, 2f)] private float slashDamageScale = 0.7f;
+    [SerializeField] private float slashCooldown = 1.2f;
+    [Tooltip("Frame de la animación del 2do golpe (levanta la espada y corta) en que sale el corte.")]
+    [SerializeField, Min(0)] private int slashReleaseFrame = 2;
+    [Tooltip("Presionar otra vez mientras sale el corte (o hasta estos segundos después) lanza un segundo corte.")]
+    [SerializeField] private float slashChainWindow = 0.25f;
 
     [Header("Animation (opcional por ahora)")]
     [SerializeField] private Animator animator;
@@ -183,6 +203,40 @@ public class PlayerController : MonoBehaviour
     private float attackStateTimer;
     private bool attackFacingRight = true;
     private bool comboQueued; // clic guardado durante el 1er golpe
+
+    // Corte a distancia
+    private float slashCooldownTimer;
+    private Vector2 slashDirection = Vector2.right;
+    private bool slashReleased;
+    private bool slashQueued;     // segundo corte pedido durante el primero
+    private bool secondSlash;     // el corte actual es el segundo del doble
+    private float slashChainTimer; // tiempo para pedir el segundo justo después del primero
+
+    // Escenas guiadas (choque de poder con Varn): con el input bloqueado otro script mueve a Tsuki
+    private Vector2 scriptedMove;
+    private Sprite scriptedPose;
+
+    // Aturdida (perdió el choque de escudo): no se mueve ni ataca y le giran estrellas sobre la cabeza
+    [Header("Aturdimiento")]
+    [SerializeField] private Color stunColor = new Color(0.8f, 0.8f, 1f, 1f);
+    private float stunTimer;
+    private Transform stunStars;
+
+    public bool IsStunned => stunTimer > 0f;
+
+    // Le cayó un rayo: alterna entre su sprite y el esqueleto, no se mueve y es invulnerable
+    [Header("Rayo (electrocutada)")]
+    [Tooltip("Sprite del esqueleto (pivote abajo al centro, en los pies).")]
+    [SerializeField] private Sprite shockSprite;
+    [SerializeField] private float shockTime = 0.6f;
+    [Tooltip("Cada cuánto alterna entre Tsuki y el esqueleto.")]
+    [SerializeField] private float shockFlicker = 0.06f;
+    [Tooltip("Tinte de Tsuki entre destellos del esqueleto (el carmesí de los rayos de la tormenta).")]
+    [SerializeField] private Color shockColor = new Color(1f, 0.25f, 0.5f, 1f);
+    [Tooltip("Tinte del esqueleto: los huesos toman el brillo rosado del centro del rayo.")]
+    [SerializeField] private Color shockSkeletonColor = new Color(1f, 0.62f, 0.78f, 1f);
+    private float shockTimer;
+    private SpriteRenderer shockRenderer;
 
     private bool IsAttacking => attackState != AttackState.None;
     private readonly System.Collections.Generic.HashSet<IDamageable> hitThisSwing = new System.Collections.Generic.HashSet<IDamageable>();
@@ -350,10 +404,32 @@ public class PlayerController : MonoBehaviour
     // para que la A que cerró el diálogo no haga también un dash)
     if (GameInput.GameplayBlocked)
     {
-        movement = Vector2.zero;
+        movement = scriptedMove;
         UpdateSpriteAnimation();
         return;
     }
+
+    // Electrocutada: quieta un momento, viéndose su esqueleto a destellos
+    if (shockTimer > 0f)
+    {
+        shockTimer -= PlayerDelta;
+        movement = Vector2.zero;
+        UpdateSpriteAnimation();
+        UpdateShock();
+        return;
+    }
+
+    // Aturdida: quieta y sin atacar hasta que pase
+    if (stunTimer > 0f)
+    {
+        stunTimer -= PlayerDelta;
+        movement = Vector2.zero;
+        UpdateStunStars();
+        UpdateSpriteAnimation();
+        sr.color = Color.Lerp(normalColor, stunColor, 0.5f + 0.5f * Mathf.Sin(Time.time * 12f));
+        return;
+    }
+    UpdateStunStars();
 
     // =========================
     // MOVIMIENTO TECLADO
@@ -403,6 +479,12 @@ public class PlayerController : MonoBehaviour
 
     if (attackCooldownTimer > 0)
         attackCooldownTimer -= PlayerDelta;
+
+    if (slashCooldownTimer > 0)
+        slashCooldownTimer -= PlayerDelta;
+
+    if (slashChainTimer > 0)
+        slashChainTimer -= PlayerDelta;
 
     // =========================
     // DASH: ESPACIO / X PS5 / A XBOX
@@ -462,6 +544,27 @@ public class PlayerController : MonoBehaviour
         // Cuadrado PS5 / X Xbox
         aimWithKeyboard = true;
         OnAttackPressed();
+    }
+
+    // =========================
+    // CORTE A DISTANCIA: CLIC DERECHO / K / CÍRCULO PS5 / B XBOX
+    // =========================
+    if (Mouse.current != null &&
+        Mouse.current.rightButton.wasPressedThisFrame)
+    {
+        aimWithKeyboard = false;
+        OnSlashPressed();
+    }
+    else if (Keyboard.current != null &&
+             Keyboard.current.kKey.wasPressedThisFrame)
+    {
+        aimWithKeyboard = true;
+        OnSlashPressed();
+    }
+    else if (GamepadInput.EastPressed)
+    {
+        aimWithKeyboard = true;
+        OnSlashPressed();
     }
 
     // =========================
@@ -560,6 +663,9 @@ private void FixedUpdate()
     private void CancelAttack()
     {
         EndAttack();
+        slashQueued = false;
+        secondSlash = false;
+        slashChainTimer = 0f;
 
         // Esconde el cuadro rojo si seguía visible
         attackVisibleTimer = 0f;
@@ -595,6 +701,60 @@ private void FixedUpdate()
         // El 2do golpe vuelve a decidir el lado según dónde está el mouse
         attackFacingRight = dir.x >= 0f;
         StartAttackPart(attackFacingRight ? attackRight2 : attackLeft2, AttackState.Hit2);
+    }
+
+    // ---------- CORTE A DISTANCIA ----------
+
+    // Levanta la espada (animación del 2do golpe) y al bajarla sale un corte que vuela
+    // Dos veces seguidas: el segundo corte sale con la otra animación y la media luna al revés
+    private void OnSlashPressed()
+    {
+        if (isDashing || !AttackEnabled)
+            return;
+
+        // Durante el primer corte: se guarda el segundo
+        if (attackState == AttackState.Slash)
+        {
+            if (!secondSlash) slashQueued = true;
+            return;
+        }
+        // Justo después del primero: sale el segundo aunque esté en espera
+        if (!IsAttacking && slashChainTimer > 0f)
+        {
+            StartSlash(true);
+            return;
+        }
+
+        if (IsAttacking || slashCooldownTimer > 0f || attackCooldownTimer > 0f)
+            return;
+        StartSlash(false);
+    }
+
+    private void StartSlash(bool second)
+    {
+        Vector2 dir = AimDirection(sr.bounds.center);
+        slashDirection = dir.normalized;
+        attackFacingRight = dir.x >= 0f;
+        slashReleased = false;
+        slashQueued = false;
+        secondSlash = second;
+        slashChainTimer = 0f;
+        slashCooldownTimer = slashCooldown;
+        Sprite[] anim = second
+            ? (attackFacingRight ? attackRight1 : attackLeft1)
+            : (attackFacingRight ? attackRight2 : attackLeft2);
+        StartAttackPart(anim, AttackState.Slash);
+    }
+
+    private void ReleaseSlash()
+    {
+        slashReleased = true;
+        float baseSize = GetBaseSize(sr);
+        Vector2 origin = (Vector2)sr.bounds.center + slashDirection * (baseSize * 0.3f);
+        int damage = Mathf.Max(1, Mathf.RoundToInt(stats.Attack * slashDamageScale));
+        SwordSlash.Spawn(slashSprite, slashColor, sr, origin, slashDirection,
+            slashRange * baseSize, slashSpeed * baseSize, slashWidth * baseSize, damage, enemyLayer, secondSlash);
+        CameraShake.Shake(0.01f, 0.08f);
     }
 
     private void StartAttackPart(Sprite[] anim, AttackState state)
@@ -659,6 +819,33 @@ private void FixedUpdate()
                     return false;
                 }
                 return true;
+
+            case AttackState.Slash:
+                if (!slashReleased && animFrame >= slashReleaseFrame)
+                    ReleaseSlash();
+                // Segundo corte pedido: sale en cuanto el primero ya soltó el suyo y avanzó la animación
+                if (slashQueued && slashReleased && currentAnim != null &&
+                    animFrame >= Mathf.CeilToInt(currentAnim.Length * comboCancelPoint))
+                {
+                    StartSlash(true);
+                    return true;
+                }
+                if (!StepAnim(attackFps, false))
+                {
+                    if (!slashReleased)
+                        ReleaseSlash();
+                    if (slashQueued)
+                    {
+                        StartSlash(true);
+                        return true;
+                    }
+                    // Tras el primero queda un momento para pedir el segundo
+                    slashChainTimer = secondSlash ? 0f : slashChainWindow;
+                    secondSlash = false;
+                    EndAttack();
+                    return false;
+                }
+                return true;
         }
 
         return false;
@@ -685,29 +872,7 @@ private void FixedUpdate()
         // DIRECCIÓN DEL ATAQUE
         // =========================
         Vector2 origin = sr.bounds.center;
-
-        if (aimWithKeyboard || Mouse.current == null)
-        {
-            // Apuntar con joystick derecho
-            Vector2 rightStick = GamepadInput.RightStick;
-
-            // Si el stick derecho no se utiliza,
-            // atacar hacia donde caminó Tsuki
-            if (rightStick.sqrMagnitude > 0.09f)
-                dir = rightStick;
-            else
-                dir = lastMoveDirection;
-        }
-        else
-        {
-            // Apuntar con mouse
-            dir = (Vector2)cam.ScreenToWorldPoint(
-                Mouse.current.position.ReadValue()
-            ) - origin;
-        }
-
-        if (dir.sqrMagnitude < 0.0001f)
-            dir = lastMoveDirection;
+        dir = AimDirection(origin);
 
         // Ajustar ataque a 4 direcciones
         attackDirection = SnapToCardinal(dir);
@@ -736,6 +901,16 @@ private void FixedUpdate()
         // HEX-03: Evitar daño duplicado
         // cuando un enemigo tiene varios colliders
         hitThisSwing.Clear();
+
+        // Contra el jefe el golpe alcanza más lejos (es grande y cuesta acercarse)
+        GetAttackBox(sr, attackDirection, out Vector2 bossCenter, out Vector2 bossSize, bossReachScale);
+        foreach (var hit in Physics2D.OverlapBoxAll(bossCenter, bossSize, 0f, enemyLayer))
+        {
+            if (hit.GetComponentInParent<GuardianBoss>() == null) continue;
+            IDamageable boss = hit.GetComponentInParent<IDamageable>();
+            if (boss != null && hitThisSwing.Add(boss))
+                boss.TakeDamage(stats.Attack);
+        }
 
         foreach (var hit in hits)
         {
@@ -772,6 +947,37 @@ private void FixedUpdate()
     }
 
 
+    // Mouse: hacia el cursor. Teclado o mando: stick derecho, o hacia donde caminó Tsuki.
+    private Vector2 AimDirection(Vector2 origin)
+    {
+        Vector2 dir;
+
+        if (aimWithKeyboard || Mouse.current == null || cam == null)
+        {
+            // Apuntar con joystick derecho
+            Vector2 rightStick = GamepadInput.RightStick;
+
+            // Si el stick derecho no se utiliza,
+            // atacar hacia donde caminó Tsuki
+            if (rightStick.sqrMagnitude > 0.09f)
+                dir = rightStick;
+            else
+                dir = lastMoveDirection;
+        }
+        else
+        {
+            // Apuntar con mouse
+            dir = (Vector2)cam.ScreenToWorldPoint(
+                Mouse.current.position.ReadValue()
+            ) - origin;
+        }
+
+        if (dir.sqrMagnitude < 0.0001f)
+            dir = lastMoveDirection;
+
+        return dir;
+    }
+
     private static Vector2 SnapToCardinal(Vector2 d)
     {
         if (Mathf.Abs(d.x) >= Mathf.Abs(d.y))
@@ -789,11 +995,12 @@ private void FixedUpdate()
     }
 
     // Cuadro que empieza en el centro del jugador y se extiende hacia la dirección del ataque
-    private void GetAttackBox(SpriteRenderer renderer, Vector2 dir, out Vector2 center, out Vector2 size)
+    // reachScale: alcance extra (contra el jefe); el ancho crece la mitad de eso
+    private void GetAttackBox(SpriteRenderer renderer, Vector2 dir, out Vector2 center, out Vector2 size, float reachScale = 1f)
     {
         float baseSize = GetBaseSize(renderer);
-        float reach = attackReach * baseSize;
-        float width = attackWidth * baseSize;
+        float reach = attackReach * baseSize * reachScale;
+        float width = attackWidth * baseSize * (1f + (reachScale - 1f) * 0.5f);
 
         Vector2 origin = renderer != null ? (Vector2)renderer.bounds.center : (Vector2)transform.position;
         bool horizontal = Mathf.Abs(dir.x) > 0f;
@@ -857,6 +1064,8 @@ private void FixedUpdate()
     {
         if (attackBox != null)
             Destroy(attackBox);
+        if (stunStars != null)
+            Destroy(stunStars.gameObject);
         if (screenTint != null)
             Destroy(screenTint.canvas.gameObject);
     }
@@ -958,6 +1167,13 @@ private void FixedUpdate()
 
     private void UpdateSpriteAnimation()
     {
+        // Pose fijada por una escena guiada (choque de poder)
+        if (scriptedPose != null)
+        {
+            sr.sprite = scriptedPose;
+            return;
+        }
+
         // Si hay un ataque en curso, él controla el sprite
         if (UpdateAttackAnimation())
             return;
@@ -1032,6 +1248,146 @@ private void FixedUpdate()
 
         sr.sprite = currentAnim[animFrame];
         return true;
+    }
+
+    // ---------- ESCENAS GUIADAS ----------
+    // Solo tienen efecto con el input bloqueado (GameInput); las usa el choque de poder con Varn.
+
+    // Corta lo que esté haciendo Tsuki (ataque, dash, cámara lenta) antes de la escena
+    public void StopActions()
+    {
+        CancelAttack();
+        isDashing = false;
+        hitStunTimer = 0f;
+        scriptedMove = Vector2.zero;
+        if (slowMotionRoutine != null) StopCoroutine(slowMotionRoutine);
+        EndSlowMotion();
+    }
+
+    // Dirección y rapidez (1 = caminar); Vector2.zero la detiene
+    public void SetScriptedMove(Vector2 move) => scriptedMove = move;
+
+    // Deja a Tsuki en un frame del 2do golpe (0 = espada en alto); frame < 0 la suelta
+    public void HoldSlashPose(bool right, int frame)
+    {
+        Sprite[] anim = right ? attackRight2 : attackLeft2;
+        if (frame < 0 || anim == null || anim.Length == 0)
+        {
+            scriptedPose = null;
+            currentAnim = null;
+            return;
+        }
+        scriptedPose = anim[Mathf.Min(frame, anim.Length - 1)];
+        sr.sprite = scriptedPose;
+    }
+
+    public int SlashPoseFrames => attackRight2 != null ? attackRight2.Length : 0;
+
+    // Mira hacia un lado estando quieta
+    public void FaceTowards(Vector2 dir)
+    {
+        if (dir.sqrMagnitude < 0.0001f) return;
+        lastMoveDirection = dir.normalized;
+        if (Mathf.Abs(dir.x) >= Mathf.Abs(dir.y))
+        {
+            lastWalkAnim = dir.x > 0 ? walkRight : walkLeft;
+            lastIdleAnim = dir.x > 0 ? idleRight : idleLeft;
+        }
+        else
+        {
+            lastWalkAnim = dir.y > 0 ? walkBack : walkFront;
+            lastIdleAnim = dir.y > 0 ? idleBack : idleFront;
+        }
+    }
+
+    public void SpawnDashGhost() => SpawnGhost();
+
+    // ---------- RAYO ----------
+
+    public void Electrocute()
+    {
+        StopActions();
+        shockTimer = shockTime;
+        if (health != null) health.SetInvulnerable(shockTime);
+        UpdateShock();
+    }
+
+    private void UpdateShock()
+    {
+        bool shocked = shockTimer > 0f;
+        bool skeleton = shocked && shockSprite != null && Mathf.Repeat(shockTimer, shockFlicker * 2f) < shockFlicker;
+        if (skeleton && shockRenderer == null) CreateShockRenderer();
+        if (shockRenderer != null)
+        {
+            shockRenderer.enabled = skeleton;
+            // En los pies de Tsuki (la parte de abajo de su cuadro)
+            var b = sr.bounds;
+            shockRenderer.transform.position = new Vector3(b.center.x, b.min.y, sr.transform.position.z);
+        }
+        sr.enabled = !skeleton;
+        if (shocked && !skeleton) sr.color = shockColor;
+        else if (!shocked) sr.color = normalColor;
+    }
+
+    private void CreateShockRenderer()
+    {
+        shockRenderer = new GameObject("ShockSkeleton").AddComponent<SpriteRenderer>();
+        shockRenderer.transform.SetParent(sr.transform, false);
+        shockRenderer.sprite = shockSprite;
+        // Sin luz de la escena: el destello se ve brillante aunque la arena esté oscura
+        var unlit = Resources.Load<Material>("Environment/SkyUnlit");
+        shockRenderer.sharedMaterial = unlit != null ? unlit : sr.sharedMaterial;
+        shockRenderer.sortingLayerID = sr.sortingLayerID;
+        shockRenderer.sortingOrder = sr.sortingOrder;
+        shockRenderer.color = shockSkeletonColor;
+    }
+
+    // ---------- ATURDIMIENTO ----------
+
+    public void Stun(float seconds)
+    {
+        StopActions();
+        stunTimer = Mathf.Max(stunTimer, seconds);
+    }
+
+    // Tres estrellas que giran sobre la cabeza mientras dura
+    private void UpdateStunStars()
+    {
+        bool stunned = stunTimer > 0f;
+        if (!stunned)
+        {
+            if (stunStars != null) stunStars.gameObject.SetActive(false);
+            return;
+        }
+        if (stunStars == null) CreateStunStars();
+        stunStars.gameObject.SetActive(true);
+        Vector2 head = new Vector2(sr.bounds.center.x, sr.bounds.max.y);
+        stunStars.position = new Vector3(head.x, head.y, transform.position.z);
+        for (int i = 0; i < stunStars.childCount; i++)
+        {
+            float a = Time.time * 5f + i * Mathf.PI * 2f / stunStars.childCount;
+            stunStars.GetChild(i).localPosition = new Vector3(Mathf.Cos(a) * 0.12f, Mathf.Sin(a) * 0.04f, 0f);
+        }
+    }
+
+    private void CreateStunStars()
+    {
+        stunStars = new GameObject("StunStars").transform;
+        var tex = new Texture2D(3, 3) { filterMode = FilterMode.Point };
+        var c = new Color(1f, 0.9f, 0.4f, 1f);
+        tex.SetPixels(new[] { Color.clear, c, Color.clear, c, Color.white, c, Color.clear, c, Color.clear });
+        tex.Apply();
+        var star = Sprite.Create(tex, new Rect(0, 0, 3, 3), new Vector2(0.5f, 0.5f), 100f);
+        for (int i = 0; i < 3; i++)
+        {
+            var s = new GameObject("Star").AddComponent<SpriteRenderer>();
+            s.transform.SetParent(stunStars, false);
+            s.sprite = star;
+            // Por encima de todo el escenario (el sprite de Tsuki va dentro de un grupo de orden)
+            s.sortingLayerName = "UI";
+            s.sortingOrder = -12;
+            s.transform.localScale = Vector3.one * 1.5f;
+        }
     }
 
     // ---------- DASH ----------
