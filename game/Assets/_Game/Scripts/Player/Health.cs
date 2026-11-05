@@ -40,9 +40,6 @@ public class Health : MonoBehaviour, IDamageable
     public bool IsDead { get; private set; }
     public bool IsInvulnerable => invulnerableTimer > 0f;
 
-    // Invulnerable al menos estos segundos (p. ej. mientras la electrocuta un rayo)
-    public void SetInvulnerable(float seconds) => invulnerableTimer = Mathf.Max(invulnerableTimer, seconds);
-
     private void Awake()
     {
         provider = GetComponent<IHealthProvider>();

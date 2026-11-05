@@ -280,12 +280,8 @@ public class PauseMenu : MonoBehaviour
             return;
 
         // Dos filas de teclas resaltadas (como teclas doradas) y abajo cómo moverse por el menú
-        // El corte a distancia solo aparece cuando ya se desbloqueó (Módulo de espada)
-        var player = SceneContext.FindPlayer();
-        var controller = player != null ? player.GetComponent<PlayerController>() : null;
-        string slash = controller == null || controller.SlashEnabled ? Cap("slash") + ": Corte     " : "";
         string list =
-            Cap("move") + ": Mover     " + Cap("attack") + ": Atacar     " + slash + Cap("dash") + ": Esquivar     " + Cap("interact") + ": Interactuar\n" +
+            Cap("move") + ": Mover     " + Cap("attack") + ": Atacar     " + Cap("dash") + ": Esquivar     " + Cap("interact") + ": Interactuar\n" +
             Cap("potion") + ": Poción     " + Cap("amrita") + ": Gota de Amrita     " + Cap("inventory") + ": Inventario     " + Cap("pause") + ": Pausa\n" +
             "<size=82%><color=#C9B3BC>" + message + "</color></size>";
 
