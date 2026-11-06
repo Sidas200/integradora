@@ -564,7 +564,7 @@ public class ForgeScreen : MonoBehaviour
         switch (r.result.id)
         {
             case "pocion":
-                return "Recupera 30 de vida";
+                return "Recupera 35 de vida";
 
             case "gota_amrita":
                 return "Despierta a un guardián dormido";

@@ -205,7 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6db4b2e52012d49ddaf7e410999137a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::EnemyHealth
-  maxHealth: 64
+  maxHealth: 60
   invulnerableTime: 0
 --- !u!114 &8221802925426673992
 MonoBehaviour:
@@ -242,7 +242,7 @@ MonoBehaviour:
   telegraphTime: 0.9
   projectileSpeed: 2.6
   impactRadius: 0.32
-  damage: 12
+  damage: 20
   telegraphSprite: {fileID: 21300000, guid: 82c72872dabf641f5b3b3166dc8178c9, type: 3}
   projectileSprite: {fileID: 21300000, guid: 00840890fb39b422eab58c2cef28b8a4, type: 3}
   body: {fileID: 2277460865859096381}

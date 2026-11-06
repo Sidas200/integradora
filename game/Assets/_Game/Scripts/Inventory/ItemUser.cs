@@ -9,7 +9,7 @@ public class ItemUser : MonoBehaviour
 {
     [Header("Poción (tecla Q; flecha izquierda o RB / R1 con mando)")]
     [SerializeField] private MaterialData potion;
-    [SerializeField] private int potionHeal = 30;
+    [SerializeField] private int potionHeal = 35;
 
     [Header("Gota de Amrita (tecla G, LB / L1 con mando)")]
     [SerializeField] private MaterialData amritaDrop;

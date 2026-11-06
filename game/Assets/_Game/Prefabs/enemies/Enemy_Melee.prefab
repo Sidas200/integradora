@@ -236,7 +236,7 @@ MonoBehaviour:
   moveSpeed: 1
   attackRange: 0.5
   attackCooldown: 1.5
-  attackDamage: 10
+  attackDamage: 20
   attackPoint: {fileID: 8898288494077208369}
   attackPointDistance: 0.2
   attackRadius: 0.35

@@ -38,18 +38,18 @@ public class GuardianBoss : MonoBehaviour
     [SerializeField] private float chargeLength = 2.6f;
     [SerializeField] private float chargeWidth = 0.36f;
     // Con la armadura completa (100 de vida, 6 de defensa) la embestida y el golpe matan en 4 golpes
-    [SerializeField] private int chargeDamage = 32;
+    [SerializeField] private int chargeDamage = 36;
 
     [Header("Golpe del juicio (área)")]
     [SerializeField] private float slamTelegraph = 1.2f;
     [SerializeField] private float slamRadius = 0.95f;
-    [SerializeField] private int slamDamage = 36;
+    [SerializeField] private int slamDamage = 40;
 
     [Header("Fase 2 (bajo 50% de vida)")]
     [Tooltip("Onda del golpe al suelo: radio respecto al golpe y aviso antes de que llegue.")]
     [SerializeField] private float shockwaveRadiusScale = 1.8f;
     [SerializeField] private float shockwaveDelay = 0.45f;
-    [SerializeField] private int shockwaveDamage = 20;
+    [SerializeField] private int shockwaveDamage = 24;
 
     [Header("Fase 1: puños (cuerpo a cuerpo)")]
     [Tooltip("Largo del puñetazo con embestida respecto a la embestida completa.")]
@@ -66,6 +66,8 @@ public class GuardianBoss : MonoBehaviour
     [SerializeField] private float swordHitRange = 0.4f;
 
     [Header("Fase 2: lluvia de escombros")]
+    [Tooltip("Apagada por ahora: en su lugar usa el golpe al suelo. Activar para volver a usarla.")]
+    [SerializeField] private bool useDebrisRain = false;
     [Tooltip("Varn clava la espada en el suelo y caen escombros cerca de Tsuki (uno justo encima de ella).")]
     [SerializeField, Min(1)] private int debrisCount = 4;
     [Tooltip("Segundos que avisa cada escombro antes de caer (no se acelera con la fase 2).")]
@@ -74,7 +76,7 @@ public class GuardianBoss : MonoBehaviour
     [SerializeField] private float debrisRadius = 0.24f;
     [Tooltip("Qué tan lejos de Tsuki pueden caer los demás escombros.")]
     [SerializeField] private float debrisSpread = 0.9f;
-    [SerializeField] private int debrisDamage = 18;
+    [SerializeField] private int debrisDamage = 22;
     [Tooltip("Daño a los enemigos que queden debajo (sus refuerzos también).")]
     [SerializeField] private int debrisEnemyDamage = 40;
 
@@ -99,11 +101,11 @@ public class GuardianBoss : MonoBehaviour
     [SerializeField] private float riftWidth = 0.3f;
     [Tooltip("Velocidad con la que se abre la grieta (unidades por segundo).")]
     [SerializeField] private float riftSpeed = 7f;
-    [SerializeField] private int riftDamage = 26;
+    [SerializeField] private int riftDamage = 30;
 
     [Header("Contacto")]
     [Tooltip("Daño al tocar a Varn mientras camina; una vez por segundo como máximo.")]
-    [SerializeField] private int contactDamage = 12;
+    [SerializeField] private int contactDamage = 16;
     [SerializeField] private float contactRange = 0.3f;
 
     [Header("Ventana vulnerable")]
@@ -367,7 +369,7 @@ public class GuardianBoss : MonoBehaviour
             {
                 // Fase 2: dos ataques seguidos, rotando entre tres combos
                 int combo = (patternIndex - 1) % 3;
-                yield return combo == 0 ? Charge() : combo == 1 ? DebrisRain() : RiftSlash();
+                yield return combo == 0 ? Charge() : combo == 1 ? (useDebrisRain ? DebrisRain() : Slam()) : RiftSlash();
                 if (Current == State.Dead) yield break;
                 yield return combo == 0 ? Slam() : combo == 1 ? RiftSlash() : Charge();
             }

@@ -6,7 +6,7 @@ public static class ItemUsage
     {
         switch (id)
         {
-            case "pocion": return ControlHints.Format("Úsala con {potion} o con el botón Usar: recupera 30 de vida.");
+            case "pocion": return ControlHints.Format("Úsala con {potion} o con el botón Usar: recupera 35 de vida.");
             case "gota_amrita": return ControlHints.Format("Ofrécela a un guardián dormido para despertarlo ({interact} frente a él, o {amrita}).");
             case "alma_pequena": return "Ofrécela en la puerta del primer Santuario para abrirla.";
             case "casco_cuero":

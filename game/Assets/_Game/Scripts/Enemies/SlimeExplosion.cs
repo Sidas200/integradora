@@ -2,11 +2,11 @@ using System.Collections;
 using UnityEngine;
 
 // El slime revienta al morir: su silueta parpadea en blanco un instante, se infla y explota en
-// gotas azules. Daña a Tsuki solo si está dentro de un área del tamaño del propio slime.
+// gotas azules. Daña a Tsuki si está dentro de un área del doble del tamaño del slime.
 public class SlimeExplosion : MonoBehaviour
 {
     private const string MaterialResource = "Environment/SkyUnlit";
-    private const float FuseTime = 0.3f;
+    private const float FuseTime = 0.5f;
     private static Sprite blobSprite, dropSprite;
 
     private static readonly Color GooColor = new Color(0.4f, 0.75f, 1f, 1f);

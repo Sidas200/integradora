@@ -21,6 +21,12 @@ public class GuardianArena : MonoBehaviour
     [Header("Cámara")]
     [Tooltip("Tamaño de la cámara al enfocar a Varn (menor = más cerca).")]
     [SerializeField, Range(0.3f, 1f)] private float focusZoom = 0.7f;
+    [Tooltip("Segunda fase (saca la espada): acercamiento; un poco menos que focusZoom para que Varn quepa sobre el diálogo.")]
+    [SerializeField, Range(0.3f, 1f)] private float swordFocusZoom = 0.85f;
+    [Tooltip("Fracción de la altura de la pantalla que tapa el cuadro de diálogo (abajo).")]
+    [SerializeField, Range(0f, 0.6f)] private float dialogueCover = 0.33f;
+    [Tooltip("Al despertarlo: espacio alrededor de Tsuki y Varn para que los dos queden a cuadro.")]
+    [SerializeField] private float encounterMargin = 0.55f;
     [Tooltip("Segundos de silencio con la cámara sobre Varn antes de que despierte.")]
     [SerializeField] private float wakeSuspense = 1f;
     [Tooltip("Salida de regreso al bosque: se cierra mientras dura la pelea.")]
@@ -103,8 +109,8 @@ public class GuardianArena : MonoBehaviour
         started = true;
         StoryFlags.Set(AwakenedFlag);
         GameInput.Lock(this);
-        // Suspenso: la cámara va hacia Varn dormido y espera antes de que se levante
-        FocusOnBoss();
+        // Suspenso: la cámara encuadra a Tsuki y a Varn dormido y espera antes de que se levante
+        FocusOnEncounter();
         yield return new WaitForSeconds(wakeSuspense);
         yield return boss.WakeUp();
         GameInput.Unlock(this);
@@ -132,7 +138,7 @@ public class GuardianArena : MonoBehaviour
         GameInput.Lock(this);
         float previousScale = Time.timeScale > 0f ? Time.timeScale : 1f;
         Time.timeScale = 0f;
-        FocusOnBoss();
+        FocusAboveDialogue();
         yield return new WaitForSecondsRealtime(0.7f);
 
         bool read = false;
@@ -150,6 +156,44 @@ public class GuardianArena : MonoBehaviour
 
     // La cámara sigue a Varn aunque Tsuki esté lejos
     private void FocusOnBoss() => CameraFocus.Show(() => boss.FocusPoint, focusZoom);
+
+    // Segunda fase: Varn queda centrado en la parte de la pantalla que no tapa el cuadro de diálogo
+    // (cubre la franja de abajo), así se ve completo mientras habla y mientras saca la espada.
+    private void FocusAboveDialogue()
+    {
+        var cam = Camera.main;
+        if (cam == null || CameraFocus.Active)
+        {
+            FocusOnBoss();
+            return;
+        }
+        float size = cam.orthographicSize * swordFocusZoom;
+        // Bajar la cámara la mitad de lo que tapa el diálogo sube a Varn al centro de lo que queda libre
+        Vector2 down = Vector2.down * (size * dialogueCover);
+        CameraFocus.Show(() => boss.FocusPoint + down, swordFocusZoom);
+    }
+
+    // Al despertarlo: punto medio entre Tsuki y Varn, con el acercamiento justo para que se vean
+    // los dos (nunca más cerca que focusZoom ni más lejos que la cámara normal).
+    private void FocusOnEncounter()
+    {
+        var player = SceneContext.FindPlayer();
+        var cam = Camera.main;
+        if (player == null || cam == null || CameraFocus.Active)
+        {
+            FocusOnBoss();
+            return;
+        }
+        // Centro del cuerpo de Tsuki (su raíz está en los pies; mide ~0.5 de alto)
+        System.Func<Vector2> tsukiCenter = () => (Vector2)player.transform.position + Vector2.up * 0.25f;
+
+        Vector2 gap = boss.FocusPoint - tsukiCenter();
+        float halfHeight = Mathf.Abs(gap.y) * 0.5f + encounterMargin;
+        float halfWidth = Mathf.Abs(gap.x) * 0.5f + encounterMargin;
+        float needed = Mathf.Max(halfHeight, halfWidth / Mathf.Max(0.1f, cam.aspect));
+        float zoom = Mathf.Clamp(needed / Mathf.Max(0.01f, cam.orthographicSize), focusZoom, 1f);
+        CameraFocus.Show(() => (boss.FocusPoint + tsukiCenter()) * 0.5f, zoom);
+    }
 
     private void OnBossDied()
     {
