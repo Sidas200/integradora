@@ -151,10 +151,10 @@ MonoBehaviour:
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 7990952901625146217}
   m_ShadowShape2DProvider:
-    rid: 1937313212651274620
+    rid: 8748772644707893815
   m_ShadowCastingSource: 1
   m_ShadowMesh:
-    rid: 1937313212651274621
+    rid: 8748772644707893816
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: -1
@@ -162,16 +162,16 @@ MonoBehaviour:
   m_PreviousShadowShape2DSource: {fileID: 0}
   m_PreviousShadowShape2DProviderHash: 0
   m_SelectionSources:
-    rid: 1937313212651274622
+    rid: 8748772644707893817
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1937313212651274620
+    - rid: 8748772644707893815
       type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
-    - rid: 1937313212651274621
+    - rid: 8748772644707893816
       type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Vertices: []
@@ -185,7 +185,7 @@ MonoBehaviour:
         m_FlipX: 0
         m_FlipY: 0
         m_InitialTrim: 0
-    - rid: 1937313212651274622
+    - rid: 8748772644707893817
       type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 0
@@ -222,8 +222,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 2277460865859096381}
   flashColor: {r: 1, g: 0, b: 0, a: 1}
   flashDuration: 0.15
-  blink: 0
-  blinkCount: 3
 --- !u!114 &6617449471586228908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242,16 +240,9 @@ MonoBehaviour:
   moveSpeed: 0.7
   attackCooldown: 2.4
   telegraphTime: 0.9
-  attackSpeed: 1.45
   projectileSpeed: 2.6
+  impactRadius: 0.32
   damage: 20
-  staggerKnockbackTime: 0.15
-  staggerKnockbackSpeed: 2.2
-  staggerStunDuration: 0.3
-  projectileRadius: 0.14
-  shotOvershoot: 0.8
-  bounceLength: 1.6
-  playerBodyHeight: 0.15
   telegraphSprite: {fileID: 21300000, guid: 82c72872dabf641f5b3b3166dc8178c9, type: 3}
   projectileSprite: {fileID: 21300000, guid: 00840890fb39b422eab58c2cef28b8a4, type: 3}
   body: {fileID: 2277460865859096381}

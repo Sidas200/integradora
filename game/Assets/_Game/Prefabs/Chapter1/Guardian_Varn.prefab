@@ -9437,10 +9437,10 @@ MonoBehaviour:
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 7128699323755633215}
   m_ShadowShape2DProvider:
-    rid: 1937313212651274624
+    rid: 1937313192196178015
   m_ShadowCastingSource: 1
   m_ShadowMesh:
-    rid: 1937313212651274625
+    rid: 1937313192196178016
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: -1
@@ -9448,16 +9448,16 @@ MonoBehaviour:
   m_PreviousShadowShape2DSource: {fileID: 0}
   m_PreviousShadowShape2DProviderHash: 0
   m_SelectionSources:
-    rid: 1937313212651274626
+    rid: 1937313192196178017
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1937313212651274624
+    - rid: 1937313192196178015
       type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
-    - rid: 1937313212651274625
+    - rid: 1937313192196178016
       type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Vertices: []
@@ -9471,7 +9471,7 @@ MonoBehaviour:
         m_FlipX: 0
         m_FlipY: 0
         m_InitialTrim: 0
-    - rid: 1937313212651274626
+    - rid: 1937313192196178017
       type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 0
@@ -9538,28 +9538,7 @@ MonoBehaviour:
   shockwaveRadiusScale: 1.8
   shockwaveDelay: 0.45
   shockwaveDamage: 24
-  fistReachScale: 0.6
-  fistSlamScale: 0.8
-  fistHitRange: 0.28
-  swordSlamScale: 1.15
-  swordChargeWidthScale: 1.3
-  swordHitRange: 0.4
-  debrisCount: 4
-  debrisWarning: 1
-  debrisInterval: 0.18
-  debrisRadius: 0.24
-  debrisSpread: 0.9
   debrisDamage: 22
-  debrisEnemyDamage: 40
-  guardEvery: 2
-  guardTime: 2
-  guardHitRange: 0.8
-  stunTime: 2
-  drawSwordTime: 2
-  guardColor: {r: 1, g: 0.82, b: 0.3, a: 1}
-  riftTelegraph: 0.75
-  riftWidth: 0.3
-  riftSpeed: 7
   riftDamage: 30
   contactDamage: 16
   contactRange: 0.3

@@ -86,7 +86,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.2, y: 0.48}
+  m_Size: {x: 0.22, y: 0.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -142,7 +142,7 @@ MonoBehaviour:
   m_Light2DProvider:
     rid: -2
   m_SelectionSources:
-    rid: 1937313212651274607
+    rid: 8748772644707893802
   m_FalloffIntensity: 0.6
   m_Color: {r: 1, g: 0.93, b: 0.82, a: 1}
   m_Intensity: 0.3
@@ -188,7 +188,7 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1937313212651274607
+    - rid: 8748772644707893802
       type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 3
@@ -246,7 +246,7 @@ MonoBehaviour:
   m_Light2DProvider:
     rid: -2
   m_SelectionSources:
-    rid: 1937313212651274608
+    rid: 8748772644707893803
   m_FalloffIntensity: 0.6
   m_Color: {r: 0.95, g: 0.18, b: 0.3, a: 1}
   m_Intensity: 0.35
@@ -292,7 +292,7 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1937313212651274608
+    - rid: 8748772644707893803
       type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 3
@@ -595,34 +595,21 @@ MonoBehaviour:
   ghostSpawnInterval: 0.05
   ghostLifetime: 0.3
   perfectDodgeWindow: 0.22
-  slowMotionScale: 0.3
-  slowMotionDuration: 0.8
-  slowMotionCooldown: 1.5
-  perfectDodgeColor: {r: 0.75, g: 0.95, b: 1, a: 1}
-  slowMotionTint: {r: 0.25, g: 0.5, b: 1, a: 0.3}
   dashParticles: {fileID: 0}
   particleDuration: 1.2
   usePlayerSize: 1
-  attackReach: 0.78
-  attackWidth: 1.04
-  attackCooldown: 0.4
+  attackReach: 0.85
+  attackWidth: 1.12
+  attackCooldown: 0.3
   attackVisibleTime: 0.15
-  bossReachScale: 1.35
-  showAttackBox: 0
   attackColor: {r: 1, g: 0.2, b: 0.3, a: 0.45}
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
   comboWindow: 0.8
   slashSprite: {fileID: -6939695964637348897, guid: a027b5b4b6457414ea161d9491f57d25, type: 3}
-  slashColor: {r: 1, g: 0.3, b: 0.4, a: 0.9}
-  slashRange: 3
-  slashWidth: 0.9
-  slashSpeed: 6
   slashDamageScale: 0.5
-  slashCooldown: 1.2
-  slashReleaseFrame: 2
-  slashChainWindow: 0.25
+  shockSprite: {fileID: 21300000, guid: a3deffb588f8c4f69b41ba5b8138afdb, type: 3}
   animator: {fileID: 0}
   spriteSheet: {fileID: 2800000, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   allFrames:
@@ -677,6 +664,7 @@ MonoBehaviour:
   - {fileID: 4901769919419486350, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   - {fileID: 1824743119290896101, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   - {fileID: 6012307854124612954, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
+  - {fileID: 7040593393282623207, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   - {fileID: -4180300435309456, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   - {fileID: 4699557561344438218, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   - {fileID: 6765402222261684986, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
@@ -689,7 +677,6 @@ MonoBehaviour:
   - {fileID: -8831660021776404739, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   - {fileID: 4201746551955297605, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   - {fileID: -6494216270127332519, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
-  - {fileID: 7040593393282623207, guid: 92071f5411826fa4ca014e3458f4b2ec, type: 3}
   walkRightFrames:
     start: 16
     count: 8
@@ -714,8 +701,56 @@ MonoBehaviour:
   attackLeft2Frames:
     start: 56
     count: 8
-  idleSheet: {fileID: 0}
-  idleAllFrames: []
+  idleSheet: {fileID: 2800000, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  idleAllFrames:
+  - {fileID: 8723671089147839557, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -3107470628270626971, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 448448842892894751, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -2960094042449072861, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -3205755123081383240, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -5420058739645782308, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 6529959079485216762, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -7395574883408848165, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -7952015191829725845, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 8905837244244082323, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 4641663608173469142, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -1440728539986672377, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 3956845185981144473, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -8636937474857334166, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 7062881562702532722, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -4875626875054464663, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -4460820908149871502, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 8746590978589418307, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -7918551328977420948, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -497748202835284228, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 448521047290896291, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 8744970083594813484, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 2303914094721495055, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -4010749509239498101, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 5994547386153060297, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 6198000285577089177, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 477435279658139794, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 3809625704660468549, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -5896476838071872869, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 5797501126971763423, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 7847027781211762815, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -821529389797461526, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 4115175213770764672, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -279566384590247536, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -3119904263687122968, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -7519562695392233244, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 5123624117540962305, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -7460678163084004134, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -5300437631938081275, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 2995081830040129106, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -3898042620284271856, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -5929727010119962133, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 6354387188203346458, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: 2445441496831823429, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -3479408597964450386, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -6106209784164100665, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -8448687372052530630, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
+  - {fileID: -4802869434953224507, guid: eb7af863119c341b9bc6c31946d2e379, type: 3}
   idleFrontFrames:
     start: 24
     count: 12
@@ -729,22 +764,12 @@ MonoBehaviour:
     start: 36
     count: 12
   walkFps: 8
-  attackFps: 16
-  secondHitSpeed: 1.25
-  comboCancelPoint: 0.75
+  attackFps: 19
   idleFps: 8
   hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
   hitFlashDuration: 0.15
-  hurtBlinkTime: 0.4
-  hurtScreenTint: {r: 1, g: 0.1, b: 0.1, a: 0.35}
   hitStunDuration: 0.15
   knockbackSpeed: 2
-  stunColor: {r: 0.8, g: 0.8, b: 1, a: 1}
-  shockSprite: {fileID: 21300000, guid: a3deffb588f8c4f69b41ba5b8138afdb, type: 3}
-  shockTime: 0.6
-  shockFlicker: 0.06
-  shockColor: {r: 1, g: 0.25, b: 0.5, a: 1}
-  shockSkeletonColor: {r: 1, g: 0.62, b: 0.78, a: 1}
 --- !u!114 &7467411098016760206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -881,10 +906,10 @@ MonoBehaviour:
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 6093655468394480120}
   m_ShadowShape2DProvider:
-    rid: 1937313212651274604
+    rid: 8748772644707893799
   m_ShadowCastingSource: 1
   m_ShadowMesh:
-    rid: 1937313212651274605
+    rid: 8748772644707893800
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: -1
@@ -892,16 +917,16 @@ MonoBehaviour:
   m_PreviousShadowShape2DSource: {fileID: 0}
   m_PreviousShadowShape2DProviderHash: 0
   m_SelectionSources:
-    rid: 1937313212651274606
+    rid: 8748772644707893801
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1937313212651274604
+    - rid: 8748772644707893799
       type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
-    - rid: 1937313212651274605
+    - rid: 8748772644707893800
       type: {class: ShadowMesh2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Vertices: []
@@ -915,7 +940,7 @@ MonoBehaviour:
         m_FlipX: 0
         m_FlipY: 0
         m_InitialTrim: 0
-    - rid: 1937313212651274606
+    - rid: 8748772644707893801
       type: {class: Shadow2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_SelectedHashCode: 0
