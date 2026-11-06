@@ -250,7 +250,6 @@ public class IslandVanish : MonoBehaviour
         // La isla ya no existe: todas sus celdas bloquean, no solo la entrada del puente
         if (blocking != null && collisionTile != null)
             foreach (var p in cells) blocking.SetTile(p, collisionTile);
-        KeepPlayerOnBridge();
         foreach (var map in layers) map.gameObject.SetActive(false);
         foreach (var go in objects) go.SetActive(false);
         if (elevations != null) elevations.gameObject.SetActive(false);
@@ -259,25 +258,79 @@ public class IslandVanish : MonoBehaviour
         UnblockBridgeOverhang();
         BuildRails(); // la isla ya no está: ahora el borde del lado de la isla también da al vacío
         if (backBlocker != null) backBlocker.SetActive(true);
+        // Después de crear barandales y bloqueo: si Tsuki quedó encimada en alguno, se atora para siempre
+        Physics2D.SyncTransforms();
+        KeepPlayerOnBridge();
         if (alsoHide != null) foreach (var go in alsoHide) if (go != null) go.SetActive(false);
 
         GameInput.Unlock(this);
         DialogueUI.Play(dialogue, () => StoryFlags.Set(Flag));
     }
 
-    // Si Tsuki quedó fuera del puente (sobre la isla que desapareció), vuelve a su inicio.
+    // Si Tsuki quedó fuera del puente (sobre la isla que desapareció) o encimada en un barandal o
+    // bloqueo (un EdgeCollider no la empuja fuera: se queda atorada), se mueve al punto libre del
+    // puente más cercano. safeSpot está en la orilla de abajo del puente, sobre el barandal, así que
+    // no sirve como destino directo: solo como referencia de dónde buscar.
     private void KeepPlayerOnBridge()
     {
         var player = SceneContext.FindPlayer();
-        if (player == null || safeSpot == null) return;
-        var cell = ground.WorldToCell(player.transform.position - new Vector3(0f, 0.08f, 0f));
-        if (ground.GetTile(cell) == keepTile) return;
-        player.transform.position = safeSpot.position;
+        if (player == null) return;
+        var box = player.GetComponent<BoxCollider2D>();
         var rb = player.GetComponent<Rigidbody2D>();
+        Vector2 pos = rb != null ? rb.position : (Vector2)player.transform.position;
+        Vector2 offset = box != null ? Vector2.Scale(box.offset, player.transform.lossyScale) : new Vector2(0f, -0.08f);
+
+        bool onBridge = ground.GetTile(ground.WorldToCell(pos + offset)) == keepTile;
+        if (onBridge && IsClear(pos + offset, box, player)) return;
+
+        Vector2 from = onBridge || safeSpot == null ? pos + offset : (Vector2)safeSpot.position;
+        if (!FindClearSpot(from, box, player, out var feet)) return;
+        var target = feet - offset;
+        player.transform.position = target;
         if (rb != null)
         {
-            rb.position = safeSpot.position;
+            rb.position = target;
             rb.linearVelocity = Vector2.zero;
         }
+        Physics2D.SyncTransforms();
+    }
+
+    // Busca, sobre las celdas del puente cercanas, el punto libre más cercano para los pies de Tsuki.
+    private bool FindClearSpot(Vector2 from, BoxCollider2D box, GameObject player, out Vector2 best)
+    {
+        best = from;
+        float bestDist = float.MaxValue;
+        var center = ground.WorldToCell(from);
+        var shift = VisualShift();
+        const int steps = 6;
+        for (int dx = -3; dx <= 3; dx++)
+            for (int dy = -3; dy <= 3; dy++)
+            {
+                var cell = center + new Vector3Int(dx, dy, 0);
+                if (ground.GetTile(cell) != keepTile) continue;
+                for (int i = 0; i < steps; i++)
+                    for (int j = 0; j < steps; j++)
+                    {
+                        var f = new Vector2((i + 0.5f) / steps, (j + 0.5f) / steps) + shift;
+                        Vector2 p = ground.transform.TransformPoint(CellPoint(cell, f));
+                        float d = (p - from).sqrMagnitude;
+                        if (d >= bestDist || !IsClear(p, box, player)) continue;
+                        bestDist = d;
+                        best = p;
+                    }
+            }
+        return bestDist < float.MaxValue;
+    }
+
+    // Los pies de Tsuki en ese punto no tocan ningún colisionador sólido (con un pequeño margen).
+    private static bool IsClear(Vector2 feet, BoxCollider2D box, GameObject player)
+    {
+        Vector2 size = box != null ? Vector2.Scale(box.size, player.transform.lossyScale) : new Vector2(0.14f, 0.07f);
+        foreach (var hit in Physics2D.OverlapBoxAll(feet, size + new Vector2(0.02f, 0.02f), 0f))
+        {
+            if (hit.isTrigger || hit.transform.IsChildOf(player.transform)) continue;
+            return false;
+        }
+        return true;
     }
 }
