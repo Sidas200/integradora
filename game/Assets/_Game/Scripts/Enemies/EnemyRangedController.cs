@@ -203,7 +203,7 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
             bool touching = player != null && Vector2.Distance(pos, PlayerBody()) <= projectileRadius;
             if (touching && !overlapping)
             {
-                if (CombatUtil.DamagePlayer(player.gameObject, damage, pos)) break;
+                if (CombatUtil.DamagePlayer(player.gameObject, SceneContext.EnemyDamage(damage), pos)) break;
                 overlapping = true; // esquiva perfecta o invulnerable: la bola sigue
             }
             else if (!touching)

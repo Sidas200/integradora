@@ -707,7 +707,7 @@ MonoBehaviour:
   lungeSpeed: 4.2
   lungeDistance: 1
   hitRadius: 0.12
-  attackDamage: 20
+  attackDamage: 8
   attackCooldown: 0.4
   recoilSpeed: 1.6
   recoilTime: 0.25
@@ -715,7 +715,7 @@ MonoBehaviour:
   stunAfterMiss: 2
   hitStunDuration: 0.15
   knockbackSpeed: 1.5
-  explosionDamage: 20
+  explosionDamage: 8
 --- !u!4 &5295656040892839335 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4075933655755013577, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}

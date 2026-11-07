@@ -25,7 +25,8 @@ public class EnemyLoot : MonoBehaviour
     [SerializeField] private List<Drop> drops = new List<Drop>();
     [SerializeField] private float scatter = 0.12f;
     [Tooltip("Probabilidad de que salga cada material (los objetos clave siempre salen)")]
-    [SerializeField, Range(0f, 1f)] private float dropChance = 0.45f;
+    // 0.45 + 30% (balance de drops)
+    [SerializeField, Range(0f, 1f)] private float dropChance = 0.585f;
 
     private EnemyHealth health;
     private PersistentId pid;

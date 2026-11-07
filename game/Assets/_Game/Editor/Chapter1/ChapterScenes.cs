@@ -335,6 +335,8 @@ namespace Game.EditorTools.Chapter1
 
             var context = new GameObject("SceneContext").AddComponent<SceneContext>();
             context.Configure(zoneName, defaultSpawn, true, true, true);
+            // Zona previa al jefe: los enemigos pegan más
+            if (name == CombatZone) context.SetEnemyDamageMultiplier(1.6f);
 
             var markers = gridGo.transform.Find("Markers");
             foreach (Transform m in markers)

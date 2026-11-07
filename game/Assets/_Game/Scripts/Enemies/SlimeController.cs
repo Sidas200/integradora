@@ -90,7 +90,7 @@ public class SlimeController : MonoBehaviour, IStaggerable
         var body = visual != null ? visual.GetComponentInChildren<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
         float radius = (body != null && body.sprite != null ? body.bounds.extents.x : 0.13f) * explosionAreaScale;
         Vector2 at = body != null ? new Vector2(body.bounds.center.x, rb.position.y) : rb.position;
-        SlimeExplosion.Spawn(body, at, radius, explosionDamage);
+        SlimeExplosion.Spawn(body, at, radius, explosionDamage > 0 ? SceneContext.EnemyDamage(explosionDamage) : 0);
     }
 
     private void Start()
@@ -181,7 +181,7 @@ public class SlimeController : MonoBehaviour, IStaggerable
                 rb.linearVelocity = lungeDir * lungeSpeed;
                 if (TouchingPlayer())
                 {
-                    CombatUtil.DamagePlayer(player.gameObject, attackDamage, rb.position);
+                    CombatUtil.DamagePlayer(player.gameObject, SceneContext.EnemyDamage(attackDamage), rb.position);
                     HideWarning();
                     state = State.Recoil;
                     stateTimer = recoilTime;

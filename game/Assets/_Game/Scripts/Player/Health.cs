@@ -23,6 +23,7 @@ public class Health : MonoBehaviour, IDamageable
     // Eventos C# para usarlos desde otros scripts
     public event Action<int, int> HealthChanged;
     public event Action Died;
+    public event Action<int> Healed; // vida realmente recuperada (> 0)
 
     // Esquiva perfecta (PlayerController): si devuelve true el golpe no hace daño y se avisa con Dodged.
     public Func<bool> DodgeCheck { get; set; }
@@ -93,6 +94,7 @@ public class Health : MonoBehaviour, IDamageable
 
         onHealed?.Invoke(currentHealth - before);
         NotifyChanged();
+        if (currentHealth > before) Healed?.Invoke(currentHealth - before);
     }
 
     public void Kill()

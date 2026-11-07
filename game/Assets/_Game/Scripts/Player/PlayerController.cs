@@ -173,7 +173,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float hitStunDuration = 0.15f;
     [SerializeField] private float knockbackSpeed = 2f;
 
+    [Header("Curación")]
+    [Tooltip("Al curarse Tsuki brilla en verde este tiempo (la pantalla también, ver HealthScreenFx).")]
+    [SerializeField] private float healGlowTime = 0.8f;
+    [SerializeField] private Color healGlowColor = new Color(0.45f, 1f, 0.5f);
+
     private float hitFlashTimer;
+    private float healGlowTimer;
     private float hitStunTimer;
     private Vector2 knockbackDirection;
 
@@ -284,6 +290,7 @@ public class PlayerController : MonoBehaviour
             // Cualquier daño (de cualquier enemigo) se nota: parpadeo rojo y destello de pantalla
             if (health.onDamaged == null) health.onDamaged = new UnityEngine.Events.UnityEvent<int>();
             health.onDamaged.AddListener(OnHurt);
+            health.Healed += OnHealed;
         }
     }
 
@@ -317,6 +324,8 @@ public class PlayerController : MonoBehaviour
     }
 
     private System.Collections.IEnumerator TintPulse() => ScreenPulse(slowMotionTint, 0.2f);
+
+    private void OnHealed(int amount) => healGlowTimer = healGlowTime;
 
     private void OnHurt(int damage)
     {
@@ -596,12 +605,19 @@ public class PlayerController : MonoBehaviour
     if (dodgeFlashTimer > 0f)
         dodgeFlashTimer -= PlayerDelta;
 
+    if (healGlowTimer > 0f)
+        healGlowTimer -= PlayerDelta;
+
     // Prioridad de efectos visuales
     if (dodgeFlashTimer > 0f)
         sr.color = perfectDodgeColor;
     else if (hitFlashTimer > 0f)
         // Parpadeo rojo / normal cada 0.07 s para que se note aunque el sprite sea oscuro
         sr.color = Mathf.Repeat(hitFlashTimer, 0.14f) > 0.07f ? hitFlashColor : normalColor;
+    else if (healGlowTimer > 0f)
+        // Verde que late dos veces y se desvanece
+        sr.color = Color.Lerp(normalColor, healGlowColor,
+            healGlowTimer / healGlowTime * (0.6f + 0.4f * Mathf.Cos(healGlowTimer * 16f)));
     else if (isDashing)
         sr.color = dashColor;
     else if (dashCooldownTimer > 0f)

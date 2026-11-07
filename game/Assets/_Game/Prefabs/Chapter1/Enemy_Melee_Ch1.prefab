@@ -333,6 +333,10 @@ PrefabInstance:
       propertyPath: detectionRange
       value: 1.9
       objectReference: {fileID: 0}
+    - target: {fileID: 4492480789061150374, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
+      propertyPath: attackDamage
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 7161399166550526004, guid: f259704499c6d4c77bbe5caf78d6b610, type: 3}
       propertyPath: m_Radius
       value: 0.1

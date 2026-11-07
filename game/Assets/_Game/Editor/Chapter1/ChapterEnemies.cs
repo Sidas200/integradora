@@ -20,6 +20,12 @@ namespace Game.EditorTools.Chapter1
         // 3 con la mejorada (25) y 3 dobles cortes a distancia (12, solo con la mejorada)
         private const int CommonEnemyHealth = 60;
 
+        // Daño base (zonas 1 y 2): el lobo pega más, luego el de distancia y al final el slime.
+        // En el Bosque Quebrado se multiplica (SceneContext.enemyDamageMultiplier).
+        private const int LoboDamage = 15;
+        private const int RangedDamage = 11;
+        private const int SlimeDamage = 8;
+
         public static void BuildAll()
         {
             BuildMeleeVariant();
@@ -65,6 +71,7 @@ namespace Game.EditorTools.Chapter1
 
             SetFloat(melee, "attackWindup", 0.6f);
             SetFloat(melee, "detectionRange", 1.9f);
+            SetInt(melee, "attackDamage", LoboDamage);
             SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", CommonEnemyHealth);
             UiFactory.SetRef(root.GetComponent<EnemyHitFeedback>(), "spriteRenderer", visual);
 
@@ -100,7 +107,8 @@ namespace Game.EditorTools.Chapter1
             ai.Setup(visual.transform, warning.GetComponent<Telegraph>());
             SetFloat(ai, "detectionRange", 1.5f);
             SetFloat(ai, "moveSpeed", 1.0f);
-            SetInt(ai, "attackDamage", 20);
+            SetInt(ai, "attackDamage", SlimeDamage);
+            SetInt(ai, "explosionDamage", SlimeDamage);
             SetInt(root.GetComponent<EnemyHealth>(), "maxHealth", CommonEnemyHealth);
             UiFactory.SetRef(root.GetComponent<EnemyHitFeedback>(), "spriteRenderer", visual);
 
@@ -121,6 +129,7 @@ namespace Game.EditorTools.Chapter1
             UiFactory.SetRef(feedback, "spriteRenderer", visual);
             var ranged = root.AddComponent<EnemyRangedController>();
             ranged.Setup(PlaceholderArtGenerator.Load("placeholder_telegraph_circle"), PlaceholderArtGenerator.Load("placeholder_projectile"), visual);
+            SetInt(ranged, "damage", RangedDamage);
 
             PrefabUtility.SaveAsPrefabAsset(root, RangedPath);
             Object.DestroyImmediate(root);

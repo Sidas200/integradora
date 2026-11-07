@@ -38,6 +38,7 @@ public class GameHud : MonoBehaviour
     [SerializeField] private TMP_Text toastText;
 
     private Health playerHealth;
+    private HealthScreenFx screenFx;
     private Inventory inventory;
     private Coroutine zoneRoutine;
     private Coroutine toastRoutine;
@@ -63,6 +64,7 @@ public class GameHud : MonoBehaviour
         if (promptGroup != null) promptGroup.alpha = 0f;
         if (bossGroup != null) bossGroup.alpha = 0f;
         inventoryHint = UiNav.FindLabel(transform, "InventoryHint");
+        screenFx = HealthScreenFx.Create(transform);
         StoryFlags.Changed += HandleFlagChanged;
         ChapterObjectives.AmountProvider = AmountOf;
     }
@@ -200,6 +202,7 @@ public class GameHud : MonoBehaviour
 
     public void SetVisible(bool visible)
     {
+        if (screenFx != null) screenFx.SetVisible(visible);
         if (root == null) return;
         root.alpha = visible ? 1f : 0f;
     }
@@ -218,6 +221,7 @@ public class GameHud : MonoBehaviour
         var itemUser = player != null ? player.GetComponent<ItemUser>() : null;
         potion = itemUser != null ? itemUser.Potion : null;
         playerHealth = player != null ? player.GetComponent<Health>() : null;
+        if (screenFx != null) screenFx.Bind(playerHealth);
         if (playerHealth == null) return;
         playerHealth.HealthChanged += UpdateHealth;
         UpdateHealth(playerHealth.CurrentHealth, playerHealth.MaxHealth);
@@ -227,6 +231,7 @@ public class GameHud : MonoBehaviour
     {
         if (playerHealth != null) playerHealth.HealthChanged -= UpdateHealth;
         playerHealth = null;
+        if (screenFx != null) screenFx.Bind(null);
         if (inventory != null) inventory.OnAmountChanged -= HandleAmountChanged;
         inventory = null;
     }
