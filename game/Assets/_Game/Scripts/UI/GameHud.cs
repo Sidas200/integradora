@@ -39,7 +39,7 @@ public class GameHud : MonoBehaviour
 
     private Health playerHealth;
     private HealthScreenFx screenFx;
-    private ObjectiveGuide guide;
+    private Minimap minimap;
     private Inventory inventory;
     private Coroutine zoneRoutine;
     private Coroutine toastRoutine;
@@ -66,7 +66,7 @@ public class GameHud : MonoBehaviour
         if (bossGroup != null) bossGroup.alpha = 0f;
         inventoryHint = UiNav.FindLabel(transform, "InventoryHint");
         screenFx = HealthScreenFx.Create(transform);
-        guide = ObjectiveGuide.Create(transform);
+        minimap = Minimap.Create(transform);
         StoryFlags.Changed += HandleFlagChanged;
         ChapterObjectives.AmountProvider = AmountOf;
     }
@@ -130,6 +130,24 @@ public class GameHud : MonoBehaviour
         if (announce && lastObjective != null && current != lastObjective)
             ShowToast("Nuevo objetivo: " + current.Split('\n')[0]);
         lastObjective = current;
+    }
+
+    // Sube el aviso de interacción y los avisos breves para dejar libre la parte de abajo
+    // (la tarjeta del tutorial va ahí, como los diálogos). 0 = posición normal.
+    public void SetBottomOffset(float offset)
+    {
+        Offset(promptGroup, ref promptBase, offset);
+        Offset(toastGroup, ref toastBase, offset);
+    }
+
+    private Vector2? promptBase, toastBase;
+
+    private static void Offset(CanvasGroup group, ref Vector2? basePos, float offset)
+    {
+        if (group == null) return;
+        var rt = (RectTransform)group.transform;
+        if (basePos == null) basePos = rt.anchoredPosition;
+        rt.anchoredPosition = basePos.Value + new Vector2(0f, offset);
     }
 
     public void SetPrompt(string text)
@@ -205,7 +223,7 @@ public class GameHud : MonoBehaviour
     public void SetVisible(bool visible)
     {
         if (screenFx != null) screenFx.SetVisible(visible);
-        if (guide != null) guide.SetVisible(visible);
+        if (minimap != null) minimap.SetVisible(visible);
         if (root == null) return;
         root.alpha = visible ? 1f : 0f;
     }
@@ -225,7 +243,7 @@ public class GameHud : MonoBehaviour
         potion = itemUser != null ? itemUser.Potion : null;
         playerHealth = player != null ? player.GetComponent<Health>() : null;
         if (screenFx != null) screenFx.Bind(playerHealth);
-        if (guide != null) guide.Bind(player);
+        if (minimap != null) minimap.Bind(player);
         if (playerHealth == null) return;
         playerHealth.HealthChanged += UpdateHealth;
         UpdateHealth(playerHealth.CurrentHealth, playerHealth.MaxHealth);
@@ -236,7 +254,7 @@ public class GameHud : MonoBehaviour
         if (playerHealth != null) playerHealth.HealthChanged -= UpdateHealth;
         playerHealth = null;
         if (screenFx != null) screenFx.Bind(null);
-        if (guide != null) guide.Bind(null);
+        if (minimap != null) minimap.Bind(null);
         if (inventory != null) inventory.OnAmountChanged -= HandleAmountChanged;
         inventory = null;
     }

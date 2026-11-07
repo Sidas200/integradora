@@ -38,7 +38,7 @@ public static class ChapterObjectives
         return "Obtuviste el permiso del guardián";
     }
 
-    // A dónde ir para el objetivo actual: escena y objeto que señala la flecha (ObjectiveGuide).
+    // A dónde ir para el objetivo actual: escena y objeto que marca el minimapa (Minimap).
     // Mismo orden que Current(). Sin destino (null) cuando hay que juntar materiales por la zona.
     public static (string scene, string target) Where()
     {
