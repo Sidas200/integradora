@@ -594,13 +594,13 @@ MonoBehaviour:
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   ghostSpawnInterval: 0.05
   ghostLifetime: 0.3
-  perfectDodgeWindow: 0.22
+  perfectDodgeWindow: 0.253
   dashParticles: {fileID: 0}
   particleDuration: 1.2
   usePlayerSize: 1
   attackReach: 0.85
   attackWidth: 1.12
-  attackCooldown: 0.3
+  attackCooldown: 0.273
   attackVisibleTime: 0.15
   attackColor: {r: 1, g: 0.2, b: 0.3, a: 0.45}
   enemyLayer:
@@ -764,7 +764,7 @@ MonoBehaviour:
     start: 36
     count: 12
   walkFps: 8
-  attackFps: 19
+  attackFps: 20.9
   idleFps: 8
   hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
   hitFlashDuration: 0.15

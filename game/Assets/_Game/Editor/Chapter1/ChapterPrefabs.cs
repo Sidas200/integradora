@@ -80,11 +80,12 @@ namespace Game.EditorTools.Chapter1
             so.FindProperty("dashColor").colorValue = new Color(0.478f, 0.071f, 0.114f, 1f);
             so.FindProperty("ghostSpawnInterval").floatValue = 0.05f;
             so.FindProperty("ghostLifetime").floatValue = 0.3f;
-            so.FindProperty("attackCooldown").floatValue = 0.4f;
+            so.FindProperty("attackCooldown").floatValue = 0.273f;
             so.FindProperty("attackColor").colorValue = new Color(1f, 0.2f, 0.3f, 0.45f);
             so.FindProperty("enemyLayer").intValue = LayerMask.GetMask("Enemy");
             so.FindProperty("walkFps").floatValue = 8f;
-            so.FindProperty("attackFps").floatValue = 16f;
+            so.FindProperty("attackFps").floatValue = 20.9f; // golpe 10% más rápido
+            so.FindProperty("perfectDodgeWindow").floatValue = 0.253f; // +15% para la esquiva perfecta
             so.FindProperty("spriteSheet").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Texture2D>(SpriteSheetPath);
             // Arte del corte a distancia y del esqueleto cuando la alcanza un rayo
             so.FindProperty("slashSprite").objectReferenceValue = FirstSprite("Assets/_Game/Art/enemies/slash.png");
