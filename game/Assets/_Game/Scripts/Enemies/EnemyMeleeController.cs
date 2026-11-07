@@ -110,6 +110,8 @@ private Vector2 knockbackDirection;
 private float currentKnockbackSpeed;
 
     private EnemyLeash leash;
+    private const float HowlCooldown = 6f;
+    private float nextHowlTime;
 
     private void Awake()
     {
@@ -120,7 +122,12 @@ private float currentKnockbackSpeed;
         if (health != null)
         {
             health.Died += OnDied;
-            health.OnDamaged += _ => leash.Provoke();
+            health.OnDamaged += _ =>
+            {
+                leash.Provoke();
+                // El muñeco del tutorial es un lobo con la IA apagada: no se queja
+                if (enabled) Sfx.Play(Sfx.Lobo.Hurt);
+            };
         }
 
         if (attackFX != null)
@@ -314,7 +321,12 @@ private void DetectPlayer()
 
     PlayerDetected = detectedNow;
     if (PlayerDetected && anim != null)
+    {
         alertTimer = alertDuration;
+        // Rugido al verla; no en cada re-detección seguida
+        if (Time.time >= nextHowlTime) Sfx.Play(Sfx.Lobo.Howl, 0.8f);
+        nextHowlTime = Time.time + HowlCooldown;
+    }
 
     Debug.Log(
         PlayerDetected
@@ -566,6 +578,7 @@ private void DetectPlayer()
         Debug.Log("Enemy Melee: ataque cuerpo a cuerpo");
 
         ShowAttackFX();
+        Sfx.Play(Sfx.Lobo.Leap, 0.8f);
         if (band != null)
             band.Impact();
         if (anim != null)
@@ -579,6 +592,7 @@ private void DetectPlayer()
         if (!hitPlayer)
         {
             Debug.Log("Enemy Melee: ataque fallado");
+            Sfx.Play(Sfx.Lobo.SwingMiss);
             return;
         }
 
@@ -603,6 +617,11 @@ private void DetectPlayer()
 
         // Aplicar daño usando el sistema Health existente
         playerHealth.TakeDamage(Difficulty.Damage(SceneContext.EnemyDamage(attackDamage)));
+
+        if (playerHealth.CurrentHealth >= previousHealth)
+            Sfx.Play(Sfx.Lobo.SwingMiss); // la esquivó
+        else
+            Sfx.PlayAny(Sfx.Lobo.Bite, Sfx.Lobo.BiteAlt, Sfx.Lobo.ClawHit);
 
         if (playerHealth.CurrentHealth < previousHealth)
         {

@@ -329,6 +329,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnHurt(int damage)
     {
+        Sfx.Play(Sfx.PlayerHit);
         hitFlashTimer = hurtBlinkTime;
         CameraShake.Shake(0.02f, 0.15f);
         if (!slowMotion && isActiveAndEnabled) StartCoroutine(ScreenPulse(hurtScreenTint, 0.3f));
