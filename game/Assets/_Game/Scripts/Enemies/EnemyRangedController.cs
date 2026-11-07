@@ -73,6 +73,7 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
         feedback = GetComponent<EnemyHitFeedback>();
         health.OnDamaged += _ =>
         {
+            leash.Provoke();
             stunTimer = 0.2f;
             // Al recibir un golpe responde con un disparo en cuanto pueda (no espera su recarga)
             if (!attacking) nextAttack = Mathf.Min(nextAttack, Time.time);

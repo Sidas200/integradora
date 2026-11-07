@@ -118,7 +118,10 @@ private float currentKnockbackSpeed;
         anim = GetComponentInChildren<GuardianVarnAnimator>();
         health = GetComponent<EnemyHealth>();
         if (health != null)
+        {
             health.Died += OnDied;
+            health.OnDamaged += _ => leash.Provoke();
+        }
 
         if (attackFX != null)
         {

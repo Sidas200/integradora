@@ -83,7 +83,11 @@ public class SlimeController : MonoBehaviour, IStaggerable
         rb = GetComponent<Rigidbody2D>();
         leash = new EnemyLeash(transform.position);
         bounce = GetComponent<SlimeBounce>();
-        if (TryGetComponent<EnemyHealth>(out var health)) health.Died += Explode;
+        if (TryGetComponent<EnemyHealth>(out var health))
+        {
+            health.Died += Explode;
+            health.OnDamaged += _ => leash.Provoke();
+        }
     }
 
     // El área es el doble del ancho de su sprite
