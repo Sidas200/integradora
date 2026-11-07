@@ -173,10 +173,9 @@ namespace Game.EditorTools.Chapter1
             z.Prop("placeholder_crate", C + new V(-6, 2), true);
             z.Prop("placeholder_barrel", C + new V(3, 6), true);
 
-            // Zona 1: 2 Custodios (uno guarda el Alma pequeña del Santuario), 3 slimes, 2 flores y
+            // Zona 1: 1 Custodio (guarda el Alma pequeña del Santuario), 3 slimes, 2 flores y
             // 1 poción. Las almas y circuitos para el Módulo de espada salen de la prueba del Santuario.
             z.Marker("Enemy_Melee_Soul_A", new V(0, -12));
-            z.Marker("Enemy_Melee_B", new V(8, -2));
             z.Marker("Enemy_Slime_A", new V(-6, -6));
             z.Marker("Enemy_Slime_B", new V(4, -6));
             z.Marker("Enemy_Slime_C", new V(-4, 12));

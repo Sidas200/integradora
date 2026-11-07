@@ -167,13 +167,19 @@ public class ObjectiveGuide : MonoBehaviour
         return name;
     }
 
-    // Busca por nombre en la escena activa, incluidos objetos inactivos (p. ej. un enemigo vencido)
+    // Busca por nombre en la escena activa, incluidos objetos inactivos (p. ej. un enemigo vencido).
+    // Un enemigo se llama igual que su marcador: se prefiere el objeto real y el marcador queda de respaldo.
     private static Transform Find(string name)
     {
+        Transform marker = null;
         foreach (var root in SceneManager.GetActiveScene().GetRootGameObjects())
             foreach (var t in root.GetComponentsInChildren<Transform>(true))
-                if (t.name == name) return t;
-        return null;
+            {
+                if (t.name != name) continue;
+                if (t.parent == null || t.parent.name != "Markers") return t;
+                if (marker == null) marker = t;
+            }
+        return marker;
     }
 
     // Flecha dorada con borde oscuro, apuntando hacia arriba
