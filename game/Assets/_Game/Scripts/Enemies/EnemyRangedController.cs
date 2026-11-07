@@ -68,6 +68,7 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        leash = new EnemyLeash(transform.position);
         health = GetComponent<EnemyHealth>();
         feedback = GetComponent<EnemyHitFeedback>();
         health.OnDamaged += _ =>
@@ -91,6 +92,9 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
 
     private bool Flashing => feedback != null && feedback.IsFlashing;
 
+    private EnemyLeash leash;
+    private bool tracking;
+
     private void Start()
     {
         var p = GameObject.FindGameObjectWithTag("Player");
@@ -111,6 +115,8 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
         attacking = false;
         staggerTimer = 0f;
         knockbackTimer = 0f;
+        tracking = false;
+        leash?.Reset();
         if (projectile != null) projectile.SetActive(false);
         if (body != null) body.color = Color.white;
     }
@@ -136,7 +142,9 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
 
         Vector2 toPlayer = (Vector2)player.position - rb.position;
         float dist = toPlayer.magnitude;
-        if (dist > detectionRange) { rb.linearVelocity = Vector2.zero; return; }
+        // Pierde el rastro en la zona segura o lejos de su lugar, y vuelve a él (EnemyLeash)
+        tracking = leash.Track(dist <= detectionRange, rb.position, player.position);
+        if (!tracking) { rb.linearVelocity = leash.ReturnVelocity(rb.position, moveSpeed, Time.fixedDeltaTime); return; }
 
         // Se aleja si el jugador está demasiado cerca y se acerca si está lejos
         Vector2 dir = toPlayer.normalized;
@@ -148,7 +156,7 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
     private void Update()
     {
         if (attacking || staggerTimer > 0f || knockbackTimer > 0f || !PlayerAlive() || Time.time < nextAttack) return;
-        if (Vector2.Distance(player.position, transform.position) > detectionRange) return;
+        if (!tracking || Vector2.Distance(player.position, transform.position) > detectionRange) return;
         StartCoroutine(Attack());
     }
 

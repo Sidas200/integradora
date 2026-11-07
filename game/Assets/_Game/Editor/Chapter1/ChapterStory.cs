@@ -164,6 +164,8 @@ namespace Game.EditorTools.Chapter1
             trigger.isTrigger = true;
             trigger.radius = 1.2f;
             area.AddComponent<AreaTitle>().Setup("Campamento oculto");
+            // Zona segura: los enemigos pierden el rastro de Tsuki aquí y vuelven a su lugar
+            area.AddComponent<SafeZone>().Setup(1.7f);
 
             var npc = ChapterPrefabs.CreateNpc("Kaede", "placeholder_npc_researcher", markers.Find("NPC_Researcher").position, root, out var marker);
             var talk = npc.AddComponent<NpcDialogue>();

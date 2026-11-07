@@ -12493,6 +12493,7 @@ GameObject:
   - component: {fileID: 878332176}
   - component: {fileID: 878332178}
   - component: {fileID: 878332177}
+  - component: {fileID: 878332225}
   m_Layer: 0
   m_Name: CampAreaTitle
   m_TagString: Untagged
@@ -12500,6 +12501,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &878332225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878332175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86f9cf93cd2047ffad2b51a89dab41bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::SafeZone
+  radius: 1.7
 --- !u!4 &878332176
 Transform:
   m_ObjectHideFlags: 0

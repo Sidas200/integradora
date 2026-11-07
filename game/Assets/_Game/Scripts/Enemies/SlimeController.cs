@@ -70,6 +70,7 @@ public class SlimeController : MonoBehaviour, IStaggerable
     private Vector2 knockbackDir;
     private float currentKnockbackSpeed;
     private readonly Collider2D[] overlap = new Collider2D[8];
+    private EnemyLeash leash;
 
     public void Setup(Transform visualTransform, Telegraph warningTelegraph)
     {
@@ -80,6 +81,7 @@ public class SlimeController : MonoBehaviour, IStaggerable
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        leash = new EnemyLeash(transform.position);
         bounce = GetComponent<SlimeBounce>();
         if (TryGetComponent<EnemyHealth>(out var health)) health.Died += Explode;
     }
@@ -117,6 +119,7 @@ public class SlimeController : MonoBehaviour, IStaggerable
         stateTimer = 0f;
         hitTimer = 0f;
         PlayerDetected = false;
+        leash?.Reset();
     }
 
     private float ChargeTime => chargeTime / attackSpeed;
@@ -129,7 +132,9 @@ public class SlimeController : MonoBehaviour, IStaggerable
     private void Update()
     {
         float distance = PlayerAlive ? Vector2.Distance(rb.position, player.position) : float.MaxValue;
-        PlayerDetected = PlayerDetected ? distance <= loseSightRange : distance <= detectionRange;
+        bool sees = PlayerDetected ? distance <= loseSightRange : distance <= detectionRange;
+        // Pierde el rastro en la zona segura o lejos de su lugar, y vuelve a él (EnemyLeash)
+        PlayerDetected = PlayerAlive && leash.Track(sees, rb.position, player.position);
 
         stateTimer -= Time.deltaTime;
         switch (state)
@@ -194,6 +199,10 @@ public class SlimeController : MonoBehaviour, IStaggerable
 
             case State.Recoil:
                 rb.linearVelocity = -lungeDir * recoilSpeed;
+                break;
+
+            case State.Idle:
+                rb.linearVelocity = leash.ReturnVelocity(rb.position, moveSpeed, Time.fixedDeltaTime);
                 break;
 
             default:

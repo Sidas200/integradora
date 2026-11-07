@@ -109,9 +109,12 @@ private float staggerTimer;
 private Vector2 knockbackDirection;
 private float currentKnockbackSpeed;
 
+    private EnemyLeash leash;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        leash = new EnemyLeash(transform.position);
         anim = GetComponentInChildren<GuardianVarnAnimator>();
         health = GetComponent<EnemyHealth>();
         if (health != null)
@@ -150,6 +153,7 @@ private float currentKnockbackSpeed;
         attackPoseTimer = 0f;
         lungeTimer = 0f;
         PlayerDetected = false;
+        leash?.Reset();
         if (attackFX != null)
             attackFX.SetActive(false);
     }
@@ -299,7 +303,8 @@ private void DetectPlayer()
         player.position
     );
 
-    bool detectedNow = distance <= detectionRange;
+    // Pierde el rastro en la zona segura o lejos de su lugar, y vuelve a él (EnemyLeash)
+    bool detectedNow = leash.Track(distance <= detectionRange, rb.position, player.position);
 
     if (detectedNow == PlayerDetected)
         return;
@@ -323,7 +328,7 @@ private void DetectPlayer()
         // Detenerse cuando no detecta al jugador
         if (!PlayerDetected || player == null)
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.linearVelocity = leash.ReturnVelocity(rb.position, moveSpeed, Time.fixedDeltaTime);
             return;
         }
 
