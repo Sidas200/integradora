@@ -1,11 +1,13 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.DualShock;
 
-// Textos de ayuda según el último dispositivo usado: teclado/mouse, Xbox o PlayStation.
-// AYN Thor y cualquier mando genérico usan el esquema de Xbox.
+// Textos de ayuda según el último dispositivo usado: teclado/mouse o mando.
+// Con cualquier mando (Xbox, PlayStation, AYN Thor, genérico) se muestran los botones de Xbox
+// con su color (A verde, B rojo, X azul, Y amarillo) para que se reconozcan de un vistazo.
 // Revisa todos los mandos conectados (no solo Gamepad.current).
 public static class ControlHints
 {
@@ -50,8 +52,8 @@ public static class ControlHints
     {
         switch (Current)
         {
-            case Scheme.Xbox: return xbox;
-            case Scheme.PlayStation: return playstation;
+            case Scheme.Xbox:
+            case Scheme.PlayStation: return XboxButtons(xbox);
             default: return keyboard;
         }
     }
@@ -78,9 +80,33 @@ public static class ControlHints
         }
     }
 
-    // Tecla o botón resaltado como tecla dorada (pausa, diálogo)
+    // Tecla o botón resaltado como tecla dorada (pausa, diálogo); con mando ya sale con el color del botón
     public static string Cap(string action) =>
-        "<b><color=#F6D58E><mark=#F6D58E2A> " + Key(action) + " </mark></color></b>";
+        UsingGamepad ? Key(action) : "<b><color=#F6D58E><mark=#F6D58E2A> " + Key(action) + " </mark></color></b>";
+
+    // Botón de Xbox suelto (A, B, X, Y, LB, RB...) en un texto: lo pinta como un botón de color
+    private static readonly Regex XboxButton = new Regex(@"(?<![\w#])(LB|RB|LT|RT|View|Start|A|B|X|Y)(?![\w])");
+
+    private static string XboxButtons(string text)
+    {
+        // Si ya trae etiquetas (p. ej. otro botón ya pintado) no se vuelve a pintar
+        if (string.IsNullOrEmpty(text) || text.IndexOf('<') >= 0) return text;
+        return XboxButton.Replace(text, m => Badge(m.Value));
+    }
+
+    private static string Badge(string button)
+    {
+        string color;
+        switch (button)
+        {
+            case "A": color = "6BC74A"; break;
+            case "B": color = "E5484D"; break;
+            case "X": color = "3D8BF2"; break;
+            case "Y": color = "F2C12E"; break;
+            default: color = "E6E6E6"; break; // gatillos, View y Start
+        }
+        return "<b><color=#" + color + "><mark=#" + color + "33> " + button + " </mark></color></b>";
+    }
 
     // Reemplaza {accion} por la tecla o botón actual, p. ej. "Pulsa {interact} para hablar".
     // Las llaves que no son una acción conocida se dejan igual.

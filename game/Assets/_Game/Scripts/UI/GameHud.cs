@@ -39,6 +39,7 @@ public class GameHud : MonoBehaviour
 
     private Health playerHealth;
     private HealthScreenFx screenFx;
+    private ObjectiveGuide guide;
     private Inventory inventory;
     private Coroutine zoneRoutine;
     private Coroutine toastRoutine;
@@ -65,6 +66,7 @@ public class GameHud : MonoBehaviour
         if (bossGroup != null) bossGroup.alpha = 0f;
         inventoryHint = UiNav.FindLabel(transform, "InventoryHint");
         screenFx = HealthScreenFx.Create(transform);
+        guide = ObjectiveGuide.Create(transform);
         StoryFlags.Changed += HandleFlagChanged;
         ChapterObjectives.AmountProvider = AmountOf;
     }
@@ -203,6 +205,7 @@ public class GameHud : MonoBehaviour
     public void SetVisible(bool visible)
     {
         if (screenFx != null) screenFx.SetVisible(visible);
+        if (guide != null) guide.SetVisible(visible);
         if (root == null) return;
         root.alpha = visible ? 1f : 0f;
     }
@@ -222,6 +225,7 @@ public class GameHud : MonoBehaviour
         potion = itemUser != null ? itemUser.Potion : null;
         playerHealth = player != null ? player.GetComponent<Health>() : null;
         if (screenFx != null) screenFx.Bind(playerHealth);
+        if (guide != null) guide.Bind(player);
         if (playerHealth == null) return;
         playerHealth.HealthChanged += UpdateHealth;
         UpdateHealth(playerHealth.CurrentHealth, playerHealth.MaxHealth);
@@ -232,6 +236,7 @@ public class GameHud : MonoBehaviour
         if (playerHealth != null) playerHealth.HealthChanged -= UpdateHealth;
         playerHealth = null;
         if (screenFx != null) screenFx.Bind(null);
+        if (guide != null) guide.Bind(null);
         if (inventory != null) inventory.OnAmountChanged -= HandleAmountChanged;
         inventory = null;
     }
