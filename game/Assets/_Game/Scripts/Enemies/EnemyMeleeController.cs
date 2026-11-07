@@ -594,7 +594,7 @@ private void DetectPlayer()
         int previousHealth = playerHealth.CurrentHealth;
 
         // Aplicar daño usando el sistema Health existente
-        playerHealth.TakeDamage(SceneContext.EnemyDamage(attackDamage));
+        playerHealth.TakeDamage(Difficulty.Damage(SceneContext.EnemyDamage(attackDamage)));
 
         if (playerHealth.CurrentHealth < previousHealth)
         {

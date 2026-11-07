@@ -399,7 +399,7 @@ public class PowerClash : MonoBehaviour
         CameraShake.Shake(0.06f, 0.35f);
         tsuki.HoldSlashPose(tsukiFacesRight, -1);
         tsuki.FaceTowards(-axis);
-        if (tsukiHealth != null) tsukiHealth.TakeDamage(shieldBashDamage);
+        if (tsukiHealth != null) tsukiHealth.TakeDamage(Difficulty.Damage(shieldBashDamage));
 
         Vector2 from = tsukiBody.position;
         Vector2 to = InsideArena(from + axis * shieldBashDistance);
@@ -436,7 +436,7 @@ public class PowerClash : MonoBehaviour
         if (tsukiHealth != null)
         {
             // La defensa se suma para que la pérdida sea la fracción pedida
-            int damage = Mathf.CeilToInt(tsukiHealth.MaxHealth * loseDamage) + tsukiHealth.Defense;
+            int damage = Mathf.CeilToInt(tsukiHealth.MaxHealth * loseDamage * Difficulty.DamageToPlayer) + tsukiHealth.Defense;
             tsukiHealth.TakeDamage(damage);
         }
 
