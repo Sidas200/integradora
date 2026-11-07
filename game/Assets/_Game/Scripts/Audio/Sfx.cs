@@ -36,6 +36,44 @@ public static class Sfx
         public const string Crumble = F + "07_Fragmento_Se_Desmorona";
     }
 
+    public static class Espada
+    {
+        private const string F = "Tsuki_Espada/";
+        public const string QuickCut = F + "01_Espada_Corte_Rapido";
+        public const string HorizontalCut = F + "02_Espada_Corte_Horizontal";
+        public const string VerticalCut = F + "03_Espada_Corte_Vertical";
+        public const string DoubleCombo = F + "04_Espada_Combo_Doble";
+        public const string HeavyFinal = F + "05_Espada_Corte_Fuerte_Final";
+        public const string HitEnemy = F + "06_Espada_Impacto_Enemigo";
+        public const string HitRock = F + "07_Espada_Impacto_Roca";
+        public const string HitSlime = F + "08_Espada_Impacto_Slime";
+        public const string HitArmor = F + "09_Espada_Rozar_Armadura";
+    }
+
+    public static class Slime
+    {
+        private const string F = "Slime_Azul/";
+        public const string Idle = F + "01_Slime_Burbujeo_Idle";
+        public const string Move = F + "02_Slime_Movimiento_Gelatinoso";
+        public const string Jump = F + "03_Slime_Salto";
+        public const string Land = F + "04_Slime_Aterrizaje";
+        public const string Alert = F + "05_Slime_Alerta";
+        public const string Ram = F + "06_Slime_Ataque_Choque";
+        public const string Hurt1 = F + "07_Slime_Recibe_Dano_1";
+        public const string Hurt2 = F + "08_Slime_Recibe_Dano_2";
+        public const string Death = F + "09_Slime_Muerte_Desintegracion";
+    }
+
+    // Golpe de la espada de Tsuki según contra qué pega. Sin daño (armadura o invulnerable) roza.
+    public static string SwordImpact(Component target, bool damaged)
+    {
+        if (!damaged) return Espada.HitArmor;
+        if (target == null) return Espada.HitEnemy;
+        if (target.GetComponentInParent<SlimeController>() != null) return Espada.HitSlime;
+        if (target.GetComponentInParent<FragmentoErranteController>() != null) return Espada.HitRock;
+        return Espada.HitEnemy;
+    }
+
     private static readonly Dictionary<string, AudioClip> clips = new Dictionary<string, AudioClip>();
     private static AudioSource[] sources;
     private static int next;

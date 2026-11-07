@@ -152,7 +152,10 @@ public class SwordSlash : MonoBehaviour
             var target = col.GetComponentInParent<IDamageable>();
             if (target != null && hits.Add(target))
             {
+                var health = (target as Component)?.GetComponent<EnemyHealth>();
+                int before = health != null ? health.CurrentHealth : 0;
                 target.TakeDamage(damage);
+                Sfx.Play(Sfx.SwordImpact(target as Component, health == null || health.CurrentHealth < before));
                 hitFlash = 1f;
                 CameraShake.Shake(0.015f, 0.08f);
             }

@@ -716,6 +716,7 @@ private void FixedUpdate()
 
         // El lado se decide según dónde está el mouse
         attackFacingRight = dir.x >= 0f;
+        Sfx.PlayAny(Sfx.Espada.QuickCut, Sfx.Espada.HorizontalCut);
         StartAttackPart(attackFacingRight ? attackRight1 : attackLeft1, AttackState.Hit1);
     }
 
@@ -731,6 +732,7 @@ private void FixedUpdate()
 
         // El 2do golpe vuelve a decidir el lado según dónde está el mouse
         attackFacingRight = dir.x >= 0f;
+        Sfx.Play(Sfx.Espada.HeavyFinal);
         StartAttackPart(attackFacingRight ? attackRight2 : attackLeft2, AttackState.Hit2);
     }
 
@@ -794,6 +796,7 @@ private void FixedUpdate()
         float baseSize = GetBaseSize(sr);
         Vector2 origin = (Vector2)sr.bounds.center + slashDirection * (baseSize * 0.3f);
         int damage = Mathf.Max(1, Mathf.RoundToInt(stats.Attack * slashDamageScale));
+        Sfx.Play(secondSlash ? Sfx.Espada.HorizontalCut : Sfx.Espada.VerticalCut);
         SwordSlash.Spawn(slashSprite, slashColor, sr, origin, slashDirection,
             slashRange * baseSize, slashSpeed * baseSize, slashWidth * baseSize, damage, enemyLayer, secondSlash);
         CameraShake.Shake(0.01f, 0.08f);
@@ -944,6 +947,9 @@ private void FixedUpdate()
         // cuando un enemigo tiene varios colliders
         hitThisSwing.Clear();
 
+        // Un solo sonido de impacto por golpe, del primer enemigo alcanzado
+        string impact = null;
+
         // Contra el jefe el golpe alcanza más lejos (es grande y cuesta acercarse)
         GetAttackBox(sr, attackDirection, out Vector2 bossCenter, out Vector2 bossSize, bossReachScale);
         foreach (var hit in Physics2D.OverlapBoxAll(bossCenter, bossSize, 0f, enemyLayer))
@@ -951,7 +957,7 @@ private void FixedUpdate()
             if (hit.GetComponentInParent<GuardianBoss>() == null) continue;
             IDamageable boss = hit.GetComponentInParent<IDamageable>();
             if (boss != null && hitThisSwing.Add(boss))
-                boss.TakeDamage(stats.Attack);
+                impact = impact ?? HitWithSound(boss, stats.Attack);
         }
 
         foreach (var hit in hits)
@@ -962,7 +968,7 @@ private void FixedUpdate()
             if (damageable != null &&
                 hitThisSwing.Add(damageable))
             {
-                damageable.TakeDamage(stats.Attack);
+                impact = impact ?? HitWithSound(damageable, stats.Attack);
 
                 if (finisher)
                 {
@@ -972,6 +978,7 @@ private void FixedUpdate()
                 }
             }
         }
+        if (impact != null) Sfx.Play(impact);
 
         if (hitThisSwing.Count > 0)
             HitLanded?.Invoke(finisher);
@@ -1105,6 +1112,16 @@ private void FixedUpdate()
         // Activar retroceso
         hitStunTimer = hitStunDuration;
     }
+    // Aplica el daño y devuelve el sonido de impacto que toca (roza si no le hizo daño)
+    private static string HitWithSound(IDamageable target, int damage)
+    {
+        var health = (target as Component)?.GetComponent<EnemyHealth>();
+        int before = health != null ? health.CurrentHealth : 0;
+        target.TakeDamage(damage);
+        bool damaged = health == null || health.CurrentHealth < before;
+        return Sfx.SwordImpact(target as Component, damaged);
+    }
+
     private void OnDestroy()
     {
         if (attackBox != null)

@@ -225,7 +225,7 @@ public class FragmentoErranteController : MonoBehaviour, IStaggerable
     // Llamado al recibir daño: empujón breve. Cargando o soltando la onda no se interrumpe.
     private void OnDamaged(int damage)
     {
-        // La espada contra piedra: grieta o golpe seco
+        // La piedra se agrieta (la espada suena aparte: Sfx.Espada.HitRock)
         Sfx.PlayAny(Sfx.Fragmento.Hurt, Sfx.Fragmento.RockDry);
         if (player == null || Armored) return;
         Vector2 d = rb.position - (Vector2)player.position;

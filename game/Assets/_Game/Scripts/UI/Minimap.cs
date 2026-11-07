@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
@@ -10,6 +11,7 @@ using UnityEngine.UI;
 // - El objetivo actual (ChapterObjectives.Where) es un rombo que late; si queda fuera del mapa,
 //   una flecha en el borde indica hacia dónde ir. Si el destino está en otra escena, se marca
 //   la salida que lleva hacia allá.
+// - Letras N, S, E, O en el borde: norte es arriba en pantalla (como dicen los objetivos).
 // Lo crea GameHud dentro de su canvas (unidades de la resolución de referencia 1920x1080).
 public class Minimap : MonoBehaviour
 {
@@ -35,6 +37,7 @@ public class Minimap : MonoBehaviour
     private CanvasGroup group;
     private RawImage map;
     private Image goal;
+    private Image goalShadow;
     private Texture2D texture;
     private Vector2 worldMin;
     private Vector2 worldSize;
@@ -79,8 +82,18 @@ public class Minimap : MonoBehaviour
         // Tsuki: punto dorado con borde oscuro
         NewImage("PlayerBorder", rt, CircleSprite(), new Color(0.1f, 0.06f, 0.1f), Vector2.zero, 18f);
         NewImage("Player", rt, CircleSprite(), Gold, Vector2.zero, 12f);
+        // Puntos cardinales sobre el aro
+        var font = HudFont(parent);
+        float r = Size * 0.5f - 2f;
+        Letter(rt, "N", new Vector2(0f, r), font);
+        Letter(rt, "S", new Vector2(0f, -r), font);
+        Letter(rt, "E", new Vector2(r, 0f), font);
+        Letter(rt, "O", new Vector2(-r, 0f), font);
+
+        // Destino (rombo) o flecha del borde, con sombra oscura para que resalte sobre el mapa
+        mm.goalShadow = NewImage("GoalShadow", rt, DiamondSprite(), new Color(0.1f, 0.03f, 0.05f, 0.9f), Vector2.zero, 28f);
         mm.goal = NewImage("Goal", rt, DiamondSprite(), GoalColor, Vector2.zero, 22f);
-        mm.goal.enabled = false;
+        mm.goal.enabled = mm.goalShadow.enabled = false;
         return mm;
     }
 
@@ -121,19 +134,19 @@ public class Minimap : MonoBehaviour
         }
 
         bool hasGoal = target != null && Vector2.Distance(here, target.position) > ArriveDistance;
-        goal.enabled = hasGoal;
+        goal.enabled = goalShadow.enabled = hasGoal;
         if (!hasGoal) return;
 
         pulse += Time.unscaledDeltaTime;
         Vector2 offset = ((Vector2)target.position - here) * uiPerUnit;
-        float edge = Size * 0.5f - 16f;
+        float edge = Size * 0.5f - 22f;
         var grt = goal.rectTransform;
         if (offset.magnitude > edge)
         {
-            // Fuera del mapa: flecha en el borde apuntando hacia el destino
+            // Fuera del mapa: flecha en el borde apuntando hacia el destino; late hacia afuera
             goal.sprite = ArrowSprite();
-            grt.sizeDelta = Vector2.one * 26f;
-            grt.anchoredPosition = offset.normalized * edge;
+            grt.sizeDelta = Vector2.one * 34f;
+            grt.anchoredPosition = offset.normalized * (edge + 3f * Mathf.Sin(pulse * 6f));
             grt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg - 90f);
         }
         else
@@ -144,6 +157,12 @@ public class Minimap : MonoBehaviour
             grt.anchoredPosition = offset;
             grt.localRotation = Quaternion.identity;
         }
+
+        var srt = goalShadow.rectTransform;
+        goalShadow.sprite = goal.sprite;
+        srt.sizeDelta = grt.sizeDelta + Vector2.one * 8f;
+        srt.anchoredPosition = grt.anchoredPosition;
+        srt.localRotation = grt.localRotation;
     }
 
     // ---------------------------------------------------------------- mapa
@@ -306,6 +325,33 @@ public class Minimap : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- sprites
+
+    // Letra cardinal dorada con contorno oscuro, legible sobre el aro y el mapa
+    private static void Letter(RectTransform parent, string text, Vector2 pos, TMP_FontAsset font)
+    {
+        var t = new GameObject("Dir_" + text, typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
+        var rt = t.rectTransform;
+        rt.SetParent(parent, false);
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = new Vector2(32f, 32f);
+        if (font != null) t.font = font;
+        t.text = text;
+        t.fontSize = 24f;
+        t.fontStyle = FontStyles.Bold;
+        t.alignment = TextAlignmentOptions.Center;
+        t.color = text == "N" ? Color.white : Gold;
+        t.outlineWidth = 0.3f;
+        t.outlineColor = new Color32(26, 12, 20, 255);
+        t.raycastTarget = false;
+    }
+
+    // La fuente del HUD (la de la vida), para que combine
+    private static TMP_FontAsset HudFont(Transform hud)
+    {
+        var label = UiNav.FindLabel(hud, "HealthText");
+        return label != null ? label.font : null;
+    }
 
     private static Image NewImage(string name, RectTransform parent, Sprite sprite, Color color, Vector2 pos, float size)
     {
