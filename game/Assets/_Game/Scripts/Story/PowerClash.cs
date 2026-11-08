@@ -32,14 +32,14 @@ public class PowerClash : MonoBehaviour
     [SerializeField] private float varnWalkSpeed = 0.9f;
     [SerializeField] private float rushTime = 0.28f;
 
-    [Header("Dificultad (media)")]
+    [Header("Dificultad (media, -15%: Varn empuja menos)")]
     [Tooltip("Lo que avanza el medidor con cada botón de ataque (0 a 1; empieza en 0.5).")]
     [SerializeField] private float pushPerPress = 0.05f;
-    [Tooltip("Lo que Varn empuja por segundo. Hay que presionar unas 5 veces por segundo solo para aguantar.")]
-    [SerializeField] private float varnPush = 0.26f;
+    [Tooltip("Lo que Varn empuja por segundo. Hay que presionar unas 4.5 veces por segundo solo para aguantar.")]
+    [SerializeField] private float varnPush = 0.221f;
     [Tooltip("Cada cuánto Varn da un empujón fuerte (segundos, mínimo y máximo).")]
     [SerializeField] private Vector2 surgeInterval = new Vector2(1.4f, 2.4f);
-    [SerializeField] private float surgeStrength = 0.08f;
+    [SerializeField] private float surgeStrength = 0.068f;
     [Tooltip("Vida que pierde Tsuki si Varn gana el choque (fracción de su vida máxima).")]
     [SerializeField, Range(0f, 1f)] private float loseDamage = 0.25f;
 
