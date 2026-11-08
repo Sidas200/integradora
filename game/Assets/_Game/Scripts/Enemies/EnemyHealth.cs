@@ -31,6 +31,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     private void Awake()
     {
+        maxHealth = Difficulty.Health(maxHealth);
         CurrentHealth = maxHealth;
         IsDead = false;
     }

@@ -68,10 +68,14 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        leash = new EnemyLeash(transform.position);
         health = GetComponent<EnemyHealth>();
         feedback = GetComponent<EnemyHitFeedback>();
+        health.Died += () => Sfx.Play(Sfx.Distancia.Death);
         health.OnDamaged += _ =>
         {
+            leash.Provoke();
+            Sfx.Play(Sfx.Distancia.Hurt);
             stunTimer = 0.2f;
             // Al recibir un golpe responde con un disparo en cuanto pueda (no espera su recarga)
             if (!attacking) nextAttack = Mathf.Min(nextAttack, Time.time);
@@ -90,6 +94,14 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
     }
 
     private bool Flashing => feedback != null && feedback.IsFlashing;
+
+    private EnemyLeash leash;
+    private bool tracking;
+
+    // Sonidos: el 2D no baja con la distancia, así que el zumbido del núcleo solo suena cerca de Tsuki
+    private const float AmbientRange = 2.5f;
+    private const float AlertCooldown = 6f;
+    private float nextAmbientTime, nextAlertTime;
 
     private void Start()
     {
@@ -111,6 +123,8 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
         attacking = false;
         staggerTimer = 0f;
         knockbackTimer = 0f;
+        tracking = false;
+        leash?.Reset();
         if (projectile != null) projectile.SetActive(false);
         if (body != null) body.color = Color.white;
     }
@@ -136,7 +150,20 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
 
         Vector2 toPlayer = (Vector2)player.position - rb.position;
         float dist = toPlayer.magnitude;
-        if (dist > detectionRange) { rb.linearVelocity = Vector2.zero; return; }
+        // Pierde el rastro en la zona segura o lejos de su lugar, y vuelve a él (EnemyLeash)
+        bool wasTracking = tracking;
+        tracking = leash.Track(dist <= detectionRange, rb.position, player.position);
+        if (tracking && !wasTracking && Time.time >= nextAlertTime)
+        {
+            Sfx.Play(Sfx.Distancia.Alert, 0.8f);
+            nextAlertTime = Time.time + AlertCooldown;
+        }
+        if (!tracking && Time.time >= nextAmbientTime)
+        {
+            nextAmbientTime = Time.time + Random.Range(5f, 9f);
+            if (dist <= AmbientRange) Sfx.Play(Sfx.Distancia.Idle, 0.4f);
+        }
+        if (!tracking) { rb.linearVelocity = leash.ReturnVelocity(rb.position, moveSpeed, Time.fixedDeltaTime); return; }
 
         // Se aleja si el jugador está demasiado cerca y se acerca si está lejos
         Vector2 dir = toPlayer.normalized;
@@ -148,7 +175,7 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
     private void Update()
     {
         if (attacking || staggerTimer > 0f || knockbackTimer > 0f || !PlayerAlive() || Time.time < nextAttack) return;
-        if (Vector2.Distance(player.position, transform.position) > detectionRange) return;
+        if (!tracking || Vector2.Distance(player.position, transform.position) > detectionRange) return;
         StartCoroutine(Attack());
     }
 
@@ -156,6 +183,7 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
     {
         attacking = true;
         float charge = telegraphTime / attackSpeed;
+        Sfx.Play(Sfx.Distancia.Charge, 0.8f);
 
         // Carga: el núcleo parpadea (no se marca el suelo; el peligro es la bola)
         for (float t = 0f; t < charge; t += Time.deltaTime)
@@ -180,6 +208,9 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
         projectile.transform.position = pos;
         projectile.transform.localScale = Vector3.one;
         projectile.SetActive(true);
+        Sfx.PlayAny(Sfx.Distancia.Shot1, Sfx.Distancia.Shot2, Sfx.Distancia.Shot3);
+        Sfx.Play(Sfx.Distancia.Flight, 0.35f);
+        string endSound = Sfx.Distancia.Fade; // se desvanece si no le pega a nada
 
         while (true)
         {
@@ -188,7 +219,8 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
             // Pared: rebota (o desaparece si ya rebotó)
             if (WallAhead(pos, dir, step, out RaycastHit2D wall))
             {
-                if (bounced) break;
+                Sfx.Play(Sfx.Distancia.HitGround, 0.8f);
+                if (bounced) { endSound = null; break; }
                 dir = Vector2.Reflect(dir, wall.normal);
                 pos = wall.point + wall.normal * 0.03f;
                 Bounce(ref bounced, ref travelled, ref legLength);
@@ -203,8 +235,14 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
             bool touching = player != null && Vector2.Distance(pos, PlayerBody()) <= projectileRadius;
             if (touching && !overlapping)
             {
-                if (CombatUtil.DamagePlayer(player.gameObject, damage, pos)) break;
+                if (CombatUtil.DamagePlayer(player.gameObject, SceneContext.EnemyDamage(damage), pos))
+                {
+                    endSound = Sfx.Distancia.HitTsuki;
+                    break;
+                }
                 overlapping = true; // esquiva perfecta o invulnerable: la bola sigue
+                var h = player.GetComponent<Health>();
+                Sfx.Play(h != null && h.IsInvulnerable ? Sfx.Distancia.Blocked : Sfx.Distancia.NearMiss);
             }
             else if (!touching)
             {
@@ -217,12 +255,14 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
                 // Rebote al final del tramo: vuelve hacia donde está ahora el jugador
                 Vector2 back = PlayerBody() - pos;
                 dir = back.sqrMagnitude > 0.01f ? back.normalized : -dir;
+                Sfx.Play(Sfx.Distancia.Heavy, 0.7f); // vuelve con fuerza hacia Tsuki
                 Bounce(ref bounced, ref travelled, ref legLength);
             }
             yield return null;
         }
 
         projectile.SetActive(false);
+        if (endSound != null) Sfx.Play(endSound);
         FinishAttack();
     }
 

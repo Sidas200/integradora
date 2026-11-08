@@ -109,13 +109,26 @@ private float staggerTimer;
 private Vector2 knockbackDirection;
 private float currentKnockbackSpeed;
 
+    private EnemyLeash leash;
+    private const float HowlCooldown = 6f;
+    private float nextHowlTime;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        leash = new EnemyLeash(transform.position);
         anim = GetComponentInChildren<GuardianVarnAnimator>();
         health = GetComponent<EnemyHealth>();
         if (health != null)
+        {
             health.Died += OnDied;
+            health.OnDamaged += _ =>
+            {
+                leash.Provoke();
+                // El muñeco del tutorial es un lobo con la IA apagada: no se queja
+                if (enabled) Sfx.Play(Sfx.Lobo.Hurt);
+            };
+        }
 
         if (attackFX != null)
         {
@@ -150,6 +163,7 @@ private float currentKnockbackSpeed;
         attackPoseTimer = 0f;
         lungeTimer = 0f;
         PlayerDetected = false;
+        leash?.Reset();
         if (attackFX != null)
             attackFX.SetActive(false);
     }
@@ -299,14 +313,20 @@ private void DetectPlayer()
         player.position
     );
 
-    bool detectedNow = distance <= detectionRange;
+    // Pierde el rastro en la zona segura o lejos de su lugar, y vuelve a él (EnemyLeash)
+    bool detectedNow = leash.Track(distance <= detectionRange, rb.position, player.position);
 
     if (detectedNow == PlayerDetected)
         return;
 
     PlayerDetected = detectedNow;
     if (PlayerDetected && anim != null)
+    {
         alertTimer = alertDuration;
+        // Rugido al verla; no en cada re-detección seguida
+        if (Time.time >= nextHowlTime) Sfx.Play(Sfx.Lobo.Howl, 0.8f);
+        nextHowlTime = Time.time + HowlCooldown;
+    }
 
     Debug.Log(
         PlayerDetected
@@ -323,7 +343,7 @@ private void DetectPlayer()
         // Detenerse cuando no detecta al jugador
         if (!PlayerDetected || player == null)
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.linearVelocity = leash.ReturnVelocity(rb.position, moveSpeed, Time.fixedDeltaTime);
             return;
         }
 
@@ -558,6 +578,7 @@ private void DetectPlayer()
         Debug.Log("Enemy Melee: ataque cuerpo a cuerpo");
 
         ShowAttackFX();
+        Sfx.Play(Sfx.Lobo.Leap, 0.8f);
         if (band != null)
             band.Impact();
         if (anim != null)
@@ -571,6 +592,7 @@ private void DetectPlayer()
         if (!hitPlayer)
         {
             Debug.Log("Enemy Melee: ataque fallado");
+            Sfx.Play(Sfx.Lobo.SwingMiss);
             return;
         }
 
@@ -594,7 +616,12 @@ private void DetectPlayer()
         int previousHealth = playerHealth.CurrentHealth;
 
         // Aplicar daño usando el sistema Health existente
-        playerHealth.TakeDamage(attackDamage);
+        playerHealth.TakeDamage(Difficulty.Damage(SceneContext.EnemyDamage(attackDamage)));
+
+        if (playerHealth.CurrentHealth >= previousHealth)
+            Sfx.Play(Sfx.Lobo.SwingMiss); // la esquivó
+        else
+            Sfx.PlayAny(Sfx.Lobo.Bite, Sfx.Lobo.BiteAlt, Sfx.Lobo.ClawHit);
 
         if (playerHealth.CurrentHealth < previousHealth)
         {

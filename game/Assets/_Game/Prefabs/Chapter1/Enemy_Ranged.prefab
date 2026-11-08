@@ -242,7 +242,7 @@ MonoBehaviour:
   telegraphTime: 0.9
   projectileSpeed: 2.6
   impactRadius: 0.32
-  damage: 20
+  damage: 11
   telegraphSprite: {fileID: 21300000, guid: 82c72872dabf641f5b3b3166dc8178c9, type: 3}
   projectileSprite: {fileID: 21300000, guid: 00840890fb39b422eab58c2cef28b8a4, type: 3}
   body: {fileID: 2277460865859096381}

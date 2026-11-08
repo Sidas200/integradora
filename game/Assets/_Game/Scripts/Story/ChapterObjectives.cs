@@ -38,6 +38,43 @@ public static class ChapterObjectives
         return "Obtuviste el permiso del guardián";
     }
 
+    // A dónde ir para el objetivo actual: escena y objeto que marca el minimapa (Minimap).
+    // Mismo orden que Current(). Sin destino (null) cuando hay que juntar materiales por la zona.
+    public static (string scene, string target) Where()
+    {
+        if (!StoryFlags.Has(SwordPickup.Flag)) return (FlowerIsland, "SwordRack");
+        if (!StoryFlags.Has(IslandVanish.Flag) && !StoryFlags.Has(CombatTutorial.DoneFlag)) return (FlowerIsland, "Tutorial_Spawn");
+        if (!StoryFlags.Has(IslandVanish.Flag)) return (FlowerIsland, "Exit_Bridge");
+        if (!StoryFlags.Has(ResearcherFallEvent.Flag)) return (OpenField, "Researcher_Land");
+        if (!StoryFlags.Has(CampBriefing)) return (OpenField, "NPC_Researcher");
+        if (!StoryFlags.Has(SanctuaryUnlocked))
+            return Amount("alma_pequena") > 0 ? (OpenField, "Sanctuary_Door") : (OpenField, "Enemy_Melee_Soul_A");
+        if (!StoryFlags.Has(MaidenStatue.Flag)) return (Sanctuary, "Maiden_Statue");
+        if (!StoryFlags.Has(SwordUpgraded) && !StoryFlags.Has(SealOpened))
+            return Ready(("alma_antigua", ModuleSouls), ("circuito_antiguo", ModuleCircuits)) ? (OpenField, "Forge_Front") : (null, null);
+        if (!StoryFlags.Has(SealOpened)) return (CombatZone, "Seal_Front");
+        if (!StoryFlags.Has(GuardianArena.AwakenedFlag) && Amount("gota_amrita") <= 0)
+            return Ready(("flor_destello", AmritaFlowers), ("alma_antigua", AmritaSouls)) ? (OpenField, "Forge_Front") : (null, null);
+        if (!StoryFlags.Has(GuardianArena.AwakenedFlag)) return (GuardianArenaScene, "Guardian");
+        // Durante la pelea no se señala nada: el jefe ya está a la vista
+        if (!StoryFlags.Has(PermitObtained)) return (null, null);
+        return (GuardianArenaScene, "Exit_Victory");
+    }
+
+    // Escenas del capítulo (ChapterScenes)
+    public const string FlowerIsland = "01_FlowerIsland";
+    public const string OpenField = "02_OpenField";
+    public const string Sanctuary = "04_Sanctuary";
+    public const string CombatZone = "05_CombatZone";
+    public const string GuardianArenaScene = "06_GuardianArena";
+
+    private static bool Ready(params (string id, int goal)[] needs)
+    {
+        foreach (var n in needs)
+            if (Amount(n.id) < n.goal) return false;
+        return true;
+    }
+
     private static int Amount(string id) => AmountProvider != null ? AmountProvider(id) : 0;
 
     // "Alma antigua 4/10 · Circuito antiguo 2/5" y, si ya alcanza, el aviso de volver a la forja.

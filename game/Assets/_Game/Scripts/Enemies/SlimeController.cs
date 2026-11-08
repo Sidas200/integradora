@@ -70,6 +70,12 @@ public class SlimeController : MonoBehaviour, IStaggerable
     private Vector2 knockbackDir;
     private float currentKnockbackSpeed;
     private readonly Collider2D[] overlap = new Collider2D[8];
+    private EnemyLeash leash;
+
+    // Sonidos: el 2D no baja con la distancia, así que el burbujeo solo suena cerca de Tsuki
+    private const float AmbientRange = 2.5f;
+    private const float AlertCooldown = 6f;
+    private float nextAmbientTime, nextAlertTime;
 
     public void Setup(Transform visualTransform, Telegraph warningTelegraph)
     {
@@ -80,17 +86,27 @@ public class SlimeController : MonoBehaviour, IStaggerable
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        leash = new EnemyLeash(transform.position);
         bounce = GetComponent<SlimeBounce>();
-        if (TryGetComponent<EnemyHealth>(out var health)) health.Died += Explode;
+        if (TryGetComponent<EnemyHealth>(out var health))
+        {
+            health.Died += Explode;
+            health.OnDamaged += _ =>
+            {
+                leash.Provoke();
+                if (enabled) Sfx.PlayAny(Sfx.Slime.Hurt1, Sfx.Slime.Hurt2);
+            };
+        }
     }
 
     // El área es el doble del ancho de su sprite
     private void Explode()
     {
+        Sfx.Play(Sfx.Slime.Death);
         var body = visual != null ? visual.GetComponentInChildren<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
         float radius = (body != null && body.sprite != null ? body.bounds.extents.x : 0.13f) * explosionAreaScale;
         Vector2 at = body != null ? new Vector2(body.bounds.center.x, rb.position.y) : rb.position;
-        SlimeExplosion.Spawn(body, at, radius, explosionDamage);
+        SlimeExplosion.Spawn(body, at, radius, explosionDamage > 0 ? SceneContext.EnemyDamage(explosionDamage) : 0);
     }
 
     private void Start()
@@ -117,6 +133,7 @@ public class SlimeController : MonoBehaviour, IStaggerable
         stateTimer = 0f;
         hitTimer = 0f;
         PlayerDetected = false;
+        leash?.Reset();
     }
 
     private float ChargeTime => chargeTime / attackSpeed;
@@ -129,7 +146,16 @@ public class SlimeController : MonoBehaviour, IStaggerable
     private void Update()
     {
         float distance = PlayerAlive ? Vector2.Distance(rb.position, player.position) : float.MaxValue;
-        PlayerDetected = PlayerDetected ? distance <= loseSightRange : distance <= detectionRange;
+        bool sees = PlayerDetected ? distance <= loseSightRange : distance <= detectionRange;
+        bool wasDetected = PlayerDetected;
+        // Pierde el rastro en la zona segura o lejos de su lugar, y vuelve a él (EnemyLeash)
+        PlayerDetected = PlayerAlive && leash.Track(sees, rb.position, player.position);
+        if (PlayerDetected && !wasDetected && Time.time >= nextAlertTime)
+        {
+            Sfx.Play(Sfx.Slime.Alert, 0.8f);
+            nextAlertTime = Time.time + AlertCooldown;
+        }
+        AmbientSound(distance);
 
         stateTimer -= Time.deltaTime;
         switch (state)
@@ -147,7 +173,7 @@ public class SlimeController : MonoBehaviour, IStaggerable
                 break;
 
             case State.Recoil:
-                if (stateTimer <= 0f) Stun(stunAfterHit);
+                if (stateTimer <= 0f) { Sfx.Play(Sfx.Slime.Land, 0.8f); Stun(stunAfterHit); }
                 break;
 
             case State.Stunned:
@@ -181,7 +207,8 @@ public class SlimeController : MonoBehaviour, IStaggerable
                 rb.linearVelocity = lungeDir * lungeSpeed;
                 if (TouchingPlayer())
                 {
-                    CombatUtil.DamagePlayer(player.gameObject, attackDamage, rb.position);
+                    CombatUtil.DamagePlayer(player.gameObject, SceneContext.EnemyDamage(attackDamage), rb.position);
+                    Sfx.Play(Sfx.Slime.Ram);
                     HideWarning();
                     state = State.Recoil;
                     stateTimer = recoilTime;
@@ -189,11 +216,15 @@ public class SlimeController : MonoBehaviour, IStaggerable
                 }
                 // Falla si recorre todo el salto o choca con algo y se queda corto
                 bool done = Vector2.Distance(lungeStart, rb.position) >= lungeDistance;
-                if (done || stateTimer <= 0f) { HideWarning(); Stun(stunAfterMiss); }
+                if (done || stateTimer <= 0f) { HideWarning(); Sfx.Play(Sfx.Slime.Land, 0.8f); Stun(stunAfterMiss); }
                 break;
 
             case State.Recoil:
                 rb.linearVelocity = -lungeDir * recoilSpeed;
+                break;
+
+            case State.Idle:
+                rb.linearVelocity = leash.ReturnVelocity(rb.position, moveSpeed, Time.fixedDeltaTime);
                 break;
 
             default:
@@ -220,8 +251,19 @@ public class SlimeController : MonoBehaviour, IStaggerable
         if (lungeDir.sqrMagnitude < 0.0001f) lungeDir = Vector2.right;
         lungeStart = rb.position;
         state = State.Lunge;
+        Sfx.Play(Sfx.Slime.Jump);
         // Tope de tiempo por si choca con una pared y no avanza
         stateTimer = lungeDistance / lungeSpeed + 0.2f;
+    }
+
+    // Burbujeo en reposo y chapoteo al avanzar, de vez en cuando (nunca en bucle)
+    private void AmbientSound(float distanceToPlayer)
+    {
+        if (Time.time < nextAmbientTime) return;
+        bool chasing = state == State.Chase;
+        nextAmbientTime = Time.time + (chasing ? Random.Range(0.9f, 1.4f) : Random.Range(4f, 8f));
+        if (distanceToPlayer > AmbientRange || (state != State.Idle && !chasing)) return;
+        Sfx.Play(chasing ? Sfx.Slime.Move : Sfx.Slime.Idle, 0.5f);
     }
 
     private void Stun(float time)

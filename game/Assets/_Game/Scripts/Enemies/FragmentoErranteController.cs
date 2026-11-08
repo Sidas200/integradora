@@ -189,6 +189,7 @@ public class FragmentoErranteController : MonoBehaviour, IStaggerable
     private void BeginCharge()
     {
         state = State.Charge;
+        Sfx.Play(Sfx.Fragmento.Charge);
         stateTimer = chargeTime / attackSpeed;
         waveCenter = rb.position;
         if (warning != null)
@@ -205,8 +206,10 @@ public class FragmentoErranteController : MonoBehaviour, IStaggerable
         if (body != null && !Flashing) body.color = Color.white;
         if (warning != null) warning.Impact(waveDuration);
         CameraShake.Shake(0.015f, 0.15f);
-        if (PlayerAlive && CombatUtil.InsideIsoCircle(player.position, waveCenter, waveRadius))
-            CombatUtil.DamagePlayer(player.gameObject, attackDamage, waveCenter);
+        Sfx.Play(Sfx.Fragmento.Wave);
+        if (PlayerAlive && CombatUtil.InsideIsoCircle(player.position, waveCenter, waveRadius) &&
+            CombatUtil.DamagePlayer(player.gameObject, attackDamage, waveCenter))
+            Sfx.Play(Sfx.Fragmento.RockHeavy, 0.7f);
     }
 
     // Aviso de la onda: el núcleo parpadea cada vez más rápido. El destello de daño tiene prioridad.
@@ -222,6 +225,8 @@ public class FragmentoErranteController : MonoBehaviour, IStaggerable
     // Llamado al recibir daño: empujón breve. Cargando o soltando la onda no se interrumpe.
     private void OnDamaged(int damage)
     {
+        // La piedra se agrieta (la espada suena aparte: Sfx.Espada.HitRock)
+        Sfx.PlayAny(Sfx.Fragmento.Hurt, Sfx.Fragmento.RockDry);
         if (player == null || Armored) return;
         Vector2 d = rb.position - (Vector2)player.position;
         knockbackDir = d.sqrMagnitude > 0.001f ? d.normalized : Vector2.up;
@@ -233,6 +238,7 @@ public class FragmentoErranteController : MonoBehaviour, IStaggerable
     public void Stagger(Vector2 from)
     {
         if (!isActiveAndEnabled || Armored) return;
+        Sfx.Play(Sfx.Fragmento.RockHuge, 0.8f); // 2do golpe del combo
         Vector2 d = rb.position - from;
         knockbackDir = d.sqrMagnitude > 0.001f ? d.normalized : Vector2.up;
         hitTimer = staggerKnockbackTime;
@@ -260,6 +266,7 @@ public class FragmentoErranteController : MonoBehaviour, IStaggerable
     // EnemyHealth lo apaga al morir: una copia se agrieta y se desmorona
     private void OnDied()
     {
+        Sfx.Play(Sfx.Fragmento.Crumble);
         if (warning != null) warning.Hide();
         if (anim == null) return;
         var copy = anim.SpawnCopy();

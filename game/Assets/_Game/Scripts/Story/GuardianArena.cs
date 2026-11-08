@@ -38,6 +38,9 @@ public class GuardianArena : MonoBehaviour
     private ItemUser itemUser;
 
     // Verdadero mientras el jugador está en la arena con el guardián dormido.
+    // Varn ya no tiene vida pero falta el choque de poder final: la pelea sigue (MusicDirector)
+    public static bool FinaleInProgress { get; private set; }
+
     public bool AwaitingAmrita => playerInside && !started && !StoryFlags.Has(AwakenedFlag);
     public static bool CanReceiveAmrita => current != null && current.AwaitingAmrita;
 
@@ -61,6 +64,7 @@ public class GuardianArena : MonoBehaviour
     {
         if (current == this) current = null;
         if (itemUser != null) itemUser.AmritaUsed -= OnAmritaUsed;
+        FinaleInProgress = false;
     }
 
     private void Start()
@@ -204,6 +208,7 @@ public class GuardianArena : MonoBehaviour
 
     private IEnumerator AfterVictory(Vector3 position)
     {
+        FinaleInProgress = true;
         GameInput.Lock(this);
         var body = boss.DefeatedBody;
         if (body != null)
@@ -212,6 +217,7 @@ public class GuardianArena : MonoBehaviour
             yield return new WaitForSeconds(0.6f);
             if (!TryGetComponent<PowerClash>(out var clash)) clash = gameObject.AddComponent<PowerClash>();
             yield return clash.Play(boss, body);
+            FinaleInProgress = false;
             if (clash.Result == PowerClash.Outcome.PlayerDied)
             {
                 GameInput.Unlock(this);
@@ -224,6 +230,7 @@ public class GuardianArena : MonoBehaviour
         {
             yield return new WaitForSeconds(1f);
         }
+        FinaleInProgress = false;
         GameInput.Unlock(this);
         DialogueUI.Play(defeatDialogue, () =>
         {

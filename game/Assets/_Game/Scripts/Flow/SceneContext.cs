@@ -20,6 +20,8 @@ public class SceneContext : MonoBehaviour
     [SerializeField] private bool isGameplayZone = true;
     [Tooltip("Global Light 2D de la escena. Se guarda apagada y se enciende al entrar (ver GlobalLightEditorPreview).")]
     [SerializeField] private UnityEngine.Rendering.Universal.Light2D sceneGlobalLight;
+    [Tooltip("Multiplica el daño que hacen los enemigos comunes en esta zona (1 = daño base del prefab).")]
+    [SerializeField, Min(0.1f)] private float enemyDamageMultiplier = 1f;
 
     public string ZoneName => zoneName;
     public bool ShowHud => showHud;
@@ -27,6 +29,15 @@ public class SceneContext : MonoBehaviour
     public bool IsGameplayZone => isGameplayZone;
 
     public void SetGlobalLight(UnityEngine.Rendering.Universal.Light2D light) => sceneGlobalLight = light;
+
+    public void SetEnemyDamageMultiplier(float multiplier) => enemyDamageMultiplier = multiplier;
+
+    // Daño de un enemigo común ajustado a la zona actual
+    public static int EnemyDamage(int baseDamage)
+    {
+        float m = Current != null ? Current.enemyDamageMultiplier : 1f;
+        return Mathf.Max(1, Mathf.RoundToInt(baseDamage * m));
+    }
 
     public void Configure(string zone, string spawn, bool hud, bool pause, bool gameplay)
     {

@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 // - Menú principal: intro, hasta dar Nueva partida o Continuar.
 // - Zonas de juego: normal; cuando hay enemigos cerca, batalla, y al vencer al último vuelve la normal.
 // - Zona del jefe (escena con Varn dormido): bossentrance.
-// - Pelea con Varn: bossbattle; si falta, la de batalla. Al vencerlo vuelve la normal.
+// - Pelea con Varn: bossbattle; si falta, la de batalla. Sigue durante el choque de poder final
+//   y al terminarlo (Varn vencido del todo) vuelve la normal.
 // - Cierre de la demo (después de vencer a Varn): la del menú (music_intro); al volver al menú sigue sin cortarse.
 // - Intro de la historia: en silencio por ahora.
 // Las pistas viven en Resources/Audio/Music; si falta una, esa parte queda en silencio.
@@ -91,6 +92,9 @@ public class MusicDirector : MonoBehaviour
         if (scene.name == MenuScene || IsDemoEnd(scene)) return intro;
         var context = SceneContext.Current;
         if (context == null || !context.IsGameplayZone) return null;
+
+        // Choque de poder final: Varn ya no tiene vida pero aún no está vencido del todo
+        if (GuardianArena.FinaleInProgress) return bossBattle != null ? bossBattle : battle;
 
         var guardian = FindAnyObjectByType<GuardianBoss>();
         if (guardian != null && guardian.isActiveAndEnabled)

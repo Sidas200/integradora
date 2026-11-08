@@ -33917,6 +33917,7 @@ MonoBehaviour:
   allowPause: 1
   isGameplayZone: 1
   sceneGlobalLight: {fileID: 1139692005}
+  enemyDamageMultiplier: 1.6
 --- !u!4 &1300456022
 Transform:
   m_ObjectHideFlags: 0

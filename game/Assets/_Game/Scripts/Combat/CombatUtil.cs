@@ -11,7 +11,7 @@ public static class CombatUtil
         if (health == null || health.IsDead) return false;
 
         int before = health.CurrentHealth;
-        health.TakeDamage(damage);
+        health.TakeDamage(Difficulty.Damage(damage));
         bool hit = health.CurrentHealth < before;
         if (hit && !health.IsDead)
         {
