@@ -83,7 +83,7 @@ public class CombatTutorial : MonoBehaviour
             SpawnDummy();
             yield return Step(1, "Muévete", "Camina con {move} hasta el muñeco de práctica,\nen la explanada de abajo.", WaitReach());
             yield return Step(2, "Ataca", "Golpea al muñeco con {attack}. No te hará daño.", WaitHits());
-            yield return Step(3, "Combo", "Presiona {attack} dos veces seguidas: el segundo golpe empuja y aturde.", WaitCombo());
+            yield return Step(3, "Combo", "Presiona {attack} tres veces seguidas: el 2do golpe aturde y el 3ro es un remate fuerte.", WaitCombo());
             yield return Step(4, "Esquiva", "El muñeco marcará el suelo en rojo.\nPresiona {dash} justo antes del golpe para esquivarlo.", WaitDodges());
             yield return Step(5, "Cúrate", "Toma una Poción y presiona {potion} para recuperar vida.", WaitHeal());
             yield return Step(6, "Guarda tu avance", "Acércate al cristal de guardado: guarda la partida y te cura.\nSi caes en combate, vuelves aquí. Con {interact} guardas otra vez.", WaitSave());

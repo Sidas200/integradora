@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private enum AttackState { None, Hit1, Wait1, Hit2, Slash }
+    private enum AttackState { None, Hit1, Wait1, Hit2, Wait2, Hit3, Slash }
 
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 15f;
@@ -69,8 +69,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask enemyLayer;
 
     [Header("Combo")]
-    [Tooltip("Segundos que se queda en el último frame del 1er golpe esperando el 2do clic")]
+    [Tooltip("Segundos que se queda en el último frame del 1er (o 2do) golpe esperando el siguiente clic")]
     [SerializeField] private float comboWindow = 0.8f;
+    [Tooltip("3er golpe del combo: multiplica el daño (1.5 = 50% más).")]
+    [SerializeField, Min(1f)] private float thirdHitDamageScale = 1.5f;
+    [Tooltip("El 3er golpe se anima más rápido que el 1ro (1.35 = 35% más rápido).")]
+    [SerializeField, Min(0.1f)] private float thirdHitSpeed = 1.35f;
 
     [Header("Corte a distancia (clic derecho / K / Círculo PS5 / B Xbox)")]
     [Tooltip("Arte del corte que sale volando (Art/enemies/slash, con la curva hacia la derecha).")]
@@ -254,7 +258,7 @@ public class PlayerController : MonoBehaviour
     public bool SlashEnabled { get; set; } = true;
     private float nextSlashLockedHint;
 
-    // Un golpe cuerpo a cuerpo alcanzó a algo (true = 2do golpe del combo). Lo usa el tutorial.
+    // Un golpe cuerpo a cuerpo alcanzó a algo (true = 3er golpe, el remate del combo). Lo usa el tutorial.
     public event System.Action<bool> HitLanded;
 
     // En el dash o justo al empezarlo: un golpe ahora se esquivaría
@@ -687,7 +691,16 @@ private void FixedUpdate()
                 StartSecondHit();
                 break;
 
-            // Hit2: el clic se ignora para que no se acumule
+            case AttackState.Hit2:
+                // Clic durante el 2do golpe: se guarda y el 3ro sale al terminar
+                comboQueued = true;
+                break;
+
+            case AttackState.Wait2:
+                StartThirdHit();
+                break;
+
+            // Hit3: el clic se ignora para que no se acumule
         }
     }
 
@@ -724,7 +737,7 @@ private void FixedUpdate()
     {
         comboQueued = false;
 
-        if (!DoHit(out Vector2 dir, finisher: true))
+        if (!DoHit(out Vector2 dir, stagger: true))
         {
             EndAttack();
             return;
@@ -732,8 +745,25 @@ private void FixedUpdate()
 
         // El 2do golpe vuelve a decidir el lado según dónde está el mouse
         attackFacingRight = dir.x >= 0f;
-        Sfx.Play(Sfx.Espada.HeavyFinal);
+        Sfx.Play(Sfx.Espada.VerticalCut);
         StartAttackPart(attackFacingRight ? attackRight2 : attackLeft2, AttackState.Hit2);
+    }
+
+    // Remate: más daño, aturde y sacude la cámara. Usa el barrido del 1er golpe, más rápido.
+    private void StartThirdHit()
+    {
+        comboQueued = false;
+
+        if (!DoHit(out Vector2 dir, stagger: true, finisher: true, damageScale: thirdHitDamageScale))
+        {
+            EndAttack();
+            return;
+        }
+
+        attackFacingRight = dir.x >= 0f;
+        Sfx.Play(Sfx.Espada.HeavyFinal);
+        CameraShake.Shake(0.02f, 0.12f);
+        StartAttackPart(attackFacingRight ? attackRight1 : attackLeft1, AttackState.Hit3);
     }
 
     // ---------- CORTE A DISTANCIA ----------
@@ -857,7 +887,35 @@ private void FixedUpdate()
                 return true;
 
             case AttackState.Hit2:
+                // Igual que el 1ro: si ya pidió el 3er golpe, lo encadena antes de terminar
+                if (comboQueued && currentAnim != null && animFrame >= Mathf.CeilToInt(currentAnim.Length * comboCancelPoint))
+                {
+                    StartThirdHit();
+                    return true;
+                }
                 if (!StepAnim(attackFps * secondHitSpeed, false))
+                {
+                    if (comboQueued)
+                        StartThirdHit();
+                    else
+                    {
+                        attackState = AttackState.Wait2;
+                        attackStateTimer = comboWindow;
+                    }
+                }
+                return true;
+
+            case AttackState.Wait2:
+                attackStateTimer -= PlayerDelta;
+                if (attackStateTimer <= 0f)
+                {
+                    EndAttack();
+                    return false;
+                }
+                return true;
+
+            case AttackState.Hit3:
+                if (!StepAnim(attackFps * thirdHitSpeed, false))
                 {
                     // Fin del combo: regresa directo a caminar
                     EndAttack();
@@ -899,8 +957,9 @@ private void FixedUpdate()
     // ---------- GOLPE (daño + cuadro rojo) ----------
 
 
-    // finisher: 2do golpe del combo; además del daño aturde y empuja a los enemigos comunes (IStaggerable)
-    private bool DoHit(out Vector2 dir, bool finisher = false)
+    // stagger: 2do y 3er golpe; además del daño aturden y empujan a los enemigos comunes (IStaggerable).
+    // finisher: 3er golpe (remate), con damageScale de daño.
+    private bool DoHit(out Vector2 dir, bool stagger = false, bool finisher = false, float damageScale = 1f)
     {
         dir = lastMoveDirection;
 
@@ -949,6 +1008,7 @@ private void FixedUpdate()
 
         // Un solo sonido de impacto por golpe, del primer enemigo alcanzado
         string impact = null;
+        int damage = Mathf.Max(1, Mathf.RoundToInt(stats.Attack * damageScale));
 
         // Contra el jefe el golpe alcanza más lejos (es grande y cuesta acercarse)
         GetAttackBox(sr, attackDirection, out Vector2 bossCenter, out Vector2 bossSize, bossReachScale);
@@ -957,7 +1017,7 @@ private void FixedUpdate()
             if (hit.GetComponentInParent<GuardianBoss>() == null) continue;
             IDamageable boss = hit.GetComponentInParent<IDamageable>();
             if (boss != null && hitThisSwing.Add(boss))
-                impact = impact ?? HitWithSound(boss, stats.Attack);
+                impact = impact ?? HitWithSound(boss, damage);
         }
 
         foreach (var hit in hits)
@@ -968,9 +1028,9 @@ private void FixedUpdate()
             if (damageable != null &&
                 hitThisSwing.Add(damageable))
             {
-                impact = impact ?? HitWithSound(damageable, stats.Attack);
+                impact = impact ?? HitWithSound(damageable, damage);
 
-                if (finisher)
+                if (stagger)
                 {
                     IStaggerable staggerable = hit.GetComponentInParent<IStaggerable>();
                     if (staggerable != null)
