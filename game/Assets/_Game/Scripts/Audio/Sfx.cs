@@ -64,6 +64,27 @@ public static class Sfx
         public const string Death = F + "09_Slime_Muerte_Desintegracion";
     }
 
+    public static class Distancia
+    {
+        private const string F = "Enemigo_Distancia/";
+        public const string Idle = F + "01_Idle_Flotar_Nucleo_Rojo";
+        public const string Alert = F + "02_Alerta_Detecta_Jugador";
+        public const string Charge = F + "03_Cargar_Proyectil_Carmesi";
+        public const string Shot1 = F + "04_Disparo_Energia_01";
+        public const string Shot2 = F + "05_Disparo_Energia_02";
+        public const string Shot3 = F + "06_Disparo_Energia_03";
+        public const string Burst = F + "07_Rafaga_Tres_Proyectiles";
+        public const string Flight = F + "08_Proyectil_En_Vuelo";
+        public const string NearMiss = F + "09_Proyectil_Pasa_Cerca";
+        public const string HitGround = F + "10_Impacto_Proyectil_Suelo";
+        public const string HitTsuki = F + "11_Impacto_Proyectil_Tsuki";
+        public const string Fade = F + "12_Proyectil_Se_Dispersa";
+        public const string Hurt = F + "13_Enemigo_Recibe_Dano";
+        public const string Death = F + "14_Enemigo_Muerte_Desintegracion";
+        public const string Blocked = F + "15_Proyectil_Bloqueado";
+        public const string Heavy = F + "16_Proyectil_Pesado";
+    }
+
     // Golpe de la espada de Tsuki según contra qué pega. Sin daño (armadura o invulnerable) roza.
     public static string SwordImpact(Component target, bool damaged)
     {
