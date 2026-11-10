@@ -19998,6 +19998,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 364436960943106241, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7302313558755629832, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
       propertyPath: m_Name
       value: Player_Tsuki
@@ -20055,8 +20059,24 @@ PrefabInstance:
       value: 731544538
       objectReference: {fileID: 0}
     - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: 'managedReferences[8010447127466999840]'
+      value: 'Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.Provider2DCache`1[[UnityEngine.Rendering.Universal.ShadowShape2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: 'managedReferences[8010447127466999841]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
       propertyPath: managedReferences[8748772644707893800].m_TrimEdge
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8748772644707893801].m_Provider2DCache
+      value: 8010447127466999840
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447127466999840].m_Cache.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
       propertyPath: managedReferences[8748772644707893800].m_Indices.Array.size
@@ -21086,6 +21106,22 @@ PrefabInstance:
       propertyPath: managedReferences[8748772644707893800].m_Vertices.Array.data[39].position.y
       value: -0.005000001
       objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447127466999840].m_Cache.Array.data[0].m_Key.m_TypeName
+      value: ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447127466999840].m_Cache.Array.data[0].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 2002632082}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447127466999840].m_Cache.Array.data[0].m_Value.m_Provider
+      value: 8010447127466999841
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447127466999840].m_Cache.Array.data[0].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -21094,6 +21130,11 @@ PrefabInstance:
 --- !u!4 &2002632069 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8939235544670656855, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+  m_PrefabInstance: {fileID: 2002632068}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &2002632082 stripped
+BoxCollider2D:
+  m_CorrespondingSourceObject: {fileID: 6093655468394480120, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
   m_PrefabInstance: {fileID: 2002632068}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &2049245700
