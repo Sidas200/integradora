@@ -40,7 +40,7 @@ public class HealthDebugger : MonoBehaviour
         if (Keyboard.current.lKey.wasPressedThisFrame)
             health.Kill();
 
-        if (Keyboard.current.rKey.wasPressedThisFrame)
+        if (Keyboard.current.tKey.wasPressedThisFrame)
             health.ResetHealth();
     }
 
@@ -60,6 +60,6 @@ public class HealthDebugger : MonoBehaviour
         GUI.Label(new Rect(10, 10, 400, 25),
             $"{name}  Vida: {health.CurrentHealth}/{health.MaxHealth}  Def: {health.Defense}");
         GUI.Label(new Rect(10, 30, 400, 25),
-            "K = daño   H = curar   L = matar   R = revivir");
+            "K = daño   H = curar   L = matar   T = revivir");
     }
 }

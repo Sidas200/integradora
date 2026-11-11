@@ -6,17 +6,18 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-// HEX-04: inventario emergente (Tab), pausa el juego. Tres pestañas:
+// HEX-04: inventario emergente (Tab), pausa el juego. Cuatro pestañas:
 //  - Objetos: cuadrícula con objetos clave, materiales y consumibles; detalle y botón Usar/Equipar.
 //  - Equipo: muñeco que se viste con el casco, la pechera y las botas equipadas (+defensa).
 //  - Estadísticas: vida, ataque, defensa, velocidad y progreso del capítulo.
-// Tab o Esc cierran; 1/2/3 o A/D cambian de pestaña. Si cambió el equipo, guarda el progreso al cerrar.
+//  - Preparar poción: receta de la poción con sus materiales; F / Enter la prepara (con animación).
+// Tab o Esc cierran; 1/2/3/4 o A/D cambian de pestaña. Si cambió el equipo, guarda el progreso al cerrar.
 // Mando: View / touchpad o B / ○ cierran, LB/RB (L1/R1) cambian de pestaña, stick o cruceta eligen y A / × usa.
 public class InventoryScreen : MonoBehaviour
 {
     public static InventoryScreen Instance { get; private set; }
 
-    public enum Tab { Items, Equipment, Stats }
+    public enum Tab { Items, Equipment, Stats, Potion }
 
     [SerializeField] private GameObject panel;
     [SerializeField] private List<Button> tabButtons = new List<Button>();
@@ -60,6 +61,9 @@ public class InventoryScreen : MonoBehaviour
     [SerializeField] private TMP_Text statsRight;
     [SerializeField] private Image healthFill;
 
+    [Header("Preparar poción")]
+    [SerializeField] private PotionBrewPage potionPage;
+
     [Header("Ayuda de controles (opcional)")]
     [SerializeField] private TMP_Text controlsHint;
 
@@ -96,6 +100,10 @@ public class InventoryScreen : MonoBehaviour
 
     public bool IsOpen => panel != null && panel.activeSelf;
 
+    // Pestañas que existen en el prefab (las versiones viejas solo tienen tres)
+    private int TabCount => Mathf.Max(1, Mathf.Min(tabButtons.Count, pages.Count));
+    private Tab Next(int step) => (Tab)(((int)tab + step + TabCount) % TabCount);
+
     private void Awake()
     {
         Instance = this;
@@ -122,11 +130,22 @@ public class InventoryScreen : MonoBehaviour
         feetSlot.Button.onClick.AddListener(() => SelectEquippedSlot(EquipmentSlot.Feet));
         actionButton.onClick.AddListener(UseSelectedItem);
         equipButton.onClick.AddListener(ToggleSelectedPiece);
+        if (potionPage != null)
+        {
+            potionPage.Brewed += RefreshPotion;
+            if (potionPage.CloseButton != null) potionPage.CloseButton.onClick.AddListener(Close);
+        }
 
         // El mando se maneja en Update; el EventSystem no debe navegar estos botones.
         var selectables = new List<Selectable>(tabButtons) { actionButton, equipButton, headSlot.Button, chestSlot.Button, feetSlot.Button };
         foreach (var slot in itemSlots) if (slot != null) selectables.Add(slot.Button);
         foreach (var slot in pieceSlots) if (slot != null) selectables.Add(slot.Button);
+        if (potionPage != null)
+        {
+            if (potionPage.BrewButton != null) selectables.Add(potionPage.BrewButton);
+            if (potionPage.CloseButton != null) selectables.Add(potionPage.CloseButton);
+            foreach (var slot in potionPage.GridSlots) if (slot != null) selectables.Add(slot.Button);
+        }
         UiNav.DisableNavigation(selectables);
     }
 
@@ -180,12 +199,17 @@ public class InventoryScreen : MonoBehaviour
                     ShowTab(Tab.Equipment);
                 else if (kb.digit3Key.wasPressedThisFrame)
                     ShowTab(Tab.Stats);
+                else if (kb.digit4Key.wasPressedThisFrame && TabCount > (int)Tab.Potion)
+                    ShowTab(Tab.Potion);
                 else if (kb.aKey.wasPressedThisFrame ||
                         kb.leftArrowKey.wasPressedThisFrame)
-                    ShowTab((Tab)(((int)tab + 2) % 3));
+                    ShowTab(Next(-1));
                 else if (kb.dKey.wasPressedThisFrame ||
                         kb.rightArrowKey.wasPressedThisFrame)
-                    ShowTab((Tab)(((int)tab + 1) % 3));
+                    ShowTab(Next(1));
+                else if (tab == Tab.Potion && potionPage != null &&
+                        (kb.fKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame))
+                    potionPage.Brew();
             }
 
             if (!GamepadInput.Connected)
@@ -197,7 +221,7 @@ public class InventoryScreen : MonoBehaviour
             // LB / L1: pestaña anterior
             if (GamepadInput.LeftShoulderPressed)
             {
-                ShowTab((Tab)(((int)tab + 2) % 3));
+                ShowTab(Next(-1));
                 navigation.Reset();
                 return;
             }
@@ -205,7 +229,7 @@ public class InventoryScreen : MonoBehaviour
             // RB / R1: siguiente pestaña
             if (GamepadInput.RightShoulderPressed)
             {
-                ShowTab((Tab)(((int)tab + 1) % 3));
+                ShowTab(Next(1));
                 navigation.Reset();
                 return;
             }
@@ -294,6 +318,10 @@ public class InventoryScreen : MonoBehaviour
                         equipButton.gameObject.activeInHierarchy)
                 {
                     ToggleSelectedPiece();
+                }
+                else if (tab == Tab.Potion && potionPage != null)
+                {
+                    potionPage.Brew();
                 }
             }
 
@@ -384,12 +412,15 @@ public class InventoryScreen : MonoBehaviour
             }
         }
 
+        if (tab == Tab.Potion && potionPage != null)
+            potionPage.UpdateHints();
+
         // Requiere asignar un TMP_Text para instrucciones en el Inspector.
         // Sin asignarlo, los botones de Usar/Equipar siguen funcionando.
         if (controlsHint != null)
         {
             string message = ControlHints.For(
-                "Tab / Esc: Cerrar   ·   1/2/3: Pestañas",
+                TabCount > (int)Tab.Potion ? "Tab / Esc: Cerrar   ·   1/2/3/4: Pestañas" : "Tab / Esc: Cerrar   ·   1/2/3: Pestañas",
                 "View / B: Cerrar   ·   LB/RB: Pestañas   ·   A: Usar",
                 "Touchpad / " + ControlHints.Circle + ": Cerrar   ·   L1/R1: Pestañas   ·   " + ControlHints.Cross + ": Usar"
             );
@@ -443,13 +474,32 @@ public class InventoryScreen : MonoBehaviour
 
     private void ShowTab(Tab t)
     {
+        if ((int)t >= TabCount) t = Tab.Items;
         tab = t;
         for (int i = 0; i < pages.Count; i++) pages[i].SetActive(i == (int)t);
         for (int i = 0; i < tabButtons.Count; i++)
             ((Image)tabButtons[i].targetGraphic).sprite = i == (int)t ? tabActiveSprite : tabSprite;
         if (t == Tab.Items) RefreshItems();
         else if (t == Tab.Equipment) RefreshEquipment();
-        else RefreshStats();
+        else if (t == Tab.Stats) RefreshStats();
+        else RefreshPotion();
+        UpdateControlHints();
+    }
+
+    // ---------------------------------------------------------------- preparar poción
+
+    private void RefreshPotion()
+    {
+        if (potionPage == null) return;
+        CollectEntries();
+        var icons = new List<Sprite>(entries.Count);
+        var amounts = new List<string>(entries.Count);
+        foreach (var e in entries)
+        {
+            icons.Add(e.icon);
+            amounts.Add(e.amount);
+        }
+        potionPage.Refresh(inventory, icons, amounts);
     }
 
     // ---------------------------------------------------------------- objetos

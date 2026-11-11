@@ -26,11 +26,12 @@ public class DialogueUI : MonoBehaviour
 
     [Header("Bustos")]
     [Tooltip("Bustos que acompañan la caja: a color cuando ese personaje habla, en grises cuando habla otro. " +
-             "Tsuki va a la derecha; Varn a la izquierda, volteado para que la mire.")]
+             "Tsuki va a la derecha; Varn y Kaede a la izquierda (Varn volteado para que la mire).")]
     [SerializeField] private BustSlot[] busts =
     {
         new BustSlot { speaker = "Tsuki", resource = "Portraits/tsuki_bust", grayResource = "Portraits/tsuki_bust_gray" },
         new BustSlot { speaker = "Varn", resource = "Portraits/varn_bust", grayResource = "Portraits/varn_bust_gray", leftSide = true, flip = true },
+        new BustSlot { speaker = "Kaede", resource = "Portraits/kaede_bust", grayResource = "Portraits/kaede_bust_gray", leftSide = true, aliases = new[] { "???" } },
     };
     [SerializeField] private Vector2 bustSize = new Vector2(380f, 522f);
     [SerializeField] private float bustFadeSpeed = 8f;
@@ -45,11 +46,18 @@ public class DialogueUI : MonoBehaviour
         public bool leftSide;
         [Tooltip("Voltea la imagen horizontalmente.")]
         public bool flip;
+        [Tooltip("Otros nombres con los que habla antes de presentarse (p. ej. \"???\"). Solo cuentan en " +
+                 "diálogos donde el personaje también habla con su nombre.")]
+        public string[] aliases;
 
         [NonSerialized] public Image image;
         [NonSerialized] public Sprite color, gray;
         [NonSerialized] public bool talking;
         [NonSerialized] public float lit;
+        [NonSerialized] public bool aliasesActive;
+
+        public bool Says(string name) =>
+            name == speaker || (aliasesActive && aliases != null && Array.IndexOf(aliases, name) >= 0);
     }
 
     // Lo que ocupan el texto, el nombre y el retrato chico sin bustos (se recorren para no taparse)
@@ -137,7 +145,7 @@ public class DialogueUI : MonoBehaviour
     private BustSlot BustFor(string speaker)
     {
         foreach (var slot in busts)
-            if (slot.image != null && slot.speaker == speaker) return slot;
+            if (slot.image != null && slot.Says(speaker)) return slot;
         return null;
     }
 
@@ -151,6 +159,7 @@ public class DialogueUI : MonoBehaviour
         {
             if (slot.image == null) continue;
             bool show = current.lines.Exists(l => l.speaker == slot.speaker);
+            slot.aliasesActive = show;
             slot.image.gameObject.SetActive(show);
             slot.talking = false;
             slot.lit = 0f;
@@ -313,7 +322,7 @@ public class DialogueUI : MonoBehaviour
 
         nameBox.SetActive(!narration);
         speakerText.text = line.speaker;
-        foreach (var slot in busts) slot.talking = slot.image != null && slot.speaker == line.speaker;
+        foreach (var slot in busts) slot.talking = slot.image != null && slot.Says(line.speaker);
         // Si el que habla tiene busto, ya lo representa: no se repite el retrato pequeño.
         // Con un busto a la izquierda el retrato quedaría debajo, así que tampoco se muestra.
         var speakerBust = BustFor(line.speaker);
