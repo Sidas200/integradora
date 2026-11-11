@@ -15344,11 +15344,20 @@ MonoBehaviour:
     grayResource: Portraits/tsuki_bust_gray
     leftSide: 0
     flip: 0
+    aliases: []
   - speaker: Varn
     resource: Portraits/varn_bust
     grayResource: Portraits/varn_bust_gray
     leftSide: 1
     flip: 1
+    aliases: []
+  - speaker: Kaede
+    resource: Portraits/kaede_bust
+    grayResource: Portraits/kaede_bust_gray
+    leftSide: 1
+    flip: 0
+    aliases:
+    - '???'
   bustSize: {x: 380, y: 522}
   bustFadeSpeed: 8
 --- !u!1 &2804185927253645816
