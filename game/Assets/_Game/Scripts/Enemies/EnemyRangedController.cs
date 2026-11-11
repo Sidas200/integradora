@@ -1,10 +1,13 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 // Arquetipo 2 (Centinela): enemigo a distancia. Mantiene distancia con el jugador y ataca así:
 // 1) marca en el suelo un círculo rojo donde está el jugador (aviso, parpadea),
 // 2) tras el aviso dispara un orbe que viaja hasta la marca,
 // 3) al llegar explota: daña una sola vez si el jugador sigue dentro del círculo.
+// Si Tsuki golpea la bola con su ataque (J / clic), la desvía hacia donde apuntó: ya no le hace
+// daño a ella y lastima al enemigo con el que choque (también al que la disparó).
 [RequireComponent(typeof(Rigidbody2D), typeof(EnemyHealth))]
 public class EnemyRangedController : MonoBehaviour, IStaggerable
 {
@@ -38,6 +41,13 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
     [Tooltip("Altura del centro del cuerpo del jugador sobre sus pies.")]
     [SerializeField] private float playerBodyHeight = 0.15f;
 
+    [Header("Desvío (golpe de Tsuki)")]
+    [Tooltip("Largo del tramo de la bola desviada antes de desaparecer.")]
+    [SerializeField] private float deflectLength = 2.6f;
+    [Tooltip("Multiplica la velocidad de la bola desviada.")]
+    [SerializeField] private float deflectSpeedScale = 1.6f;
+    [SerializeField] private Color deflectColor = new Color(1f, 0.86f, 0.45f);
+
     [Header("Visual")]
     [SerializeField] private Sprite telegraphSprite;
     [SerializeField] private Sprite projectileSprite;
@@ -57,6 +67,12 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
     private float staggerTimer;
     private float knockbackTimer;
     private Vector2 knockbackDir;
+
+    // Bolas en vuelo (para que el golpe de Tsuki las encuentre) y estado del desvío
+    private static readonly List<EnemyRangedController> inFlight = new List<EnemyRangedController>();
+    private bool deflectRequested;
+    private Vector2 deflectDir;
+    private int deflectDamage;
 
     public void Setup(Sprite telegraph, Sprite orb, SpriteRenderer bodyRenderer)
     {
@@ -127,6 +143,27 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
         leash?.Reset();
         if (projectile != null) projectile.SetActive(false);
         if (body != null) body.color = Color.white;
+        inFlight.Remove(this);
+        deflectRequested = false;
+    }
+
+    // Golpe de Tsuki: desvía las bolas que estén dentro de su caja de ataque. Devuelve cuántas desvió.
+    public static int DeflectShots(Vector2 center, Vector2 size, Vector2 direction, int damage)
+    {
+        if (direction.sqrMagnitude < 0.0001f) return 0;
+        int count = 0;
+        foreach (var shooter in inFlight)
+        {
+            if (shooter == null || shooter.deflectRequested || shooter.projectile == null || !shooter.projectile.activeSelf) continue;
+            Vector2 p = shooter.projectile.transform.position;
+            Vector2 half = size * 0.5f + Vector2.one * shooter.projectileRadius;
+            if (Mathf.Abs(p.x - center.x) > half.x || Mathf.Abs(p.y - center.y) > half.y) continue;
+            shooter.deflectRequested = true;
+            shooter.deflectDir = direction.normalized;
+            shooter.deflectDamage = Mathf.Max(1, damage);
+            count++;
+        }
+        return count;
     }
 
     private void OnDestroy()
@@ -208,13 +245,35 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
         projectile.transform.position = pos;
         projectile.transform.localScale = Vector3.one;
         projectile.SetActive(true);
+        var orbRenderer = projectile.GetComponent<SpriteRenderer>();
+        if (orbRenderer != null) orbRenderer.color = Color.white;
+        deflectRequested = false;
+        bool deflected = false;
+        float speed = projectileSpeed;
+        if (!inFlight.Contains(this)) inFlight.Add(this);
         Sfx.PlayAny(Sfx.Distancia.Shot1, Sfx.Distancia.Shot2, Sfx.Distancia.Shot3);
         Sfx.Play(Sfx.Distancia.Flight, 0.35f);
         string endSound = Sfx.Distancia.Fade; // se desvanece si no le pega a nada
 
         while (true)
         {
-            float step = projectileSpeed * Time.deltaTime;
+            // Tsuki la golpeó: sale hacia donde apuntó, más rápida, y ya es "suya"
+            if (deflectRequested && !deflected)
+            {
+                deflected = true;
+                dir = deflectDir;
+                speed = projectileSpeed * deflectSpeedScale;
+                bounced = true;            // en la próxima pared desaparece
+                travelled = 0f;
+                legLength = deflectLength;
+                if (orbRenderer != null) orbRenderer.color = deflectColor;
+                projectile.transform.localScale = Vector3.one * 1.3f;
+                StartCoroutine(RestoreProjectileScale());
+                Sfx.Play(Sfx.Distancia.Blocked);
+                endSound = Sfx.Distancia.Fade;
+            }
+
+            float step = speed * Time.deltaTime;
 
             // Pared: rebota (o desaparece si ya rebotó)
             if (WallAhead(pos, dir, step, out RaycastHit2D wall))
@@ -231,6 +290,14 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
             pos += dir * step;
             travelled += step;
             projectile.transform.position = pos;
+
+            if (deflected)
+            {
+                if (HitEnemy(pos)) { endSound = Sfx.Distancia.HitGround; break; }
+                if (travelled >= legLength) break;
+                yield return null;
+                continue;
+            }
 
             bool touching = player != null && Vector2.Distance(pos, PlayerBody()) <= projectileRadius;
             if (touching && !overlapping)
@@ -262,8 +329,31 @@ public class EnemyRangedController : MonoBehaviour, IStaggerable
         }
 
         projectile.SetActive(false);
+        if (orbRenderer != null) orbRenderer.color = Color.white;
+        inFlight.Remove(this);
+        deflectRequested = false;
         if (endSound != null) Sfx.Play(endSound);
         FinishAttack();
+    }
+
+    // Bola desviada: daña al primer enemigo que toque (puede ser este mismo Centinela)
+    private static readonly Collider2D[] enemyHits = new Collider2D[8];
+    private bool HitEnemy(Vector2 at)
+    {
+        var filter = ContactFilter2D.noFilter;
+        filter.useTriggers = true;
+        int count = Physics2D.OverlapCircle(at, projectileRadius, filter, enemyHits);
+        for (int i = 0; i < count; i++)
+        {
+            var c = enemyHits[i];
+            if (c == null || (player != null && c.transform.IsChildOf(player))) continue;
+            if (c.GetComponentInParent<EnemyHealth>() == null && c.GetComponentInParent<GuardianBoss>() == null) continue;
+            var target = c.GetComponentInParent<IDamageable>();
+            if (target == null) continue;
+            target.TakeDamage(deflectDamage);
+            return true;
+        }
+        return false;
     }
 
     private void FinishAttack()

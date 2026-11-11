@@ -1040,6 +1040,9 @@ private void FixedUpdate()
         }
         if (impact != null) Sfx.Play(impact);
 
+        // Bolas de los Centinelas dentro del golpe: se desvían hacia donde apuntó Tsuki
+        EnemyRangedController.DeflectShots(center, size, dir, damage);
+
         if (hitThisSwing.Count > 0)
             HitLanded?.Invoke(finisher);
 
