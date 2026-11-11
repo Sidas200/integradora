@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-// Usa items consumibles del inventario: Poción (Q / flecha izquierda / RB / R1) y Gota de Amrita (G / LB / L1).
+// Usa items consumibles del inventario: Poción (R / flecha izquierda / RB / R1) y Gota de Amrita (G / LB / L1).
 // Va en el mismo objeto que el componente Health del jugador.
 public class ItemUser : MonoBehaviour
 {
@@ -38,7 +38,7 @@ public class ItemUser : MonoBehaviour
 
         var keyboard = Keyboard.current;
 
-        if ((keyboard != null && keyboard.qKey.wasPressedThisFrame) || GamepadInput.RightShoulderPressed || GamepadInput.DpadLeftPressed) UsePotion();
+        if ((keyboard != null && keyboard.rKey.wasPressedThisFrame) || GamepadInput.RightShoulderPressed || GamepadInput.DpadLeftPressed) UsePotion();
         if ((keyboard != null && keyboard.gKey.wasPressedThisFrame) || GamepadInput.LeftShoulderPressed) UseAmrita();
     }
 

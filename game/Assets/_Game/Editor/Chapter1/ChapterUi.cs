@@ -17,7 +17,7 @@ namespace Game.EditorTools.Chapter1
         public const string SystemsPath = ResourcesFolder + "/GameSystems.prefab";
 
         public const string Controls =
-            "WASD / flechas: mover   ·   Clic / J: atacar   ·   Espacio: esquivar   ·   E: interactuar   ·   Q: poción   ·   Tab: inventario   ·   Esc: pausa";
+            "WASD / flechas: mover   ·   Clic / J: atacar   ·   Espacio: esquivar   ·   E: interactuar   ·   R: poción   ·   Tab: inventario   ·   Esc: pausa";
 
         public const string DialogueHint = "E / Clic: continuar   ·   X: saltar";
 

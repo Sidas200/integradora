@@ -4832,7 +4832,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "WASD / flechas: mover\nClic / J: atacar\nEspacio: esquivar\nE: interactuar\nQ: poci\xF3n\nTab: inventario\nEsc: pausa"
+  m_text: "WASD / flechas: mover\nClic / J: atacar\nEspacio: esquivar\nE: interactuar\nR: poci\xF3n\nTab: inventario\nEsc: pausa"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
