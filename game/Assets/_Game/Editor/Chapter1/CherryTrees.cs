@@ -70,6 +70,63 @@ namespace Game.EditorTools.Chapter1
             Debug.Log($"[Chapter1] {replaced} pinos reemplazados por cerezos en {scene.name}.");
         }
 
+        // ------------------------------------------------------------ sakura del campamento
+
+        private const string CampScene = "Assets/_Game/Scenes/Chapter1/02_OpenField.unity";
+        private const int SakuraHeight = 112;                                  // ~1.3x el cerezo más alto (84 px)
+        private static readonly Vector3Int SakuraCell = new Vector3Int(-12, 23, 0); // detrás de la tienda y la mesa de Kaede
+
+        // Un solo sakura grande en el campamento de Kaede (Llanura del Eco). Si ya existe, lo reemplaza.
+        [MenuItem("Tools/Claude/Chapter 1/Cherry Trees - Camp Sakura")]
+        public static void PlaceCampSakura()
+        {
+            var path = $"{Folder}/Source/sakura_camp_source.png";
+            if (!File.Exists(path)) { Debug.LogError("[Chapter1] Falta " + path); return; }
+            var src = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            src.LoadImage(File.ReadAllBytes(path));
+            var cut = Cutout(src, out var size);
+            Object.DestroyImmediate(src);
+            var tile = MakeTile($"sakura_camp_{SakuraHeight}", cut, size, SakuraHeight, 6);
+            AssetDatabase.SaveAssets();
+
+            var scene = EditorSceneManager.GetActiveScene();
+            if (scene.path != CampScene)
+            {
+                if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+                scene = EditorSceneManager.OpenScene(CampScene);
+            }
+            var grid = GameObject.Find("Grid_02_OpenField");
+            var props = grid != null ? grid.transform.Find("Props")?.GetComponent<Tilemap>() : null;
+            var collisions = grid != null ? grid.transform.Find("Collisions")?.GetComponent<Tilemap>() : null;
+            if (props == null) { Debug.LogError("[Chapter1] No se encontró Grid_02_OpenField/Props"); return; }
+
+            var old = props.transform.Find("SakuraTree_Camp");
+            if (old != null) Object.DestroyImmediate(old.gameObject);
+
+            // Sprite suelto (no tile) para que ordene con Kaede y Tsuki por su base, como la forja
+            var go = new GameObject("SakuraTree_Camp");
+            go.transform.SetParent(props.transform, false);
+            go.transform.position = props.GetCellCenterWorld(SakuraCell);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = tile.sprite;
+            sr.sortingLayerName = "Sprites";
+            sr.sortingOrder = 1;
+            sr.spriteSortPoint = SpriteSortPoint.Pivot;
+
+            // El tronco no se atraviesa: misma celda de colisión que el resto del mapa
+            if (collisions != null && !collisions.HasTile(SakuraCell))
+            {
+                TileBase blocker = null;
+                foreach (var c in collisions.cellBounds.allPositionsWithin)
+                    if ((blocker = collisions.GetTile(c)) != null) break;
+                if (blocker != null) collisions.SetTile(SakuraCell, blocker);
+            }
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("[Chapter1] Sakura del campamento colocado en " + go.transform.position);
+        }
+
         // Crea (o actualiza) los sprites y tiles de los cerezos. Devuelve pino → [cerezo a, cerezo b].
         public static Dictionary<string, Tile[]> BuildTiles()
         {
@@ -113,9 +170,14 @@ namespace Game.EditorTools.Chapter1
             for (int i = 0; i < px.Length; i++)
             {
                 var c = px[i];
-                bool bg = c.r <= BackgroundMax && c.g <= BackgroundMax && c.b <= BackgroundMax;
+                if (c.a == 0) continue;
+                bool bg = c.a < 128 || (c.r <= BackgroundMax && c.g <= BackgroundMax && c.b <= BackgroundMax);
                 px[i].a = bg ? (byte)0 : (byte)255;
-                if (bg) continue;
+            }
+            RemoveSpecks(px, w, h, 400);
+            for (int i = 0; i < px.Length; i++)
+            {
+                if (px[i].a == 0) continue;
                 int x = i % w, y = i / w;
                 if (x < minX) minX = x; if (x > maxX) maxX = x;
                 if (y < minY) minY = y; if (y > maxY) maxY = y;
@@ -127,6 +189,38 @@ namespace Game.EditorTools.Chapter1
                     cut[y * cw + x] = px[(y + minY) * w + x + minX];
             size = new Vector2Int(cw, ch);
             return cut;
+        }
+
+        // Borra manchas opacas sueltas más chicas que minPixels (restos del borde de la ilustración)
+        private static void RemoveSpecks(Color32[] px, int w, int h, int minPixels)
+        {
+            var seen = new bool[px.Length];
+            var stack = new Stack<int>();
+            var blob = new List<int>();
+            for (int start = 0; start < px.Length; start++)
+            {
+                if (seen[start] || px[start].a == 0) continue;
+                blob.Clear();
+                stack.Push(start);
+                seen[start] = true;
+                while (stack.Count > 0)
+                {
+                    int i = stack.Pop();
+                    blob.Add(i);
+                    int x = i % w, y = i / w;
+                    if (x > 0) Visit(i - 1); if (x < w - 1) Visit(i + 1);
+                    if (y > 0) Visit(i - w); if (y < h - 1) Visit(i + w);
+                }
+                if (blob.Count < minPixels)
+                    foreach (var i in blob) px[i].a = 0;
+            }
+
+            void Visit(int i)
+            {
+                if (seen[i] || px[i].a == 0) return;
+                seen[i] = true;
+                stack.Push(i);
+            }
         }
 
         // Reduce por promedio de área (solo pixeles opacos) a alto = height; alfa 0/1 para que quede nítido.
