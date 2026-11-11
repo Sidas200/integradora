@@ -12260,8 +12260,24 @@ PrefabInstance:
       value: 731544538
       objectReference: {fileID: 0}
     - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: 'managedReferences[8010447133494738968]'
+      value: 'Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.Provider2DCache`1[[UnityEngine.Rendering.Universal.ShadowShape2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: 'managedReferences[8010447133494738969]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
       propertyPath: managedReferences[8748772644707893800].m_TrimEdge
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8748772644707893801].m_Provider2DCache
+      value: 8010447133494738968
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447133494738968].m_Cache.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
       propertyPath: managedReferences[8748772644707893800].m_Indices.Array.size
@@ -13291,6 +13307,22 @@ PrefabInstance:
       propertyPath: managedReferences[8748772644707893800].m_Vertices.Array.data[39].position.y
       value: -0.005000001
       objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447133494738968].m_Cache.Array.data[0].m_Key.m_TypeName
+      value: ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447133494738968].m_Cache.Array.data[0].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 451058839}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447133494738968].m_Cache.Array.data[0].m_Value.m_Provider
+      value: 8010447133494738969
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051175136444452874, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+      propertyPath: managedReferences[8010447133494738968].m_Cache.Array.data[0].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13299,6 +13331,11 @@ PrefabInstance:
 --- !u!4 &451058838 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8939235544670656855, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
+  m_PrefabInstance: {fileID: 451058837}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &451058839 stripped
+BoxCollider2D:
+  m_CorrespondingSourceObject: {fileID: 6093655468394480120, guid: d9db76aa8e7ec48168643662ec077325, type: 3}
   m_PrefabInstance: {fileID: 451058837}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &478042406
@@ -14601,6 +14638,26 @@ PrefabInstance:
       value: -646221079
       objectReference: {fileID: 0}
     - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: 'managedReferences[8010447133494738970]'
+      value: 'Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.Provider2DCache`1[[UnityEngine.Rendering.Universal.ShadowShape2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: 'managedReferences[8010447133494738971]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: 'managedReferences[8010447133494738972]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_SpriteRenderer
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8748772644707893813].m_Provider2DCache
+      value: 8010447133494738970
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738970].m_Cache.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: managedReferences[8748772644707893812].m_Indices.Array.size
       value: 72
       objectReference: {fileID: 0}
@@ -15656,6 +15713,38 @@ PrefabInstance:
       propertyPath: managedReferences[8748772644707893812].m_Vertices.Array.data[39].position.y
       value: -0.0024999995
       objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738970].m_Cache.Array.data[0].m_Key.m_TypeName
+      value: ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738970].m_Cache.Array.data[1].m_Key.m_TypeName
+      value: ShadowShape2DProvider_SpriteRenderer
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738970].m_Cache.Array.data[0].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 584393387}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738970].m_Cache.Array.data[1].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 584393388}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738970].m_Cache.Array.data[0].m_Value.m_Provider
+      value: 8010447133494738971
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738970].m_Cache.Array.data[1].m_Value.m_Provider
+      value: 8010447133494738972
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738970].m_Cache.Array.data[0].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738970].m_Cache.Array.data[1].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4811869618449077184, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: m_Name
       value: Enemy_Slime_B
@@ -15699,6 +15788,10 @@ PrefabInstance:
     - target: {fileID: 5295656040892839335, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7958900447552524752, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15756,6 +15849,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::PersistentId
   id: 05_CombatZone/Enemy_Slime_B
+--- !u!58 &584393387 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 1337346530369224794, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+  m_PrefabInstance: {fileID: 584393382}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &584393388 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 2226502995675607467, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+  m_PrefabInstance: {fileID: 584393382}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &592160860
 GameObject:
   m_ObjectHideFlags: 0
@@ -19090,11 +19193,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 402298096345544363, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.24
+      value: 2.214
       objectReference: {fileID: 0}
     - target: {fileID: 402298096345544363, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.32
+      value: 0.365
       objectReference: {fileID: 0}
     - target: {fileID: 402298096345544363, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_LocalPosition.z
@@ -19132,6 +19235,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy_Melee_A
       objectReference: {fileID: 0}
+    - target: {fileID: 2108573226425741544, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_HasRenderer
       value: 1
@@ -19151,6 +19258,26 @@ PrefabInstance:
     - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_PreviousShadowShape2DProviderHash
       value: -646221079
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: 'managedReferences[8010447133494738961]'
+      value: 'Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.Provider2DCache`1[[UnityEngine.Rendering.Universal.ShadowShape2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: 'managedReferences[8010447133494738962]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: 'managedReferences[8010447133494738963]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_SpriteRenderer
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[1937313234699681794].m_Provider2DCache
+      value: 8010447133494738961
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738961].m_Cache.Array.size
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: managedReferences[1937313234699681793].m_Indices.Array.size
@@ -20208,6 +20335,38 @@ PrefabInstance:
       propertyPath: managedReferences[1937313234699681793].m_Vertices.Array.data[39].position.y
       value: -0.010000002
       objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738961].m_Cache.Array.data[0].m_Key.m_TypeName
+      value: ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738961].m_Cache.Array.data[1].m_Key.m_TypeName
+      value: ShadowShape2DProvider_SpriteRenderer
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738961].m_Cache.Array.data[0].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 799834421}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738961].m_Cache.Array.data[1].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 799834422}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738961].m_Cache.Array.data[0].m_Value.m_Provider
+      value: 8010447133494738962
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738961].m_Cache.Array.data[1].m_Value.m_Provider
+      value: 8010447133494738963
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738961].m_Cache.Array.data[0].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738961].m_Cache.Array.data[1].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20264,6 +20423,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::PersistentId
   id: 05_CombatZone/Enemy_Melee_A
+--- !u!58 &799834421 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 6802680044418106198, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+  m_PrefabInstance: {fileID: 799834416}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &799834422 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 5912923179209863847, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+  m_PrefabInstance: {fileID: 799834416}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &817712963
 GameObject:
   m_ObjectHideFlags: 0
@@ -22452,6 +22621,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7599225712776767150, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
       propertyPath: m_PreviousEdgeProcessing
       value: 1
@@ -22465,8 +22638,24 @@ PrefabInstance:
       value: 731544538
       objectReference: {fileID: 0}
     - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: 'managedReferences[8010447133494738973]'
+      value: 'Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.Provider2DCache`1[[UnityEngine.Rendering.Universal.ShadowShape2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: 'managedReferences[8010447133494738974]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
       propertyPath: managedReferences[8748772644707893816].m_TrimEdge
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8748772644707893817].m_Provider2DCache
+      value: 8010447133494738973
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738973].m_Cache.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
       propertyPath: managedReferences[8748772644707893816].m_Indices.Array.size
@@ -23496,6 +23685,22 @@ PrefabInstance:
       propertyPath: managedReferences[8748772644707893816].m_Vertices.Array.data[39].position.y
       value: -0.0000000018626451
       objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738973].m_Cache.Array.data[0].m_Key.m_TypeName
+      value: ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738973].m_Cache.Array.data[0].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 950195359}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738973].m_Cache.Array.data[0].m_Value.m_Provider
+      value: 8010447133494738974
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738973].m_Cache.Array.data[0].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -23550,6 +23755,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::PersistentId
   id: 05_CombatZone/Enemy_Ranged_B
+--- !u!58 &950195359 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 7990952901625146217, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+  m_PrefabInstance: {fileID: 950195354}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &961698427
 GameObject:
   m_ObjectHideFlags: 0
@@ -46061,6 +46271,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1698300673}
     m_Modifications:
+    - target: {fileID: 2226502995675607467, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2226502995675607467, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: m_SpriteSortPoint
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: m_Priority
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: m_HasRenderer
       value: 1
@@ -46080,6 +46302,26 @@ PrefabInstance:
     - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: m_PreviousShadowShape2DProviderHash
       value: -646221079
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: 'managedReferences[8010447133494738955]'
+      value: 'Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.Provider2DCache`1[[UnityEngine.Rendering.Universal.ShadowShape2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: 'managedReferences[8010447133494738956]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: 'managedReferences[8010447133494738957]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_SpriteRenderer
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8748772644707893813].m_Provider2DCache
+      value: 8010447133494738955
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738955].m_Cache.Array.size
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: managedReferences[8748772644707893812].m_Indices.Array.size
@@ -47137,17 +47379,49 @@ PrefabInstance:
       propertyPath: managedReferences[8748772644707893812].m_Vertices.Array.data[39].position.y
       value: -0.0024999995
       objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738955].m_Cache.Array.data[0].m_Key.m_TypeName
+      value: ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738955].m_Cache.Array.data[1].m_Key.m_TypeName
+      value: ShadowShape2DProvider_SpriteRenderer
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738955].m_Cache.Array.data[0].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 1954911660}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738955].m_Cache.Array.data[1].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 1954911661}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738955].m_Cache.Array.data[0].m_Value.m_Provider
+      value: 8010447133494738956
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738955].m_Cache.Array.data[1].m_Value.m_Provider
+      value: 8010447133494738957
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738955].m_Cache.Array.data[0].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411577798028832218, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: managedReferences[8010447133494738955].m_Cache.Array.data[1].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4811869618449077184, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: m_Name
       value: Enemy_Slime_A
       objectReference: {fileID: 0}
     - target: {fileID: 5295656040892839335, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.269
       objectReference: {fileID: 0}
     - target: {fileID: 5295656040892839335, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.16
+      value: 0.13
       objectReference: {fileID: 0}
     - target: {fileID: 5295656040892839335, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: m_LocalPosition.z
@@ -47180,6 +47454,10 @@ PrefabInstance:
     - target: {fileID: 5295656040892839335, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7958900447552524752, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -47237,6 +47515,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::PersistentId
   id: 05_CombatZone/Enemy_Slime_A
+--- !u!58 &1954911660 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 1337346530369224794, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+  m_PrefabInstance: {fileID: 1954911655}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &1954911661 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 2226502995675607467, guid: 8e270a78431db4b169956b3d6fd28352, type: 3}
+  m_PrefabInstance: {fileID: 1954911655}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1957618202
 GameObject:
   m_ObjectHideFlags: 0
@@ -47880,11 +48168,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 402298096345544363, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.92
+      value: -1.759
       objectReference: {fileID: 0}
     - target: {fileID: 402298096345544363, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.47999996
+      value: -0.124
       objectReference: {fileID: 0}
     - target: {fileID: 402298096345544363, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_LocalPosition.z
@@ -47922,6 +48210,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy_Melee_B
       objectReference: {fileID: 0}
+    - target: {fileID: 2108573226425741544, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343312551116594260, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343312551116594260, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: m_SpriteSortPoint
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5912923179209863847, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5912923179209863847, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: m_SpriteSortPoint
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: m_Priority
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_HasRenderer
       value: 1
@@ -47941,6 +48253,26 @@ PrefabInstance:
     - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: m_PreviousShadowShape2DProviderHash
       value: -646221079
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: 'managedReferences[8010447133494738958]'
+      value: 'Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.Provider2DCache`1[[UnityEngine.Rendering.Universal.ShadowShape2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: 'managedReferences[8010447133494738959]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: 'managedReferences[8010447133494738960]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_SpriteRenderer
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[1937313234699681794].m_Provider2DCache
+      value: 8010447133494738958
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738958].m_Cache.Array.size
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
       propertyPath: managedReferences[1937313234699681793].m_Indices.Array.size
@@ -48998,6 +49330,38 @@ PrefabInstance:
       propertyPath: managedReferences[1937313234699681793].m_Vertices.Array.data[39].position.y
       value: -0.010000002
       objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738958].m_Cache.Array.data[0].m_Key.m_TypeName
+      value: ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738958].m_Cache.Array.data[1].m_Key.m_TypeName
+      value: ShadowShape2DProvider_SpriteRenderer
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738958].m_Cache.Array.data[0].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 2010913478}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738958].m_Cache.Array.data[1].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 2010913479}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738958].m_Cache.Array.data[0].m_Value.m_Provider
+      value: 8010447133494738959
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738958].m_Cache.Array.data[1].m_Value.m_Provider
+      value: 8010447133494738960
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738958].m_Cache.Array.data[0].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960913337134394011, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+      propertyPath: managedReferences[8010447133494738958].m_Cache.Array.data[1].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -49054,6 +49418,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::PersistentId
   id: 05_CombatZone/Enemy_Melee_B
+--- !u!58 &2010913478 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 6802680044418106198, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+  m_PrefabInstance: {fileID: 2010913473}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &2010913479 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 5912923179209863847, guid: a518bcf9e334c42bc98412b759c27417, type: 3}
+  m_PrefabInstance: {fileID: 2010913473}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2013696715
 GameObject:
   m_ObjectHideFlags: 0
@@ -50006,6 +50380,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7599225712776767150, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
       propertyPath: m_PreviousEdgeProcessing
       value: 1
@@ -50019,8 +50397,24 @@ PrefabInstance:
       value: 731544538
       objectReference: {fileID: 0}
     - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: 'managedReferences[8010447133494738975]'
+      value: 'Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.Provider2DCache`1[[UnityEngine.Rendering.Universal.ShadowShape2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: 'managedReferences[8010447133494738976]'
+      value: Unity.RenderPipelines.Universal.2D.Runtime UnityEngine.Rendering.Universal.ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
       propertyPath: managedReferences[8748772644707893816].m_TrimEdge
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8748772644707893817].m_Provider2DCache
+      value: 8010447133494738975
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738975].m_Cache.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
       propertyPath: managedReferences[8748772644707893816].m_Indices.Array.size
@@ -51050,6 +51444,22 @@ PrefabInstance:
       propertyPath: managedReferences[8748772644707893816].m_Vertices.Array.data[39].position.y
       value: -0.0000000018626451
       objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738975].m_Cache.Array.data[0].m_Key.m_TypeName
+      value: ShadowShape2DProvider_Collider2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738975].m_Cache.Array.data[0].m_Key.m_Component
+      value: 
+      objectReference: {fileID: 2081937404}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738975].m_Cache.Array.data[0].m_Value.m_Provider
+      value: 8010447133494738976
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578877310359553360, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+      propertyPath: managedReferences[8010447133494738975].m_Cache.Array.data[0].m_Key.m_UsesComponent
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -51104,6 +51514,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::PersistentId
   id: 05_CombatZone/Enemy_Ranged_A
+--- !u!58 &2081937404 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 7990952901625146217, guid: d46ce0adaf55c44e5ba3a05628e2870b, type: 3}
+  m_PrefabInstance: {fileID: 2081937399}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2108456941
 GameObject:
   m_ObjectHideFlags: 0
