@@ -701,7 +701,7 @@ GameObject:
   - component: {fileID: 63106254}
   - component: {fileID: 63106253}
   m_Layer: 0
-  m_Name: Exit_CabinInside (1)
+  m_Name: Exit_CabinInside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
