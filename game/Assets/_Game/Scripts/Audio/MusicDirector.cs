@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 // - Pelea con Varn: bossbattle; si falta, la de batalla. Sigue durante el choque de poder final
 //   y al terminarlo (Varn vencido del todo) vuelve la normal.
 // - Cierre de la demo (después de vencer a Varn): la del menú (music_intro); al volver al menú sigue sin cortarse.
-// - Intro de la historia: en silencio por ahora.
+// - Intro de la historia (el cuento): la del menú (music_intro); viene del menú sin cortarse.
 // Las pistas viven en Resources/Audio/Music; si falta una, esa parte queda en silencio.
 public class MusicDirector : MonoBehaviour
 {
@@ -89,7 +89,7 @@ public class MusicDirector : MonoBehaviour
     private AudioClip Desired()
     {
         var scene = SceneManager.GetActiveScene();
-        if (scene.name == MenuScene || IsDemoEnd(scene)) return intro;
+        if (scene.name == MenuScene || IsIntro(scene) || IsDemoEnd(scene)) return intro;
         var context = SceneContext.Current;
         if (context == null || !context.IsGameplayZone) return null;
 
@@ -109,12 +109,20 @@ public class MusicDirector : MonoBehaviour
         return Time.unscaledTime - lastCombatTime < calmDelay ? battle : normal;
     }
 
+    private static bool IsIntro(Scene scene)
+    {
+        var flow = GameFlow.Instance;
+        return flow != null && IsFlowScene(scene, flow.IntroScene);
+    }
+
     private static bool IsDemoEnd(Scene scene)
     {
         var flow = GameFlow.Instance;
-        return flow != null && !string.IsNullOrEmpty(flow.DemoEndScene) &&
-               (scene.path == flow.DemoEndScene || scene.name == flow.DemoEndScene);
+        return flow != null && IsFlowScene(scene, flow.DemoEndScene);
     }
+
+    private static bool IsFlowScene(Scene scene, string flowScene) =>
+        !string.IsNullOrEmpty(flowScene) && (scene.path == flowScene || scene.name == flowScene);
 
     private bool EnemyNearby()
     {
