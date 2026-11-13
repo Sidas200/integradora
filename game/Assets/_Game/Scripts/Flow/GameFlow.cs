@@ -31,6 +31,7 @@ public class GameFlow : MonoBehaviour
     public event Action<SaveData> SaveWritten;
     public event Action<SceneContext> SceneReady;
 
+    public string IntroScene => introScene;
     public string DemoEndScene => demoEndScene;
 
     private void Awake()
