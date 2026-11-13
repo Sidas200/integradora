@@ -118,7 +118,7 @@ namespace Game.EditorTools.Chapter1
             var panel = Stretch(rootRt, "Panel");
             Image(panel, DimColor).raycastTarget = true;
             var box = Window(panel, "Inventario", null);
-            Label(box, "Hint", "Tab / Esc: cerrar   ·   1 2 3: pestañas", 24, TextAlignmentOptions.Right,
+            Label(box, "Hint", "Tab / Esc: cerrar   ·   1 2 3 4: pestañas", 24, TextAlignmentOptions.Right,
                 new Vector2(1, 1), new Vector2(-64, -56), new Vector2(700, 34), MutedText);
 
             var tabs = new List<Button>();
@@ -129,6 +129,7 @@ namespace Game.EditorTools.Chapter1
                 Place(tab, new Vector2(0, 1), new Vector2(60 + i * 308, -112));
                 tabs.Add(tab);
             }
+            tabs.Add(PotionTab(box));
             var pageArea = Rect(box, "Pages", Vector2.zero, Vector2.one, new Vector2(60, 60), new Vector2(-60, -192));
             Kit(pageArea, "ui_panel");
 
@@ -138,6 +139,7 @@ namespace Game.EditorTools.Chapter1
                 BuildItemsPage(pageArea, so),
                 BuildEquipmentPage(pageArea, so),
                 BuildStatsPage(pageArea, so),
+                BuildPotionPage(pageArea, so),
             };
 
             so.FindProperty("panel").objectReferenceValue = panel.gameObject;
@@ -244,6 +246,167 @@ namespace Game.EditorTools.Chapter1
             so.FindProperty("emptyChest").objectReferenceValue = PlaceholderArtGenerator.Load("ui_empty_chest");
             so.FindProperty("emptyFeet").objectReferenceValue = PlaceholderArtGenerator.Load("ui_empty_feet");
             return page.gameObject;
+        }
+
+        // ---------------------------------------------------------------- preparar poción
+
+        public const string PotionRecipePath = "Assets/_Game/Scripts/ScriptableObjects/Recipes/Receta_Pocion.asset";
+        public const string BrewFramesFolder = "Assets/_Game/Art/Icons/PotionBrew";
+
+        // Cuarta pestaña, más ancha para que quepa "Preparar poción"
+        public static Button PotionTab(Transform box)
+        {
+            var tab = TabButton(box, "Preparar poción");
+            ((RectTransform)tab.transform).sizeDelta = new Vector2(380, 80);
+            Place(tab, new Vector2(0, 1), new Vector2(60 + 3 * 308, -112));
+            return tab;
+        }
+
+        // Cuadrícula de lo que llevas a la izquierda y la receta a la derecha (PotionBrewPage).
+        public static GameObject BuildPotionPage(RectTransform area, SerializedObject inventorySo)
+        {
+            var page = Stretch(area, "PotionPage");
+            var view = page.gameObject.AddComponent<PotionBrewPage>();
+            var grid = new List<ItemSlotView>();
+            for (int y = 0; y < 4; y++)
+                for (int x = 0; x < 6; x++)
+                {
+                    var s = Slot(page, $"Slot{y * 6 + x}", new Vector2(0, 1), new Vector2(32 + x * 134, -32 - y * 134), 120);
+                    s.Button.interactable = false;
+                    grid.Add(s);
+                }
+
+            var detail = Rect(page, "Detail", new Vector2(1, 0), new Vector2(1, 1), new Vector2(-480, 24), new Vector2(-24, -24));
+            Kit(detail, "ui_row");
+            var result = Slot(detail, "Result", new Vector2(0, 1), new Vector2(22, -18), 104);
+            result.Button.interactable = false;
+            var name = Label(detail, "Name", "", 34, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(144, -18), new Vector2(290, 46), GoldText);
+            name.fontStyle = FontStyles.Bold;
+            var text = Label(detail, "Description", "", 20, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(144, -66), new Vector2(290, 60), MutedText);
+            Divider(detail, -134);
+            Label(detail, "MaterialsTitle", "Materiales", 24, TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(26, -142), new Vector2(300, 30), GoldText);
+
+            var ingSlots = new List<ItemSlotView>();
+            var ingTexts = new List<TMP_Text>();
+            for (int i = 0; i < 3; i++)
+            {
+                var s = Slot(detail, "Ingredient" + i, new Vector2(0, 1), new Vector2(54 + i * 136, -174), 64);
+                s.Button.interactable = false;
+                ingSlots.Add(s);
+                var t = Label(detail, "IngredientText" + i, "", 17, TextAlignmentOptions.Top, new Vector2(0, 1), new Vector2(16 + i * 136, -242), new Vector2(140, 70));
+                t.fontStyle = FontStyles.Bold;
+                ingTexts.Add(t);
+            }
+
+            // Vista previa: vacío › mezcla › lista
+            var preview = Rect(detail, "Preview", new Vector2(0, 1), new Vector2(1, 1), new Vector2(22, -424), new Vector2(-22, -316));
+            Kit(preview, "ui_panel");
+            Label(preview, "PreviewTitle", "Vista previa de preparación", 18, TextAlignmentOptions.Top, new Vector2(0.5f, 1), new Vector2(0, -4), new Vector2(380, 24), MutedText);
+            var frames = new List<Image>();
+            for (int i = 0; i < 3; i++)
+            {
+                var f = Image(Box(preview, "Frame" + i, new Vector2(0.5f, 0), new Vector2((i - 1) * 132, 4), new Vector2(76, 76)), Color.white, BrewFrame(i));
+                f.preserveAspect = true;
+                frames.Add(f);
+                if (i < 2)
+                    Label(preview, "Arrow" + i, ">", 30, TextAlignmentOptions.Center, new Vector2(0.5f, 0), new Vector2((i - 0.5f) * 132, 24), new Vector2(40, 40), GoldText)
+                        .fontStyle = FontStyles.Bold;
+            }
+
+            var status = Label(detail, "Status", "", 24, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -430), new Vector2(400, 32));
+            status.fontStyle = FontStyles.Bold;
+
+            var close = KitButton(detail, "Close", "Esc / Tab: Cerrar", new Vector2(176, 64));
+            Place(close, new Vector2(0, 0), new Vector2(18, 14));
+            close.GetComponentInChildren<TMP_Text>().fontSize = 20;
+            var brew = KitButton(detail, "Brew", "F / Enter: Preparar", new Vector2(232, 64));
+            Place(brew, new Vector2(1, 0), new Vector2(-18, 14));
+            brew.GetComponentInChildren<TMP_Text>().fontSize = 22;
+
+            // Animación al preparar: tapa el detalle con el frasco grande
+            var fx = Stretch(detail, "BrewFx");
+            Image(fx, new Color(0.05f, 0.02f, 0.06f, 0.97f)).raycastTarget = true;
+            var fxGroup = fx.gameObject.AddComponent<CanvasGroup>();
+            var potion = Box(fx, "Potion", new Vector2(0.5f, 0.5f), new Vector2(0, 30), new Vector2(300, 300));
+            var fxImg = Image(potion, Color.white, BrewFrame(0));
+            fxImg.preserveAspect = true;
+            var fxLabel = Label(fx, "Label", "", 32, TextAlignmentOptions.Center, new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(400, 48));
+            fxLabel.fontStyle = FontStyles.Bold;
+            fx.gameObject.SetActive(false);
+
+            var so = new SerializedObject(view);
+            so.FindProperty("recipe").objectReferenceValue = AssetDatabase.LoadAssetAtPath<CraftingRecipe>(PotionRecipePath);
+            SetList(so.FindProperty("gridSlots"), grid);
+            so.FindProperty("resultSlot").objectReferenceValue = result;
+            so.FindProperty("resultName").objectReferenceValue = name;
+            so.FindProperty("resultText").objectReferenceValue = text;
+            SetList(so.FindProperty("ingredientSlots"), ingSlots);
+            SetList(so.FindProperty("ingredientTexts"), ingTexts);
+            SetList(so.FindProperty("previewFrames"), frames);
+            so.FindProperty("status").objectReferenceValue = status;
+            so.FindProperty("brewButton").objectReferenceValue = brew;
+            so.FindProperty("brewLabel").objectReferenceValue = brew.GetComponentInChildren<TMP_Text>();
+            so.FindProperty("closeButton").objectReferenceValue = close;
+            so.FindProperty("closeLabel").objectReferenceValue = close.GetComponentInChildren<TMP_Text>();
+            SetList(so.FindProperty("brewFrames"), new[] { BrewFrame(0), BrewFrame(1), BrewFrame(2) });
+            so.FindProperty("fxGroup").objectReferenceValue = fxGroup;
+            so.FindProperty("fxPotion").objectReferenceValue = potion;
+            so.FindProperty("fxImage").objectReferenceValue = fxImg;
+            so.FindProperty("fxLabel").objectReferenceValue = fxLabel;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            inventorySo.FindProperty("potionPage").objectReferenceValue = view;
+            return page.gameObject;
+        }
+
+        private static Sprite BrewFrame(int i) =>
+            AssetDatabase.LoadAssetAtPath<Sprite>($"{BrewFramesFolder}/potion_brew_{i + 1}.png");
+
+        // Agrega la pestaña al GameSystems ya existente sin reconstruirlo (conserva los ajustes a mano).
+        [MenuItem("Tools/Claude/Chapter 1/Add Potion Tab To Inventory")]
+        public static void AddPotionTabToSystemsPrefab()
+        {
+            var root = PrefabUtility.LoadPrefabContents(ChapterUi.SystemsPath);
+            try
+            {
+                var screen = root.GetComponentInChildren<InventoryScreen>(true);
+                var box = screen != null ? screen.transform.Find("Panel/Box") as RectTransform : null;
+                var pageArea = box != null ? box.Find("Pages") as RectTransform : null;
+                if (pageArea == null) { Debug.LogError("[Chapter1] No se encontró Inventory/Panel/Box/Pages en GameSystems."); return; }
+
+                var old = pageArea.Find("PotionPage");
+                if (old != null) Object.DestroyImmediate(old.gameObject);
+                var oldTab = box.Find("Tab_Preparar poción");
+                if (oldTab != null) Object.DestroyImmediate(oldTab.gameObject);
+
+                var so = new SerializedObject(screen);
+                var tabs = so.FindProperty("tabButtons");
+                var pages = so.FindProperty("pages");
+                // Solo las tres pestañas originales; la cuarta se vuelve a poner abajo
+                tabs.arraySize = Mathf.Min(tabs.arraySize, 3);
+                pages.arraySize = Mathf.Min(pages.arraySize, 3);
+
+                var tab = PotionTab(box);
+                tab.transform.SetSiblingIndex(pageArea.GetSiblingIndex());
+                var page = BuildPotionPage(pageArea, so);
+                page.SetActive(false);
+
+                tabs.arraySize++;
+                tabs.GetArrayElementAtIndex(tabs.arraySize - 1).objectReferenceValue = tab;
+                pages.arraySize++;
+                pages.GetArrayElementAtIndex(pages.arraySize - 1).objectReferenceValue = page;
+                so.ApplyModifiedPropertiesWithoutUndo();
+
+                var hint = box.Find("Hint")?.GetComponent<TMP_Text>();
+                if (hint != null) hint.text = "Tab / Esc: cerrar   ·   1 2 3 4: pestañas";
+
+                PrefabUtility.SaveAsPrefabAsset(root, ChapterUi.SystemsPath);
+                Debug.Log("[Chapter1] Pestaña \"Preparar poción\" agregada al inventario de GameSystems.");
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
         }
 
         private static GameObject BuildStatsPage(RectTransform area, SerializedObject so)

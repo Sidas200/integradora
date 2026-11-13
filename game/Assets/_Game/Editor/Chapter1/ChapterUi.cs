@@ -17,7 +17,7 @@ namespace Game.EditorTools.Chapter1
         public const string SystemsPath = ResourcesFolder + "/GameSystems.prefab";
 
         public const string Controls =
-            "WASD / flechas: mover   ·   Clic / J: atacar   ·   Espacio: esquivar   ·   E: interactuar   ·   Q: poción   ·   Tab: inventario   ·   Esc: pausa";
+            "WASD / flechas: mover   ·   Clic / J: atacar   ·   Espacio: esquivar   ·   E: interactuar   ·   R: poción   ·   Tab: inventario   ·   Esc: pausa";
 
         public const string DialogueHint = "E / Clic: continuar   ·   X: saltar";
 
@@ -352,16 +352,11 @@ namespace Game.EditorTools.Chapter1
             Image(Stretch(c, "Dim"), new Color(0f, 0f, 0.03f, 0.35f));
             if (!endCard) return null;
 
+            // Fondo "Paisaje onírico" y tarjeta con letra serif y adornos (ver DemoEndCard)
+            DemoEndCard.StyleBackground(c);
             var card = Stretch(c, "EndCard");
-            Image(card, new Color(0.02f, 0.02f, 0.06f, 0.85f));
-            Label(card, "Title", "Fin de la demo", 80, TextAlignmentOptions.Center, new Vector2(0.5f, 0.5f), new Vector2(0, 250), new Vector2(1400, 110));
-            Label(card, "Body",
-                "Capítulo 1 completado: obtuviste el permiso del primer guardián.\n\n" +
-                "Las otras tres zonas, sus guardianes y el Gran Juzgado esperan en la versión completa.\n\n" +
-                "Gracias por jugar The Day I Made That Promise.", 34, TextAlignmentOptions.Center,
-                new Vector2(0.5f, 0.5f), new Vector2(0, 20), new Vector2(1400, 320), MutedText);
-            Label(card, "Hint", "Pulsa cualquier tecla para volver al menú", 28, TextAlignmentOptions.Center,
-                new Vector2(0.5f, 0), new Vector2(0, 80), new Vector2(1000, 44));
+            Image(card, new Color(0f, 0f, 0f, 0f));
+            DemoEndCard.BuildCard(card);
             var cont = card.gameObject.AddComponent<ClickToContinue>();
             SetEnum(cont, "onContinue", (int)ClickToContinue.Action.ReturnToMenu);
             card.gameObject.SetActive(false);

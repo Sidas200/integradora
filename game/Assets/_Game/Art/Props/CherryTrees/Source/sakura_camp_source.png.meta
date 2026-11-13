@@ -1,0 +1,509 @@
+fileFormatVersion: 2
+guid: 9a7045009a3c8412fbe6ec9a18ed0da8
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4619576962236040579
+    second: sakura_camp_source_0
+  - first:
+      213: 1679453015699395558
+    second: sakura_camp_source_1
+  - first:
+      213: -3134383588156776710
+    second: sakura_camp_source_2
+  - first:
+      213: 2501616696896501630
+    second: sakura_camp_source_3
+  - first:
+      213: 842059878851646594
+    second: sakura_camp_source_4
+  - first:
+      213: 2020551138713441919
+    second: sakura_camp_source_5
+  - first:
+      213: 6281681800011504894
+    second: sakura_camp_source_6
+  - first:
+      213: -4670350881256410506
+    second: sakura_camp_source_7
+  - first:
+      213: 4975549188319636897
+    second: sakura_camp_source_8
+  - first:
+      213: 6848076472736170979
+    second: sakura_camp_source_9
+  - first:
+      213: -1800318189845201044
+    second: sakura_camp_source_10
+  - first:
+      213: 6830786600390274045
+    second: sakura_camp_source_11
+  - first:
+      213: 1164656723370612874
+    second: sakura_camp_source_12
+  - first:
+      213: -4651825531153286469
+    second: sakura_camp_source_13
+  - first:
+      213: -2007248178716735690
+    second: sakura_camp_source_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: sakura_camp_source_0
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 23
+        width: 1263
+        height: 1154
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38548a685c80c1040800000000000000
+      internalID: 4619576962236040579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_1
+      rect:
+        serializedVersion: 2
+        x: 626
+        y: 1149
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e398b1ae9d9e4710800000000000000
+      internalID: 1679453015699395558
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_2
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 1149
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afed916bbbe6084d0800000000000000
+      internalID: -3134383588156776710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_3
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 811
+        width: 15
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e77b3b6b12787b220800000000000000
+      internalID: 2501616696896501630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_4
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 831
+        width: 11
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2849f869ff89fab00800000000000000
+      internalID: 842059878851646594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_5
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 812
+        width: 27
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7696892e807a0c10800000000000000
+      internalID: 2020551138713441919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_6
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 756
+        width: 51
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efcd8b9b0540d2750800000000000000
+      internalID: 6281681800011504894
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_7
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 799
+        width: 16
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 672774a3e949f2fb0800000000000000
+      internalID: -4670350881256410506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_8
+      rect:
+        serializedVersion: 2
+        x: 1104
+        y: 779
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ad664c00a3bc0540800000000000000
+      internalID: 4975549188319636897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_9
+      rect:
+        serializedVersion: 2
+        x: 1112
+        y: 743
+        width: 67
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e34620f441490f50800000000000000
+      internalID: 6848076472736170979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_10
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 712
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6f3a93152cf307e0800000000000000
+      internalID: -1800318189845201044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_11
+      rect:
+        serializedVersion: 2
+        x: 1166
+        y: 669
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfba2c4d834dbce50800000000000000
+      internalID: 6830786600390274045
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_12
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 631
+        width: 39
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8896c98e11b92010800000000000000
+      internalID: 1164656723370612874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_13
+      rect:
+        serializedVersion: 2
+        x: 1104
+        y: 514
+        width: 57
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bbaf38a6355617fb0800000000000000
+      internalID: -4651825531153286469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sakura_camp_source_14
+      rect:
+        serializedVersion: 2
+        x: 1216
+        y: 161
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6370a839a62d424e0800000000000000
+      internalID: -2007248178716735690
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      sakura_camp_source_0: 4619576962236040579
+      sakura_camp_source_1: 1679453015699395558
+      sakura_camp_source_10: -1800318189845201044
+      sakura_camp_source_11: 6830786600390274045
+      sakura_camp_source_12: 1164656723370612874
+      sakura_camp_source_13: -4651825531153286469
+      sakura_camp_source_14: -2007248178716735690
+      sakura_camp_source_2: -3134383588156776710
+      sakura_camp_source_3: 2501616696896501630
+      sakura_camp_source_4: 842059878851646594
+      sakura_camp_source_5: 2020551138713441919
+      sakura_camp_source_6: 6281681800011504894
+      sakura_camp_source_7: -4670350881256410506
+      sakura_camp_source_8: 4975549188319636897
+      sakura_camp_source_9: 6848076472736170979
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

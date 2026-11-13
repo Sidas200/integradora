@@ -68,7 +68,7 @@ public static class ControlHints
             case "slash": return For("Clic derecho / K", "B", Circle);
             case "dash": return For("Espacio", "A", Cross);
             case "interact": return For("E", "Y", Triangle);
-            case "potion": return For("Q", "← / RB", "← / R1");
+            case "potion": return For("R", "← / RB", "← / R1");
             case "amrita": return For("G", "LB", "L1");
             case "inventory": return For("Tab", "View", "Touchpad");
             case "pause": return For("Esc", "Start", "Options");
