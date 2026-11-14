@@ -19,6 +19,7 @@ public class GameFlow : MonoBehaviour
     [SerializeField] private DefeatScreen defeatScreen;
 
     private ISaveRepository repository;
+    private DeathStage deathStage;
     private Health playerHealth;
 
     // Foto de la sesión al entrar a una zona mientras todavía no hay punto seguro.
@@ -38,6 +39,8 @@ public class GameFlow : MonoBehaviour
     {
         Instance = this;
         repository = new LocalSaveRepository();
+        deathStage = GetComponent<DeathStage>();
+        if (deathStage == null) deathStage = gameObject.AddComponent<DeathStage>();
     }
 
     private void OnDestroy()
@@ -213,6 +216,7 @@ public class GameFlow : MonoBehaviour
     public void OnSceneReady(SceneContext context, string scenePath, string spawnId)
     {
         if (defeatScreen != null) defeatScreen.Hide();
+        if (deathStage != null) deathStage.Clear();
         BindPlayer();
         SceneReady?.Invoke(context);
 
@@ -245,8 +249,13 @@ public class GameFlow : MonoBehaviour
 
     private IEnumerator ShowDefeat()
     {
-        yield return new WaitForSecondsRealtime(defeatDelay);
+        // Animación de muerte con reflector; sin sus frames, la pausa de siempre
+        bool staged = deathStage != null && deathStage.CanPlay() && playerHealth != null;
+        if (staged) yield return deathStage.Play(playerHealth.gameObject);
+        else yield return new WaitForSecondsRealtime(defeatDelay);
+
         GameInput.Unlock(this);
-        if (defeatScreen != null) defeatScreen.Show();
+        if (staged) deathStage.SendBehindMenu();
+        if (defeatScreen != null) defeatScreen.Show(staged);
     }
 }

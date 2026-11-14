@@ -13,8 +13,13 @@ public class DefeatScreen : MonoBehaviour
     // no debe reintentar sin querer en cuanto aparece la pantalla.
     private const float InputDelay = 0.4f;
 
+    // Con la animación de muerte detrás, el fondo es más transparente para que se vea a Tsuki bajo el reflector
+    private const float BackdropAlphaOverStage = 0.55f;
+
     private Selectable[] buttons;
     private float readyAt;
+    private Image backdrop;
+    private float backdropAlpha = -1f;
 
     public bool IsOpen => panel != null && panel.activeSelf;
 
@@ -48,8 +53,17 @@ public class DefeatScreen : MonoBehaviour
         if (menuButton != null) menuButton.interactable = value;
     }
 
-    public void Show()
+    public void Show(bool overDeathStage = false)
     {
+        if (backdrop == null) backdrop = panel.GetComponent<Image>();
+        if (backdrop != null)
+        {
+            if (backdropAlpha < 0f) backdropAlpha = backdrop.color.a;
+            var c = backdrop.color;
+            c.a = overDeathStage ? Mathf.Min(backdropAlpha, BackdropAlphaOverStage) : backdropAlpha;
+            backdrop.color = c;
+        }
+
         panel.SetActive(true);
         GameInput.Lock(this);
         SetInteractable(false);
