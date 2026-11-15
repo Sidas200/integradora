@@ -22,7 +22,7 @@ public class EnemyDrop : MonoBehaviour
         health = GetComponent<EnemyHealth>();
     }
 
-    private void OnDisable()
+     private void OnDisable()
     {
         // Solo suelta si el enemigo murió (no al cerrar la escena).
         if (dropped || health == null || !health.IsDead) return;
@@ -38,11 +38,16 @@ public class EnemyDrop : MonoBehaviour
             int max = Mathf.Max(min, drop.maxAmount);
             int amount = Random.Range(min, max + 1); // el máximo es inclusivo
 
-            Vector2 offset = Random.insideUnitCircle * scatterRadius;
-            Vector3 pos = transform.position + (Vector3)offset;
+            // Un pickup por cada unidad, para que se vea la cantidad en el suelo.
+            for (int i = 0; i < amount; i++)
+            {
+                Vector2 offset = Random.insideUnitCircle * scatterRadius;
+                Vector3 pos = transform.position + (Vector3)offset;
 
-            MaterialPickup pickup = Instantiate(pickupPrefab, pos, Quaternion.identity);
-            pickup.Setup(drop.material, amount);
+                MaterialPickup pickup = Instantiate(pickupPrefab, pos, Quaternion.identity);
+                pickup.Setup(drop.material, 1);
+            }
+
             Debug.Log($"Drop: {drop.material.displayName} x{amount}");
         }
     }

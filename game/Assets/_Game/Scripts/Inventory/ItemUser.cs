@@ -3,20 +3,22 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-// Usa items consumibles del inventario: Poción (Q) y Gota de Amrita (G).
+// Usa items consumibles del inventario: Poción (R / flecha izquierda / RB / R1) y Gota de Amrita (G / LB / L1).
 // Va en el mismo objeto que el componente Health del jugador.
 public class ItemUser : MonoBehaviour
 {
-    [Header("Poción (tecla Q)")]
+    [Header("Poción (tecla Q; flecha izquierda o RB / R1 con mando)")]
     [SerializeField] private MaterialData potion;
-    [SerializeField] private int potionHeal = 30;
+    [SerializeField] private int potionHeal = 35;
 
-    [Header("Gota de Amrita (tecla G)")]
+    [Header("Gota de Amrita (tecla G, LB / L1 con mando)")]
     [SerializeField] private MaterialData amritaDrop;
     public UnityEvent onAmritaUsed;
 
     // Para que el jefe u otros scripts se suscriban desde código
     public event Action AmritaUsed;
+
+    public MaterialData Potion => potion;
 
     private Health health;
     private Inventory inventory;
@@ -32,13 +34,12 @@ public class ItemUser : MonoBehaviour
     private void Update()
     {
         // Con el juego en pausa (panel de crafteo, menú) no se usan items
-        if (Time.timeScale == 0f) return;
+        if (Time.timeScale == 0f || GameInput.GameplayBlocked) return;
 
         var keyboard = Keyboard.current;
-        if (keyboard == null) return;
 
-        if (keyboard.qKey.wasPressedThisFrame) UsePotion();
-        if (keyboard.gKey.wasPressedThisFrame) UseAmrita();
+        if ((keyboard != null && keyboard.rKey.wasPressedThisFrame) || GamepadInput.RightShoulderPressed || GamepadInput.DpadLeftPressed) UsePotion();
+        if ((keyboard != null && keyboard.gKey.wasPressedThisFrame) || GamepadInput.LeftShoulderPressed) UseAmrita();
     }
 
     private Inventory GetInventory()
@@ -54,6 +55,7 @@ public class ItemUser : MonoBehaviour
         if (health.CurrentHealth >= health.MaxHealth)
         {
             Debug.Log("Vida llena: no se gasta la Poción.");
+            if (GameHud.Instance != null) GameHud.Instance.ShowToast("Tu vida ya está llena.", 1.5f);
             return false;
         }
 
@@ -61,6 +63,7 @@ public class ItemUser : MonoBehaviour
         if (inv == null || !inv.TryConsume(potion.id, 1))
         {
             Debug.Log("No tienes Pociones.");
+            if (GameHud.Instance != null) GameHud.Instance.ShowToast("No tienes Pociones.", 1.5f);
             return false;
         }
 
@@ -72,6 +75,13 @@ public class ItemUser : MonoBehaviour
     public bool UseAmrita()
     {
         if (amritaDrop == null || health == null || health.IsDead) return false;
+
+        // Capítulo 1: solo tiene efecto frente a un guardián dormido; si no, no se gasta.
+        if (!GuardianArena.CanReceiveAmrita)
+        {
+            if (GameHud.Instance != null) GameHud.Instance.ShowToast("La Gota de Amrita solo tiene efecto ante un guardián dormido.");
+            return false;
+        }
 
         var inv = GetInventory();
         if (inv == null || !inv.TryConsume(amritaDrop.id, 1))

@@ -32,7 +32,9 @@ env:
 jobs:
   changes:
     name: game-changes
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    # En main no se consulta el filtro: toda versión sale de un artefacto de main (release.yml),
+    # así que un merge a main siempre debe compilar, aunque el merge commit no cambie rutas.
+    if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.ref != 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -54,7 +56,7 @@ jobs:
   tests:
     name: game-tests
     needs: changes
-    if: ${{ !cancelled() && (needs.changes.outputs.unity == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ !cancelled() && (needs.changes.outputs.unity == 'true' || github.ref == 'refs/heads/main' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     # Sin caché de Library, Unity importa todo el proyecto desde cero (runner de 2 núcleos);
     # la primera vez tarda más de 30 min. El caché solo se guarda si el job termina bien.

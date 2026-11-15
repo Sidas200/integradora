@@ -9,6 +9,7 @@ public class MaterialPickup : MonoBehaviour
     [SerializeField] private int amount = 1;
 
     private bool collected;
+    private SpriteRenderer spriteRenderer;
 
     private void Reset()
     {
@@ -16,11 +17,38 @@ public class MaterialPickup : MonoBehaviour
         GetComponent<Collider2D>().isTrigger = true;
     }
 
-        // Lo usa EnemyDrop para configurar el pickup al soltarlo.
+    private void Awake()
+    {
+        ApplyVisual();
+    }
+
+    // Capítulo 1: si ya se recogió en esta partida (o en el guardado), no vuelve a aparecer.
+    private void Start()
+    {
+        var pid = GetComponent<PersistentId>();
+        if (pid != null && WorldState.IsCollected(pid.Id))
+            Destroy(gameObject);
+    }
+
+    // Lo usa EnemyDrop para configurar el pickup al soltarlo.
     public void Setup(MaterialData newMaterial, int newAmount)
     {
         material = newMaterial;
         amount = Mathf.Max(1, newAmount);
+        ApplyVisual();
+    }
+
+    // Muestra el ícono del material en el suelo (si ya tiene uno asignado).
+    private void ApplyVisual()
+    {
+        if (material == null || material.icon == null) return;
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (spriteRenderer == null) return;
+
+        spriteRenderer.sprite = material.icon;
+        spriteRenderer.color = Color.white; // quita el tinte azul/verde de prueba
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -31,7 +59,10 @@ public class MaterialPickup : MonoBehaviour
         if (inventory == null) return; // solo el jugador (tiene Inventory)
 
         collected = true;
+        var pid = GetComponent<PersistentId>();
+        if (pid != null) WorldState.MarkCollected(pid.Id);
         inventory.Add(material, amount);
+        PlayStats.MaterialCollected(material.id, amount, pid != null ? pid.Id : null);
         Debug.Log($"Recogido: {material.displayName} x{amount} (total: {inventory.GetAmount(material.id)})");
         Destroy(gameObject);
     }

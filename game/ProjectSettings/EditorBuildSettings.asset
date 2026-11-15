@@ -5,10 +5,34 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 1
+    path: Assets/_Game/Scenes/Chapter1/MainMenu.unity
+    guid: 18f612228366042daadb418428f0c471
+  - enabled: 1
+    path: Assets/_Game/Scenes/Chapter1/00_Intro.unity
+    guid: 3bf34c7401ae042b089c0a2ffac20bf0
+  - enabled: 1
+    path: Assets/_Game/Scenes/Chapter1/01_FlowerIsland.unity
+    guid: 0d853807777224d4db6e2f5020b6a4de
+  - enabled: 1
+    path: Assets/_Game/Scenes/Chapter1/02_OpenField.unity
+    guid: 9d20286b6be004d6b9776a0c6d7438ba
+  - enabled: 1
+    path: Assets/_Game/Scenes/Chapter1/04_Sanctuary.unity
+    guid: 210269b1980a84ad99f491b515082c0f
+  - enabled: 1
+    path: Assets/_Game/Scenes/Chapter1/05_CombatZone.unity
+    guid: dce9afe069da54e0799ea242abb189fb
+  - enabled: 1
+    path: Assets/_Game/Scenes/Chapter1/06_GuardianArena.unity
+    guid: f926d2e69a1c9405e9730960f3bf9d31
+  - enabled: 1
+    path: Assets/_Game/Scenes/Chapter1/07_DemoEnd.unity
+    guid: b1f10ba0cea4147718887f76b01f1c24
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
-  - enabled: 1
+  - enabled: 0
     path: Assets/_Game/Scenes/Prototype_Isometric.unity
     guid: aa53597467e224298be95e150a8d103e
   m_configObjects:

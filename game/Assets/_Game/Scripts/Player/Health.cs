@@ -23,6 +23,11 @@ public class Health : MonoBehaviour, IDamageable
     // Eventos C# para usarlos desde otros scripts
     public event Action<int, int> HealthChanged;
     public event Action Died;
+    public event Action<int> Healed; // vida realmente recuperada (> 0)
+
+    // Esquiva perfecta (PlayerController): si devuelve true el golpe no hace daño y se avisa con Dodged.
+    public Func<bool> DodgeCheck { get; set; }
+    public event Action Dodged;
 
     private IHealthProvider provider;
     private int currentHealth;
@@ -35,6 +40,9 @@ public class Health : MonoBehaviour, IDamageable
     public float Normalized => MaxHealth > 0 ? (float)currentHealth / MaxHealth : 0f;
     public bool IsDead { get; private set; }
     public bool IsInvulnerable => invulnerableTimer > 0f;
+
+    // Invulnerable al menos estos segundos (p. ej. mientras la electrocuta un rayo)
+    public void SetInvulnerable(float seconds) => invulnerableTimer = Mathf.Max(invulnerableTimer, seconds);
 
     private void Awake()
     {
@@ -59,6 +67,12 @@ public class Health : MonoBehaviour, IDamageable
         if (IsDead || IsInvulnerable || amount <= 0)
             return;
 
+        if (DodgeCheck != null && DodgeCheck())
+        {
+            Dodged?.Invoke();
+            return;
+        }
+
         int damage = Mathf.Max(amount - Defense, minDamage);
         currentHealth = Mathf.Max(currentHealth - damage, 0);
         invulnerableTimer = invulnerableTime;
@@ -80,6 +94,7 @@ public class Health : MonoBehaviour, IDamageable
 
         onHealed?.Invoke(currentHealth - before);
         NotifyChanged();
+        if (currentHealth > before) Healed?.Invoke(currentHealth - before);
     }
 
     public void Kill()
@@ -97,6 +112,14 @@ public class Health : MonoBehaviour, IDamageable
     {
         IsDead = false;
         currentHealth = MaxHealth;
+        NotifyChanged();
+    }
+
+        // GAME-106 / SCRUM-82: restaura la vida guardada (mínimo 1, nunca carga muerto).
+    public void SetCurrentHealth(int value)
+    {
+        IsDead = false;
+        currentHealth = Mathf.Clamp(value, 1, MaxHealth);
         NotifyChanged();
     }
 

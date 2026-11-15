@@ -1,0 +1,28 @@
+// Capítulo 1: para qué sirve cada item (se muestra en el inventario y en la forja).
+// Los ids son los estables del inventario (ver docs del equipo).
+public static class ItemUsage
+{
+    public static string Hint(string id)
+    {
+        switch (id)
+        {
+            case "pocion": return ControlHints.Format("Úsala con {potion} o con el botón Usar: recupera 35 de vida.");
+            case "gota_amrita": return ControlHints.Format("Ofrécela a un guardián dormido para despertarlo ({interact} frente a él, o {amrita}).");
+            case "alma_pequena": return "Ofrécela en la puerta del primer Santuario para abrirla.";
+            case "casco_cuero":
+            case "pechera_cuero":
+            case "botas_cuero": return "Equípala en la pestaña Equipo para subir tu defensa.";
+            case "flor_destello":
+            case "concentrado_slime":
+            case "resto_slime":
+            case "cuero_antiguo":
+            case "alma_antigua":
+            case "circuito_antiguo": return "Material de forja. Llévalo a la forja del campamento.";
+            default: return "";
+        }
+    }
+
+    public static bool IsEquipment(string id) => id == "casco_cuero" || id == "pechera_cuero" || id == "botas_cuero";
+    public static bool IsUsable(string id) => id == "pocion" || id == "gota_amrita";
+    public static bool IsKeyItem(string id) => id == "alma_pequena";
+}

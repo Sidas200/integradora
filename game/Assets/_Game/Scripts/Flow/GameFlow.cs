@@ -1,0 +1,261 @@
+using System;
+using System.Collections;
+using UnityEngine;
+
+// Flujo del capítulo: nueva partida, continuar, guardar en punto seguro, derrota y reintento.
+public class GameFlow : MonoBehaviour
+{
+    public static GameFlow Instance { get; private set; }
+
+    [Header("Escenas (rutas, las asigna el builder)")]
+    [SerializeField] private string mainMenuScene;
+    [SerializeField] private string introScene;
+    [SerializeField] private string firstZoneScene;
+    [SerializeField] private string firstZoneSpawn;
+    [SerializeField] private string demoEndScene;
+
+    [Header("Derrota")]
+    [SerializeField] private float defeatDelay = 1.2f;
+    [SerializeField] private DefeatScreen defeatScreen;
+
+    private ISaveRepository repository;
+    private DeathStage deathStage;
+    private Health playerHealth;
+
+    // Foto de la sesión al entrar a una zona mientras todavía no hay punto seguro.
+    private SaveData entrySnapshot;
+    private string entryScene;
+    private string entrySpawn;
+
+    public event Action<string> Saved; // id del punto seguro
+    // Cada vez que se escribe el guardado en disco (punto seguro o hito); CloudSync lo sube.
+    public event Action<SaveData> SaveWritten;
+    public event Action<SceneContext> SceneReady;
+
+    public string IntroScene => introScene;
+    public string DemoEndScene => demoEndScene;
+
+    private void Awake()
+    {
+        Instance = this;
+        repository = new LocalSaveRepository();
+        deathStage = GetComponent<DeathStage>();
+        if (deathStage == null) deathStage = gameObject.AddComponent<DeathStage>();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    // Tiempo jugado: solo en zonas de juego y con el tiempo corriendo (pausa e inventario lo detienen).
+    private void Update()
+    {
+        var context = SceneContext.Current;
+        if (Time.timeScale > 0f && context != null && context.IsGameplayZone)
+            PlayStats.AddPlayTime(Time.unscaledDeltaTime);
+    }
+
+    // ---------------------------------------------------------------- menú
+
+    public bool HasValidSave() => LoadUsableSave() != null;
+
+    public SaveData LoadLocalSave() => LoadUsableSave();
+
+    // CloudSync: reemplaza el guardado local por el de la nube (otro dispositivo guardó después).
+    public bool WriteLocalSave(SaveData data)
+    {
+        try
+        {
+            repository.Save(data);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"No se pudo escribir el guardado de la nube: {e.Message}");
+            return false;
+        }
+    }
+
+    // Un guardado que apunta a una escena que ya no está en el build (p. ej. la antigua 03_Camp)
+    // se trata como inválido: nunca debe romper "Continuar" ni bloquear la nueva partida (SRS).
+    private SaveData LoadUsableSave()
+    {
+        var data = repository.Load();
+        if (data == null) return null;
+        string scene = data.checkpoint.scene;
+        if (!string.IsNullOrEmpty(scene) && UnityEngine.SceneManagement.SceneUtility.GetBuildIndexByScenePath(scene) < 0)
+        {
+            Debug.LogWarning($"El guardado apunta a una escena que ya no existe ({scene}); se ignora.");
+            return null;
+        }
+        return data;
+    }
+
+    public void NewGame()
+    {
+        Time.timeScale = 1f;
+        SessionState.Instance.ResetState();
+        entrySnapshot = null;
+        // Un guardado dañado o de otra versión nunca bloquea la nueva partida (SRS)
+        try { repository.Delete(); }
+        catch (Exception e) { Debug.LogWarning($"No se pudo borrar el guardado anterior: {e.Message}"); }
+        SceneLoader.Instance.LoadSceneFresh(introScene, null);
+    }
+
+    public void StartChapter()
+    {
+        SceneLoader.Instance.LoadSceneFresh(firstZoneScene, firstZoneSpawn);
+    }
+
+    public bool Continue()
+    {
+        var data = LoadUsableSave();
+        if (data == null) return false;
+        entrySnapshot = null;
+        SceneLoader.Instance.LoadFromSave(data);
+        return true;
+    }
+
+    public void ReturnToMenu()
+    {
+        Time.timeScale = 1f;
+        SceneLoader.Instance.LoadSceneFresh(mainMenuScene, null);
+    }
+
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
+    public void GoToDemoEnd()
+    {
+        SceneLoader.Instance.LoadScene(demoEndScene, null);
+    }
+
+    // ---------------------------------------------------------------- guardado
+
+    // HEX-08: guarda en disco el estado actual y marca el punto seguro.
+    public bool SaveAtSafePoint(string safePointId, Vector3 position)
+    {
+        var session = SessionState.Instance;
+        session.SyncFromPlayer();
+        session.SaveSafePoint(safePointId, position);
+        var data = SaveData.FromSession(session);
+        try
+        {
+            repository.Save(data);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"No se pudo guardar: {e.Message}");
+            return false;
+        }
+        entrySnapshot = null;
+        Saved?.Invoke(safePointId);
+        SaveWritten?.Invoke(data);
+        return true;
+    }
+
+    // Guarda el avance de un hito (sello, forja, santuario...) sin mover el punto seguro:
+    // al cargar se reaparece en el último cristal, pero con ese progreso conservado.
+    // Sin él, salir al menú después de abrir el sello lo dejaba cerrado otra vez.
+    public bool SaveProgress()
+    {
+        var session = SessionState.Instance;
+        if (session == null || !session.HasSafePoint) return false;
+        session.SyncFromPlayer();
+        var data = SaveData.FromSession(session);
+        try
+        {
+            repository.Save(data);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"No se pudo guardar el progreso: {e.Message}");
+            return false;
+        }
+        entrySnapshot = null;
+        Debug.Log("Progreso guardado (hito).");
+        SaveWritten?.Invoke(data);
+        return true;
+    }
+
+    // ---------------------------------------------------------------- derrota
+
+    // HEX-07: reintento desde el último punto seguro con el estado que tenía al guardar.
+    public void Retry()
+    {
+        Time.timeScale = 1f;
+        var data = LoadUsableSave();
+        if (data != null && !string.IsNullOrEmpty(data.checkpoint.scene))
+        {
+            data.match.health = -1; // reaparece con vida completa
+            SceneLoader.Instance.LoadFromSave(data);
+            return;
+        }
+
+        if (entrySnapshot != null)
+        {
+            var session = SessionState.Instance;
+            entrySnapshot.ApplyTo(session);
+            session.currentHealth = -1;
+            session.respawnAtSafePoint = false;
+            SceneLoader.Instance.LoadSceneFresh(entryScene, entrySpawn);
+            return;
+        }
+
+        SessionState.Instance.ResetState();
+        StartChapter();
+    }
+
+    public void OnSceneReady(SceneContext context, string scenePath, string spawnId)
+    {
+        if (defeatScreen != null) defeatScreen.Hide();
+        if (deathStage != null) deathStage.Clear();
+        BindPlayer();
+        SceneReady?.Invoke(context);
+
+        if (!context.IsGameplayZone) return;
+        var session = SessionState.Instance;
+        if (session != null && !session.HasSafePoint)
+        {
+            session.SyncFromPlayer();
+            entrySnapshot = SaveData.FromSession(session);
+            entryScene = scenePath;
+            entrySpawn = spawnId;
+        }
+    }
+
+    private void BindPlayer()
+    {
+        if (playerHealth != null) playerHealth.Died -= HandlePlayerDied;
+        var player = SceneContext.FindPlayer();
+        playerHealth = player != null ? player.GetComponent<Health>() : null;
+        if (playerHealth != null) playerHealth.Died += HandlePlayerDied;
+    }
+
+    private void HandlePlayerDied()
+    {
+        PlayStats.PlayerDied(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        if (InventoryScreen.Instance != null) InventoryScreen.Instance.Close();
+        GameInput.Lock(this);
+        StartCoroutine(ShowDefeat());
+    }
+
+    private IEnumerator ShowDefeat()
+    {
+        // Animación de muerte con reflector; sin sus frames, la pausa de siempre
+        bool staged = deathStage != null && deathStage.CanPlay() && playerHealth != null;
+        if (staged) yield return deathStage.Play(playerHealth.gameObject);
+        else yield return new WaitForSecondsRealtime(defeatDelay);
+
+        GameInput.Unlock(this);
+        if (staged) deathStage.SendBehindMenu();
+        if (defeatScreen != null) defeatScreen.Show(staged);
+    }
+}

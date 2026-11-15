@@ -1,0 +1,328 @@
+using System.Collections;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+// HUD del capítulo (SRS): vida, nombre de zona y avisos en pantalla.
+// Todo lo importante se comunica con texto para poder jugar sin sonido (RNF).
+public class GameHud : MonoBehaviour
+{
+    public static GameHud Instance { get; private set; }
+
+    [SerializeField] private CanvasGroup root;
+
+    [Header("Vida")]
+    [SerializeField] private Image healthFill;
+    [SerializeField] private TMP_Text healthText;
+
+    [Header("Objetivo e interacción")]
+    [SerializeField] private TMP_Text objectiveText;
+    [SerializeField] private CanvasGroup promptGroup;
+    [SerializeField] private TMP_Text promptText;
+
+    [Header("Materiales (HEX-04)")]
+    [SerializeField] private MaterialData[] trackedMaterials;
+    [SerializeField] private int[] materialGoals;
+    [SerializeField] private TMP_Text[] materialTexts;
+
+    [Header("Jefe")]
+    [SerializeField] private CanvasGroup bossGroup;
+    [SerializeField] private TMP_Text bossName;
+    [SerializeField] private Image bossFill;
+    [SerializeField] private TMP_Text bossState;
+
+    [Header("Avisos")]
+    [SerializeField] private CanvasGroup zoneTitleGroup;
+    [SerializeField] private TMP_Text zoneTitleText;
+    [SerializeField] private CanvasGroup toastGroup;
+    [SerializeField] private TMP_Text toastText;
+
+    private Health playerHealth;
+    private HealthScreenFx screenFx;
+    private Minimap minimap;
+    private Inventory inventory;
+    private Coroutine zoneRoutine;
+    private Coroutine toastRoutine;
+
+    private string lastObjective;
+    private GuardianBoss boss;
+
+    // Pista bajo la vida ("Tab: Inventario · Esc: Pausa") que crea el builder; cambia con el dispositivo.
+    private TMP_Text inventoryHint;
+
+    // Contador de pociones de la esquina inferior izquierda (lo arma UiSkin al aplicar el estilo)
+    private TMP_Text potionCount;
+    private TMP_Text potionKey;
+    private Image potionIcon;
+    private CanvasGroup potionGroup;
+    private MaterialData potion;
+
+    private void Awake()
+    {
+        Instance = this;
+        if (zoneTitleGroup != null) zoneTitleGroup.alpha = 0f;
+        if (toastGroup != null) toastGroup.alpha = 0f;
+        if (promptGroup != null) promptGroup.alpha = 0f;
+        if (bossGroup != null) bossGroup.alpha = 0f;
+        inventoryHint = UiNav.FindLabel(transform, "InventoryHint");
+        screenFx = HealthScreenFx.Create(transform);
+        minimap = Minimap.Create(transform);
+        StoryFlags.Changed += HandleFlagChanged;
+        ChapterObjectives.AmountProvider = AmountOf;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+        StoryFlags.Changed -= HandleFlagChanged;
+        Unbind();
+    }
+
+    private void Update()
+    {
+        UpdatePotions();
+        if (inventoryHint == null) return;
+        string message = ControlHints.Format("{inventory}: Inventario   ·   {pause}: Pausa");
+        if (inventoryHint.text != message) inventoryHint.text = message;
+    }
+
+    private void UpdatePotions()
+    {
+        if (potionCount == null)
+        {
+            potionCount = UiNav.FindLabel(transform, "PotionCount");
+            if (potionCount == null) return;
+            potionKey = UiNav.FindLabel(transform, "PotionKey");
+            var box = potionCount.transform.parent;
+            potionIcon = box.Find("PotionIcon")?.GetComponent<Image>();
+            potionGroup = box.GetComponent<CanvasGroup>();
+            if (potionGroup == null) potionGroup = box.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        if (potionIcon != null && potion != null && potionIcon.sprite != potion.icon)
+        {
+            potionIcon.sprite = potion.icon;
+            potionIcon.enabled = potion.icon != null;
+        }
+
+        int have = potion != null ? AmountOf(potion.id) : 0;
+        string count = "x" + have;
+        if (potionCount.text != count) potionCount.text = count;
+        // Sin pociones el panel se atenúa; el cuadro de diálogo lo taparía, así que se esconde
+        bool dialogue = DialogueUI.Instance != null && DialogueUI.Instance.IsOpen;
+        potionGroup.alpha = dialogue ? 0f : have > 0 ? 1f : 0.55f;
+
+        if (potionKey != null)
+        {
+            string key = ControlHints.Key("potion");
+            if (potionKey.text != key) potionKey.text = key;
+        }
+    }
+
+    private void HandleFlagChanged(string flag) => RefreshObjective(true);
+
+    // Actualiza el objetivo; si cambió, lo anuncia con un aviso (legible sin sonido).
+    public void RefreshObjective(bool announce = false)
+    {
+        if (objectiveText == null) return;
+        string current = ChapterObjectives.Current();
+        objectiveText.text = current;
+        if (announce && lastObjective != null && current != lastObjective)
+            ShowToast("Nuevo objetivo: " + current.Split('\n')[0]);
+        lastObjective = current;
+    }
+
+    // Sube el aviso de interacción y los avisos breves para dejar libre la parte de abajo
+    // (la tarjeta del tutorial va ahí, como los diálogos). 0 = posición normal.
+    public void SetBottomOffset(float offset)
+    {
+        Offset(promptGroup, ref promptBase, offset);
+        Offset(toastGroup, ref toastBase, offset);
+    }
+
+    private Vector2? promptBase, toastBase;
+
+    private static void Offset(CanvasGroup group, ref Vector2? basePos, float offset)
+    {
+        if (group == null) return;
+        var rt = (RectTransform)group.transform;
+        if (basePos == null) basePos = rt.anchoredPosition;
+        rt.anchoredPosition = basePos.Value + new Vector2(0f, offset);
+    }
+
+    public void SetPrompt(string text)
+    {
+        if (promptGroup == null) return;
+        bool show = !string.IsNullOrEmpty(text);
+        promptGroup.alpha = show ? 1f : 0f;
+        if (show) promptText.text = text;
+    }
+
+    // Barra de vida del guardián con su estado (legible sin sonido)
+    public void ShowBoss(GuardianBoss guardian)
+    {
+        HideBoss();
+        boss = guardian;
+        if (boss == null || bossGroup == null) return;
+        bossName.text = boss.DisplayName;
+        boss.Health.HealthChanged += UpdateBossHealth;
+        boss.StateChanged += UpdateBossState;
+        UpdateBossHealth(boss.Health.CurrentHealth, boss.Health.MaxHealth);
+        UpdateBossState(boss.Current);
+        bossGroup.alpha = 1f;
+    }
+
+    public void HideBoss()
+    {
+        if (boss != null)
+        {
+            boss.Health.HealthChanged -= UpdateBossHealth;
+            boss.StateChanged -= UpdateBossState;
+        }
+        boss = null;
+        if (bossGroup != null) bossGroup.alpha = 0f;
+    }
+
+    private void UpdateBossHealth(int current, int max)
+    {
+        bossFill.fillAmount = max > 0 ? (float)current / max : 0f;
+    }
+
+    private void UpdateBossState(GuardianBoss.State state)
+    {
+        switch (state)
+        {
+            case GuardianBoss.State.Vulnerable:
+                bossState.text = "¡Vulnerable! Ataca ahora";
+                bossState.color = new Color(0.6f, 1f, 0.7f);
+                break;
+            case GuardianBoss.State.Guard:
+                bossState.text = "¡Se cubre! Golpéalo de cerca para chocar";
+                bossState.color = new Color(1f, 0.82f, 0.3f);
+                break;
+            case GuardianBoss.State.Telegraph:
+                bossState.text = "¡Cuidado! Sal de la zona roja";
+                bossState.color = new Color(1f, 0.55f, 0.55f);
+                break;
+            default:
+                bossState.text = "Protegido por su armadura";
+                bossState.color = new Color(1f, 0.85f, 0.55f);
+                break;
+        }
+    }
+
+    public void OnSceneReady(SceneContext context)
+    {
+        HideBoss();
+        SetVisible(context.ShowHud);
+        Bind(SceneContext.FindPlayer());
+        RefreshObjective();
+        if (context.ShowHud && !string.IsNullOrEmpty(context.ZoneName)) ShowZoneTitle(context.ZoneName);
+    }
+
+    public void SetVisible(bool visible)
+    {
+        if (screenFx != null) screenFx.SetVisible(visible);
+        if (minimap != null) minimap.SetVisible(visible);
+        if (root == null) return;
+        root.alpha = visible ? 1f : 0f;
+    }
+
+    private void Bind(GameObject player)
+    {
+        Unbind();
+        inventory = player != null ? player.GetComponent<Inventory>() : null;
+        knownAmounts.Clear();
+        if (inventory != null)
+        {
+            foreach (var e in inventory.ExportEntries()) knownAmounts[e.id] = e.amount;
+            inventory.OnAmountChanged += HandleAmountChanged;
+            RefreshMaterials();
+        }
+        var itemUser = player != null ? player.GetComponent<ItemUser>() : null;
+        potion = itemUser != null ? itemUser.Potion : null;
+        playerHealth = player != null ? player.GetComponent<Health>() : null;
+        if (screenFx != null) screenFx.Bind(playerHealth);
+        if (minimap != null) minimap.Bind(player);
+        if (playerHealth == null) return;
+        playerHealth.HealthChanged += UpdateHealth;
+        UpdateHealth(playerHealth.CurrentHealth, playerHealth.MaxHealth);
+    }
+
+    private void Unbind()
+    {
+        if (playerHealth != null) playerHealth.HealthChanged -= UpdateHealth;
+        playerHealth = null;
+        if (screenFx != null) screenFx.Bind(null);
+        if (minimap != null) minimap.Bind(null);
+        if (inventory != null) inventory.OnAmountChanged -= HandleAmountChanged;
+        inventory = null;
+    }
+
+    private readonly System.Collections.Generic.Dictionary<string, int> knownAmounts = new System.Collections.Generic.Dictionary<string, int>();
+
+    private int AmountOf(string id) => inventory != null ? inventory.GetAmount(id) : 0;
+
+    private void HandleAmountChanged(string id, int amount)
+    {
+        knownAmounts.TryGetValue(id, out int before);
+        knownAmounts[id] = amount;
+        RefreshMaterials();
+        RefreshObjective(false);
+        if (trackedMaterials == null) return;
+        for (int i = 0; i < trackedMaterials.Length; i++)
+        {
+            var m = trackedMaterials[i];
+            if (m == null || m.id != id || amount <= before) continue; // solo al recoger
+            int goal = GoalOf(i);
+            ShowToast(goal > 0 ? $"{m.displayName}: {amount}/{goal}" : $"{m.displayName}: {amount}", 1.6f);
+        }
+    }
+
+    private int GoalOf(int i) => materialGoals != null && i < materialGoals.Length ? materialGoals[i] : 0;
+
+    private void RefreshMaterials()
+    {
+        if (trackedMaterials == null || materialTexts == null) return;
+        for (int i = 0; i < trackedMaterials.Length && i < materialTexts.Length; i++)
+        {
+            var m = trackedMaterials[i];
+            if (m == null || materialTexts[i] == null) continue;
+            int have = AmountOf(m.id);
+            int goal = GoalOf(i);
+            materialTexts[i].text = goal > 0 ? $"{have}/{goal}" : have.ToString();
+            materialTexts[i].color = goal > 0 && have >= goal ? new Color(0.6f, 1f, 0.7f) : Color.white;
+        }
+    }
+
+    private void UpdateHealth(int current, int max)
+    {
+        if (healthFill != null) healthFill.fillAmount = max > 0 ? (float)current / max : 0f;
+        if (healthText != null) healthText.text = $"{current}/{max}";
+    }
+
+    public void ShowZoneTitle(string title)
+    {
+        if (zoneTitleText == null) return;
+        zoneTitleText.text = title;
+        if (zoneRoutine != null) StopCoroutine(zoneRoutine);
+        zoneRoutine = StartCoroutine(Flash(zoneTitleGroup, 2.5f));
+    }
+
+    public void ShowToast(string message, float seconds = 2.5f)
+    {
+        if (toastText == null) return;
+        toastText.text = message;
+        if (toastRoutine != null) StopCoroutine(toastRoutine);
+        toastRoutine = StartCoroutine(Flash(toastGroup, seconds));
+    }
+
+    private static IEnumerator Flash(CanvasGroup group, float hold)
+    {
+        for (float t = 0f; t < 0.3f; t += Time.unscaledDeltaTime) { group.alpha = t / 0.3f; yield return null; }
+        group.alpha = 1f;
+        yield return new WaitForSecondsRealtime(hold);
+        for (float t = 0f; t < 0.5f; t += Time.unscaledDeltaTime) { group.alpha = 1f - t / 0.5f; yield return null; }
+        group.alpha = 0f;
+    }
+}
