@@ -1408,6 +1408,18 @@ private void FixedUpdate()
 
     public int SlashPoseFrames => attackRight2 != null ? attackRight2.Length : 0;
 
+    // Deja a Tsuki en un sprite cualquiera (cinemáticas); null la suelta
+    public void HoldPose(Sprite pose)
+    {
+        scriptedPose = pose;
+        if (pose == null)
+        {
+            currentAnim = null;
+            return;
+        }
+        sr.sprite = pose;
+    }
+
     // Mira hacia un lado estando quieta
     public void FaceTowards(Vector2 dir)
     {

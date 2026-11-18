@@ -34,6 +34,8 @@ public class StoryTrigger : MonoBehaviour
         // Espera a que termine el fundido de entrada
         yield return new WaitForSecondsRealtime(startDelay);
         while (SceneLoader.Instance != null && SceneLoader.Instance.IsBusy) yield return null;
+        // Tsuki levantándose al inicio del juego
+        while (WakeUpCinematic.Playing) yield return null;
         if (Ready) Run();
     }
 
