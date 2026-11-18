@@ -700,7 +700,10 @@ private void FixedUpdate()
                 StartThirdHit();
                 break;
 
-            // Hit3: el clic se ignora para que no se acumule
+            case AttackState.Hit3:
+                // Clic durante el remate: empieza un combo nuevo al final del barrido
+                comboQueued = true;
+                break;
         }
     }
 
@@ -915,10 +918,32 @@ private void FixedUpdate()
                 return true;
 
             case AttackState.Hit3:
+                // El final del barrido se puede cortar: con otro ataque reinicia el combo y
+                // caminando lo suelta. Antes se quedaba quieta e ignoraba los clics hasta terminar.
+                if (currentAnim != null && animFrame >= Mathf.CeilToInt(currentAnim.Length * comboCancelPoint))
+                {
+                    if (comboQueued)
+                    {
+                        StartFirstHit();
+                        return true;
+                    }
+                    if (movement.sqrMagnitude > 0f)
+                    {
+                        EndAttack();
+                        attackCooldownTimer = 0f;
+                        return false;
+                    }
+                }
                 if (!StepAnim(attackFps * thirdHitSpeed, false))
                 {
                     // Fin del combo: regresa directo a caminar
+                    bool again = comboQueued;
                     EndAttack();
+                    if (again)
+                    {
+                        StartFirstHit();
+                        return true;
+                    }
                     return false;
                 }
                 return true;
@@ -1407,6 +1432,18 @@ private void FixedUpdate()
     }
 
     public int SlashPoseFrames => attackRight2 != null ? attackRight2.Length : 0;
+
+    // Deja a Tsuki en un sprite cualquiera (cinemáticas); null la suelta
+    public void HoldPose(Sprite pose)
+    {
+        scriptedPose = pose;
+        if (pose == null)
+        {
+            currentAnim = null;
+            return;
+        }
+        sr.sprite = pose;
+    }
 
     // Mira hacia un lado estando quieta
     public void FaceTowards(Vector2 dir)
