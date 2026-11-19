@@ -46,6 +46,8 @@ namespace Game.EditorTools.Chapter1
         private static void FlowerIsland(Transform root, GameObject gridGo, Transform markers, Transform props)
         {
             OnStart(root, "island_wake", "woke_up");
+            // Antes del diálogo, Tsuki se levanta entre las flores con la cámara enfocándola
+            root.Find("Story_island_wake").gameObject.AddComponent<WakeUpCinematic>();
 
             var cabinInside = AreaTrigger(root, "CabinInsideTrigger", markers.Find("Spawn_CabinInside").position, 0.3f);
             cabinInside.Configure(StoryTrigger.Mode.OnPlayerEnter, default, Get("cabin_inside"), "cabin_seen");
