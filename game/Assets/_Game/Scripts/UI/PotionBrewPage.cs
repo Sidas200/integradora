@@ -168,6 +168,7 @@ public class PotionBrewPage : MonoBehaviour
             return;
         }
         if (!inventory.TryCraft(recipe)) return;
+        PlayStats.ItemCrafted(recipe.id);
 
         if (GameFlow.Instance != null) GameFlow.Instance.SaveProgress();
         brewing = StartCoroutine(BrewRoutine());

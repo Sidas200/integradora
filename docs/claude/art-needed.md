@@ -66,9 +66,6 @@ Escala de referencia: Tsuki mide 19×50 px; un tile isométrico mide 32×32 px (
 | `placeholder_enemy_ranged` | 26×34 | Enemigo a distancia (arquetipo 2) | Idle, carga de disparo, muerte |
 | `placeholder_guardian` | 60×76 | Primer guardián | Idle, embestida, golpe en área, vulnerable, muerte |
 
-Pendiente aparte: `Art/enemies/kratos.png` (Enemy_Melee) es arte de alta resolución escalado (PPU 800 y filtro Bilinear),
-no pixel art. Hace falta un sprite de enemigo cuerpo a cuerpo a PPU 100.
-
 ## Efectos y UI
 
 | Archivo | Uso |

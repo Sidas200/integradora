@@ -84,40 +84,7 @@ public class MainMenuStyle : MonoBehaviour
         panel.StatusText.fontSize = 22;
         panel.StatusText.color = new Color(0.78f, 0.72f, 0.88f);
 
-        // marco doble con muescas en las esquinas
-        Line(card, new Vector2(0f, size.y / 2f - 1f), new Vector2(size.x, 2f), 0.9f);
-        Line(card, new Vector2(0f, -size.y / 2f + 1f), new Vector2(size.x, 2f), 0.9f);
-        Line(card, new Vector2(-size.x / 2f + 1f, 0f), new Vector2(2f, size.y), 0.9f);
-        Line(card, new Vector2(size.x / 2f - 1f, 0f), new Vector2(2f, size.y), 0.9f);
-        Line(card, new Vector2(0f, size.y / 2f - 10f), new Vector2(size.x - 20f, 1f), 0.45f);
-        Line(card, new Vector2(0f, -size.y / 2f + 10f), new Vector2(size.x - 20f, 1f), 0.45f);
-        Line(card, new Vector2(-size.x / 2f + 10f, 0f), new Vector2(1f, size.y - 20f), 0.45f);
-        Line(card, new Vector2(size.x / 2f - 10f, 0f), new Vector2(1f, size.y - 20f), 0.45f);
-        foreach (var c in new[] { new Vector2(-1, 1), new Vector2(1, 1), new Vector2(-1, -1), new Vector2(1, -1) })
-            Line(card, new Vector2(c.x * (size.x / 2f - 10f), c.y * (size.y / 2f - 10f)), new Vector2(8f, 8f), 0.9f);
-
-        // destello en el borde izquierdo
-        var sparkPos = new Vector2(-size.x / 2f, 10f);
-        var glow = Deco(card, "SparkGlow", sparkPos, new Vector2(90f, 90f), new Color(Glow.r, Glow.g, Glow.b, 0.55f));
-        glow.sprite = RadialSprite();
-        Deco(card, "SparkH", sparkPos, new Vector2(64f, 2f), Color.white);
-        Deco(card, "SparkV", sparkPos, new Vector2(2f, 40f), Color.white);
-        Deco(card, "Spark", sparkPos, new Vector2(12f, 12f), Color.white).rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
-
-        // flores en las esquinas de la derecha
-        if (flower != null)
-        {
-            Flower(card, new Vector2(size.x / 2f - 18f, size.y / 2f - 6f), 78f, -12f);
-            Flower(card, new Vector2(size.x / 2f - 20f, size.y / 2f - 58f), 30f, 25f);
-            Flower(card, new Vector2(size.x / 2f - 14f, -size.y / 2f + 14f), 44f, 18f);
-        }
-        if (petals != null && petals.Length > 0)
-        {
-            var petal = Deco(card, "Petal", new Vector2(size.x / 2f - 60f, -size.y / 2f + 30f), new Vector2(34f, 34f), Color.white);
-            petal.sprite = petals[Mathf.Min(6, petals.Length - 1)];
-            petal.preserveAspect = true;
-            petal.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -30f);
-        }
+        Ornament(card, size, 1f);
 
         // botón con el mismo estilo que los del menú
         var button = panel.AccountButton;
@@ -132,6 +99,121 @@ public class MainMenuStyle : MonoBehaviour
         panel.AccountText.transform.SetAsLastSibling();
         panel.StatusText.transform.SetAsLastSibling();
         brt.SetAsLastSibling();
+
+        StyleLoginBox(panel);
+    }
+
+    // Ventana de inicio de sesión con el mismo marco que la tarjeta y botones como los del menú.
+    private void StyleLoginBox(CloudAccountPanel panel)
+    {
+        var box = panel.LoginBox;
+        if (box == null) return;
+        var size = box.sizeDelta;
+        box.GetComponent<Image>().color = new Color(CardFill.r, CardFill.g, CardFill.b, 0.96f);
+
+        // lo que ya tenía la ventana va encima de la decoración
+        var content = new Transform[box.childCount];
+        for (int i = 0; i < content.Length; i++) content[i] = box.GetChild(i);
+        Ornament(box, size, 1.4f);
+        foreach (var t in content) t.SetAsLastSibling();
+
+        panel.LoginTitle.color = new Color(0.94f, 0.88f, 1f);
+        panel.LoginTitle.fontStyle = TMPro.FontStyles.Bold;
+        panel.LoginSubtitle.color = new Color(0.78f, 0.72f, 0.88f);
+        foreach (var l in panel.LoginFieldLabels) l.color = new Color(0.86f, 0.79f, 0.97f);
+
+        // separador bajo el título, como los de las listas del menú
+        var sep = Deco(box, "TitleRule", new Vector2(0f, size.y / 2f - 158f), new Vector2(420f, 1f), new Color(FrameColor.r, FrameColor.g, FrameColor.b, 0.6f));
+        sep.transform.SetSiblingIndex(content.Length > 0 ? content[0].GetSiblingIndex() : 0);
+        Deco(box, "TitleDiamond", new Vector2(0f, size.y / 2f - 158f), new Vector2(9f, 9f), FrameColor)
+            .rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+
+        StyleField(panel.EmailField);
+        StyleField(panel.PasswordField);
+        StyleDialogButton(panel.SubmitButton);
+        StyleDialogButton(panel.CancelButton);
+    }
+
+    private static void StyleField(TMPro.TMP_InputField field)
+    {
+        if (field == null) return;
+        var rt = (RectTransform)field.transform;
+        var size = rt.sizeDelta;
+        var bg = field.GetComponent<Image>();
+        bg.sprite = null;
+        bg.color = Color.white;
+        var colors = field.colors;
+        colors.normalColor = new Color(0.09f, 0.04f, 0.14f, 0.85f);
+        colors.highlightedColor = new Color(0.18f, 0.07f, 0.24f, 0.9f);
+        colors.selectedColor = new Color(0.26f, 0.09f, 0.30f, 0.92f);
+        colors.pressedColor = colors.selectedColor;
+        colors.colorMultiplier = 1f;
+        field.colors = colors;
+
+        // marco fino rosa como el de los botones
+        Deco(rt, "Top", new Vector2(0f, size.y / 2f - 1f), new Vector2(size.x, 2f), new Color(FrameColor.r, FrameColor.g, FrameColor.b, 0.75f));
+        Deco(rt, "Bottom", new Vector2(0f, -size.y / 2f + 1f), new Vector2(size.x, 2f), new Color(FrameColor.r, FrameColor.g, FrameColor.b, 0.75f));
+        Deco(rt, "Left", new Vector2(-size.x / 2f + 1f, 0f), new Vector2(2f, size.y), new Color(FrameColor.r, FrameColor.g, FrameColor.b, 0.75f));
+        Deco(rt, "Right", new Vector2(size.x / 2f - 1f, 0f), new Vector2(2f, size.y), new Color(FrameColor.r, FrameColor.g, FrameColor.b, 0.75f));
+        Deco(rt, "Diamond", new Vector2(-size.x / 2f + 1f, 0f), new Vector2(9f, 9f), FrameColor)
+            .rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+
+        if (field.textViewport != null)
+        {
+            field.textViewport.offsetMin = new Vector2(22f, field.textViewport.offsetMin.y);
+            field.textViewport.offsetMax = new Vector2(-22f, field.textViewport.offsetMax.y);
+        }
+        field.caretColor = Color.white;
+        field.selectionColor = new Color(Glow.r, Glow.g, Glow.b, 0.35f);
+    }
+
+    private static void StyleDialogButton(Button button)
+    {
+        if (button == null) return;
+        button.gameObject.AddComponent<MenuButtonGlow>().Build(null);
+        var label = button.GetComponentInChildren<TMPro.TMP_Text>();
+        if (label == null) return;
+        label.alignment = TMPro.TextAlignmentOptions.Center;
+        label.margin = new Vector4(24f, 0f, 24f, 0f);
+        label.fontSize = 30;
+    }
+
+    // Marco doble con muescas, destello a la izquierda y flores en la derecha. scale agranda la decoración.
+    private void Ornament(RectTransform card, Vector2 size, float scale)
+    {
+        Line(card, new Vector2(0f, size.y / 2f - 1f), new Vector2(size.x, 2f), 0.9f);
+        Line(card, new Vector2(0f, -size.y / 2f + 1f), new Vector2(size.x, 2f), 0.9f);
+        Line(card, new Vector2(-size.x / 2f + 1f, 0f), new Vector2(2f, size.y), 0.9f);
+        Line(card, new Vector2(size.x / 2f - 1f, 0f), new Vector2(2f, size.y), 0.9f);
+        Line(card, new Vector2(0f, size.y / 2f - 10f), new Vector2(size.x - 20f, 1f), 0.45f);
+        Line(card, new Vector2(0f, -size.y / 2f + 10f), new Vector2(size.x - 20f, 1f), 0.45f);
+        Line(card, new Vector2(-size.x / 2f + 10f, 0f), new Vector2(1f, size.y - 20f), 0.45f);
+        Line(card, new Vector2(size.x / 2f - 10f, 0f), new Vector2(1f, size.y - 20f), 0.45f);
+        foreach (var c in new[] { new Vector2(-1, 1), new Vector2(1, 1), new Vector2(-1, -1), new Vector2(1, -1) })
+            Line(card, new Vector2(c.x * (size.x / 2f - 10f), c.y * (size.y / 2f - 10f)), new Vector2(8f, 8f), 0.9f);
+
+        // destello en el borde izquierdo
+        var sparkPos = new Vector2(-size.x / 2f, 10f);
+        var glow = Deco(card, "SparkGlow", sparkPos, new Vector2(90f, 90f) * scale, new Color(Glow.r, Glow.g, Glow.b, 0.55f));
+        glow.sprite = RadialSprite();
+        Deco(card, "SparkH", sparkPos, new Vector2(64f * scale, 2f), Color.white);
+        Deco(card, "SparkV", sparkPos, new Vector2(2f, 40f * scale), Color.white);
+        Deco(card, "Spark", sparkPos, new Vector2(12f, 12f), Color.white).rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+
+        // flores en las esquinas de la derecha
+        if (flower != null)
+        {
+            Flower(card, new Vector2(size.x / 2f - 18f, size.y / 2f - 6f), 78f * scale, -12f);
+            Flower(card, new Vector2(size.x / 2f - 20f, size.y / 2f - 58f * scale), 30f * scale, 25f);
+            Flower(card, new Vector2(size.x / 2f - 14f, -size.y / 2f + 14f), 44f * scale, 18f);
+        }
+        if (petals != null && petals.Length > 0)
+        {
+            var petal = Deco(card, "Petal", new Vector2(size.x / 2f - 60f * scale, -size.y / 2f + 30f * scale), new Vector2(34f, 34f) * scale, Color.white);
+            petal.sprite = petals[Mathf.Min(6, petals.Length - 1)];
+            petal.preserveAspect = true;
+            petal.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -30f);
+        }
     }
 
     private static Sprite radial;

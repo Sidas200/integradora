@@ -608,6 +608,8 @@ public class ForgeScreen : MonoBehaviour
         if (!ok)
             return;
 
+        PlayStats.ItemCrafted(r.id);
+
         string message =
             $"¡Forjaste: {r.displayName}!";
 
