@@ -82,3 +82,6 @@ secrets.*.env
 
 # ===== Salida local de infra/scripts =====
 artifacts/
+
+# Builds locales del juego (no subir al repo)
+game/TDIMP*

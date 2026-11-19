@@ -38,6 +38,14 @@ public class CloudAccountPanel : MonoBehaviour
     public Button AccountButton => accountButton;
     public TMP_Text AccountText => accountText;
     public TMP_Text StatusText => statusText;
+    public RectTransform LoginBox { get; private set; }
+    public TMP_Text LoginTitle { get; private set; }
+    public TMP_Text LoginSubtitle { get; private set; }
+    public TMP_Text[] LoginFieldLabels { get; private set; }
+    public TMP_InputField EmailField => emailField;
+    public TMP_InputField PasswordField => passwordField;
+    public Button SubmitButton => submitButton;
+    public Button CancelButton => cancelButton;
 
     public static CloudAccountPanel Create(Transform sceneRoot)
     {
@@ -231,14 +239,16 @@ public class CloudAccountPanel : MonoBehaviour
         loginPanel = dim.gameObject;
         var box = Box(dim, "Box", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(820, 640));
         Image(box, PanelColor);
-        Label(box, "Title", "Iniciar sesión", 56, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -36), new Vector2(700, 76), TextColor);
-        Label(box, "Subtitle", "Usa la cuenta que creaste en la web o en la app.", 26, TextAlignmentOptions.Center,
+        LoginBox = box;
+        LoginTitle = Label(box, "Title", "Iniciar sesión", 56, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -36), new Vector2(700, 76), TextColor);
+        LoginSubtitle = Label(box, "Subtitle", "Usa la cuenta que creaste en la web o en la app.", 26, TextAlignmentOptions.Center,
             new Vector2(0.5f, 1), new Vector2(0, -112), new Vector2(720, 40), MutedText);
 
-        Label(box, "EmailLabel", "Correo", 26, TextAlignmentOptions.Left, new Vector2(0.5f, 1), new Vector2(0, -172), new Vector2(640, 34), MutedText);
+        var emailLabel = Label(box, "EmailLabel", "Correo", 26, TextAlignmentOptions.Left, new Vector2(0.5f, 1), new Vector2(0, -172), new Vector2(640, 34), MutedText);
         emailField = Field(box, "Email", "tu@correo.com", new Vector2(0, -210), TMP_InputField.ContentType.EmailAddress);
-        Label(box, "PasswordLabel", "Contraseña", 26, TextAlignmentOptions.Left, new Vector2(0.5f, 1), new Vector2(0, -296), new Vector2(640, 34), MutedText);
+        var passwordLabel = Label(box, "PasswordLabel", "Contraseña", 26, TextAlignmentOptions.Left, new Vector2(0.5f, 1), new Vector2(0, -296), new Vector2(640, 34), MutedText);
         passwordField = Field(box, "Password", "", new Vector2(0, -334), TMP_InputField.ContentType.Password);
+        LoginFieldLabels = new[] { emailLabel, passwordLabel };
 
         loginMessage = Label(box, "Message", "", 26, TextAlignmentOptions.Center, new Vector2(0.5f, 1), new Vector2(0, -420), new Vector2(720, 70), MutedText);
 
