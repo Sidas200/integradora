@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,6 +27,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dashSpeed = 15f;
     [SerializeField] private float dashDuration = 0.15f;
     [SerializeField] private float dashCooldown = 0.6f;
+
+    [Header("Paso de Rayo (esquiva de Aoi)")]
+    [Tooltip("Después de despertar a Aoi, la esquiva convierte a Tsuki en un rayo que daña lo que atraviesa.")]
+    [SerializeField] private float lightningDamageScale = 0.8f;
+    [Tooltip("Radio del golpe del rayo, en alturas de Tsuki.")]
+    [SerializeField] private float lightningRadius = 0.6f;
+    [Tooltip("El rayo recorre un poco más que la esquiva normal (1 = igual).")]
+    [SerializeField, Min(1f)] private float lightningSpeedScale = 1.3f;
+    [Tooltip("Brillo del rayo (carmesí, como la chamarra y la espada de Tsuki).")]
+    [SerializeField] private Color lightningColor = new Color(0.95f, 0.18f, 0.4f, 1f);
+    [Tooltip("Halo exterior del rayo (morado, como el pelo de Tsuki).")]
+    [SerializeField] private Color lightningHaloColor = new Color(0.55f, 0.3f, 0.9f, 1f);
 
     [Header("Dash Visuals")]
     [SerializeField] private Color dashColor = new Color(0.5f, 0.8f, 1f, 1f);
@@ -115,6 +128,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private FrameRange attackLeft1Frames = new FrameRange(48, 8);
     [SerializeField] private FrameRange attackLeft2Frames = new FrameRange(56, 8);
 
+    [Header("Ataque hacia adelante (abajo) y atrás (arriba)")]
+    [Tooltip("Imagen del ataque de frente y de espaldas ya cortada (Sprite Mode: Multiple). Si está vacía usa el ataque de lado.")]
+    [SerializeField] private Texture2D attackVerticalSheet;
+    [Tooltip("Se llena solo. Úsalo para ver qué número tiene cada frame.")]
+    [SerializeField] private Sprite[] attackVerticalAllFrames;
+    [Tooltip("Ataque de frente (hacia abajo), 1er golpe: el corte hacia la izquierda.")]
+    [SerializeField] private FrameRange attackDownFrames = new FrameRange(0, 6);
+    [Tooltip("2do golpe de frente. La hoja ya trae el regreso de la espada (cuadros 6-9). Cantidad 0 = el 1ro en reversa.")]
+    [SerializeField] private FrameRange attackDown2Frames = new FrameRange(6, 4);
+    [Tooltip("Ataque de espaldas (hacia arriba), 1er golpe.")]
+    [SerializeField] private FrameRange attackUpFrames = new FrameRange(10, 10);
+    [Tooltip("2do golpe de espaldas. Cantidad 0 = el 1ro en reversa (la espada regresa).")]
+    [SerializeField] private FrameRange attackUp2Frames = new FrameRange(0, 0);
+
     [Header("Parado (idle)")]
     [Tooltip("Imagen de Tsuki parado ya cortada (Sprite Mode: Multiple). Si está vacía usa el 1er frame de caminar.")]
     [SerializeField] private Texture2D idleSheet;
@@ -158,6 +185,11 @@ public class PlayerController : MonoBehaviour
     private Vector2 lastMoveDirection = Vector2.down;
 
     private bool isDashing;
+    private bool lightningDash;      // la esquiva en curso es un rayo
+    private LightningTrail lightningTrail;
+    private readonly HashSet<IDamageable> lightningHits = new HashSet<IDamageable>();
+    private Vector3 lightningOffset;  // del pivote de Tsuki al centro de su sprite
+    private float lightningSize;      // alto de Tsuki al empezar el rayo
     private float dashTimer;
     private float dashCooldownTimer;
     private float ghostTimer;
@@ -196,6 +228,10 @@ public class PlayerController : MonoBehaviour
     private Sprite[] attackRight2;
     private Sprite[] attackLeft1;
     private Sprite[] attackLeft2;
+    private Sprite[] attackDown1;
+    private Sprite[] attackDown2;
+    private Sprite[] attackUp1;
+    private Sprite[] attackUp2;
     private Sprite[] idleRight;
     private Sprite[] idleFront;
     private Sprite[] idleLeft;
@@ -296,6 +332,95 @@ public class PlayerController : MonoBehaviour
             health.onDamaged.AddListener(OnHurt);
             health.Healed += OnHealed;
         }
+    }
+
+    // ---------- PASO DE RAYO ----------
+    // Desbloqueado al despertar a Aoi (vuelve a la espada): la esquiva es un rayo que daña lo que atraviesa.
+
+    public bool HasLightningDash => StoryFlags.Has(MaidenStatue.Flag);
+
+    private void StartLightningDash()
+    {
+        EndLightningDash();
+        lightningDash = HasLightningDash;
+        if (!lightningDash) return;
+
+        lightningHits.Clear();
+        lightningSize = GetBaseSize(sr);
+        lightningOffset = sr.bounds.center - transform.position;
+        Vector3 center = transform.position + lightningOffset;
+        lightningTrail = LightningTrail.Spawn(center, transform, lightningOffset, lightningColor, lightningHaloColor, lightningSize, sr);
+        LightningTrail.Burst(center, 5, lightningSize * 0.45f, lightningColor, lightningHaloColor, lightningSize, sr);
+        // Tsuki se vuelve el rayo: su sprite desaparece hasta que termina la esquiva
+        sr.enabled = false;
+        Sfx.Play(Sfx.Espada.QuickCut);
+        CameraShake.Shake(0.012f, 0.1f);
+    }
+
+    // Cada enemigo recibe daño una sola vez por esquiva
+    private void LightningDamage()
+    {
+        float radius = lightningRadius * lightningSize;
+        int damage = Mathf.Max(1, Mathf.RoundToInt(stats.Attack * lightningDamageScale));
+        string impact = null;
+        foreach (var hit in Physics2D.OverlapCircleAll(transform.position + lightningOffset, radius, enemyLayer))
+        {
+            IDamageable target = hit.GetComponentInParent<IDamageable>();
+            if (target == null || !lightningHits.Add(target)) continue;
+            impact = impact ?? HitWithSound(target, damage);
+            hit.GetComponentInParent<IStaggerable>()?.Stagger(transform.position);
+        }
+        if (impact != null)
+        {
+            Sfx.Play(impact);
+            CameraShake.Shake(0.015f, 0.08f);
+        }
+    }
+
+    private void EndLightningDash()
+    {
+        if (lightningTrail != null)
+        {
+            lightningTrail.Release();
+            // Reaparece con un destello de rayos
+            LightningTrail.Burst(transform.position + lightningOffset, 4, lightningSize * 0.35f, lightningColor, lightningHaloColor, lightningSize, sr);
+        }
+        lightningTrail = null;
+        lightningDash = false;
+        if (sr != null) sr.enabled = true;
+    }
+
+    // Esquiva de rayo de demostración (al desbloquearla): funciona con el input bloqueado.
+    // distance: fracción del recorrido normal (en lugares chicos conviene menos).
+    public void DemoLightningDash(Vector2 dir, float distance = 1f)
+    {
+        if (dir.sqrMagnitude < 0.0001f) dir = Vector2.right;
+        lastMoveDirection = dir.normalized;
+        isDashing = true;
+        dashStartTime = Time.time;
+        dashTimer = dashDuration * Mathf.Max(0.1f, distance);
+        dashCooldownTimer = dashCooldown;
+        StartLightningDash();
+    }
+
+    // Rayos que salen de Tsuki (escenas: Aoi entrando a la espada)
+    public void LightningBurst(int count, float lengthInHeights)
+    {
+        float size = GetBaseSize(sr);
+        LightningTrail.Burst(sr.bounds.center, count, size * lengthInHeights, lightningColor, lightningHaloColor, size, sr);
+    }
+
+    public bool IsDashing => isDashing;
+    public Vector2 FacingDirection => lastMoveDirection;
+    public Color LightningColor => lightningColor;
+    public Color LightningHaloColor => lightningHaloColor;
+
+    // Destello al recibir un poder (Aoi entrando a la espada)
+    public void PowerUpFlash()
+    {
+        dodgeFlashTimer = 0.5f;
+        SpawnGhost();
+        CameraShake.Shake(0.02f, 0.2f);
     }
 
     // ---------- ESQUIVA PERFECTA ----------
@@ -529,6 +654,7 @@ public class PlayerController : MonoBehaviour
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
         ghostTimer = 0f;
+        StartLightningDash();
 
         if (dashParticles != null)
             dashParticles.Play();
@@ -541,7 +667,7 @@ public class PlayerController : MonoBehaviour
     // =========================
     // EFECTO VISUAL DEL DASH
     // =========================
-    if (isDashing)
+    if (isDashing && !lightningDash)
     {
         ghostTimer -= PlayerDelta;
 
@@ -624,7 +750,7 @@ public class PlayerController : MonoBehaviour
         sr.color = Color.Lerp(normalColor, healGlowColor,
             healGlowTimer / healGlowTime * (0.6f + 0.4f * Mathf.Cos(healGlowTimer * 16f)));
     else if (isDashing)
-        sr.color = dashColor;
+        sr.color = lightningDash ? lightningColor : dashColor;
     else if (dashCooldownTimer > 0f)
         sr.color = cooldownColor;
     else
@@ -640,11 +766,16 @@ private void FixedUpdate()
     {
         hitStunTimer = 0f;
 
-        rb.linearVelocity = lastMoveDirection * dashSpeed * PlayerTimeScale;
+        float speed = dashSpeed * (lightningDash ? lightningSpeedScale : 1f);
+        rb.linearVelocity = lastMoveDirection * speed * PlayerTimeScale;
         dashTimer -= PlayerFixedDelta;
+        if (lightningDash) LightningDamage();
 
         if (dashTimer <= 0f)
+        {
             isDashing = false;
+            EndLightningDash();
+        }
     }
     // GAME-101: Retroceso cuando el Player recibe daño
     else if (hitStunTimer > 0f)
@@ -733,7 +864,7 @@ private void FixedUpdate()
         // El lado se decide según dónde está el mouse
         attackFacingRight = dir.x >= 0f;
         Sfx.PlayAny(Sfx.Espada.QuickCut, Sfx.Espada.HorizontalCut);
-        StartAttackPart(attackFacingRight ? attackRight1 : attackLeft1, AttackState.Hit1);
+        StartAttackPart(AttackAnim(dir, true), AttackState.Hit1);
     }
 
     private void StartSecondHit()
@@ -749,7 +880,7 @@ private void FixedUpdate()
         // El 2do golpe vuelve a decidir el lado según dónde está el mouse
         attackFacingRight = dir.x >= 0f;
         Sfx.Play(Sfx.Espada.VerticalCut);
-        StartAttackPart(attackFacingRight ? attackRight2 : attackLeft2, AttackState.Hit2);
+        StartAttackPart(AttackAnim(dir, false), AttackState.Hit2);
     }
 
     // Remate: más daño, aturde y sacude la cámara. Usa el barrido del 1er golpe, más rápido.
@@ -766,7 +897,27 @@ private void FixedUpdate()
         attackFacingRight = dir.x >= 0f;
         Sfx.Play(Sfx.Espada.HeavyFinal);
         CameraShake.Shake(0.02f, 0.12f);
-        StartAttackPart(attackFacingRight ? attackRight1 : attackLeft1, AttackState.Hit3);
+        StartAttackPart(AttackAnim(dir, true), AttackState.Hit3);
+    }
+
+    // Animación del golpe según hacia dónde apunta (mismo criterio que la hitbox en SnapToCardinal).
+    // first: el barrido normal; false: el 2do golpe (de lado es otra animación, arriba/abajo la misma en reversa).
+    private Sprite[] AttackAnim(Vector2 dir, bool first)
+    {
+        if (Mathf.Abs(dir.y) > Mathf.Abs(dir.x))
+        {
+            Sprite[] vertical = dir.y > 0f
+                ? (first ? attackUp1 : attackUp2)
+                : (first ? attackDown1 : attackDown2);
+            // Sin la hoja de arriba/abajo se queda con el ataque de lado
+            if (vertical != null && vertical.Length > 0)
+                return vertical;
+        }
+
+        bool right = dir.x >= 0f;
+        return first
+            ? (right ? attackRight1 : attackLeft1)
+            : (right ? attackRight2 : attackLeft2);
     }
 
     // ---------- CORTE A DISTANCIA ----------
@@ -817,10 +968,7 @@ private void FixedUpdate()
         secondSlash = second;
         slashChainTimer = 0f;
         slashCooldownTimer = slashCooldown;
-        Sprite[] anim = second
-            ? (attackFacingRight ? attackRight1 : attackLeft1)
-            : (attackFacingRight ? attackRight2 : attackLeft2);
-        StartAttackPart(anim, AttackState.Slash);
+        StartAttackPart(AttackAnim(dir, second), AttackState.Slash);
     }
 
     private void ReleaseSlash()
@@ -1241,6 +1389,11 @@ private void FixedUpdate()
         attackRight2 = GetFrames(attackRight2Frames, "Attack Right 2");
         attackLeft1 = GetFrames(attackLeft1Frames, "Attack Left 1");
         attackLeft2 = GetFrames(attackLeft2Frames, "Attack Left 2");
+        // Arriba/abajo: si el 2do golpe no tiene cuadros propios, repite el 1ro en reversa (la espada regresa)
+        attackDown1 = GetFrames(attackVerticalAllFrames, attackDownFrames, "Attack Down");
+        attackDown2 = SecondHitFrames(attackDown1, attackDown2Frames, "Attack Down 2");
+        attackUp1 = GetFrames(attackVerticalAllFrames, attackUpFrames, "Attack Up");
+        attackUp2 = SecondHitFrames(attackUp1, attackUp2Frames, "Attack Up 2");
         idleFront = GetFrames(idleAllFrames, idleFrontFrames, "Idle Front");
         idleRight = GetFrames(idleAllFrames, idleRightFrames, "Idle Right");
         idleLeft = GetFrames(idleAllFrames, idleLeftFrames, "Idle Left");
@@ -1251,6 +1404,11 @@ private void FixedUpdate()
         if (walkFront.Length > 0)
             sr.sprite = walkFront[0];
     }
+
+    private Sprite[] SecondHitFrames(Sprite[] first, FrameRange range, string nombre) =>
+        range.count > 0
+            ? GetFrames(attackVerticalAllFrames, range, nombre)
+            : Enumerable.Reverse(first).ToArray();
 
     private Sprite[] GetFrames(FrameRange range, string nombre)
     {
@@ -1291,6 +1449,7 @@ private void FixedUpdate()
     {
         allFrames = LoadSheet(spriteSheet);
         idleAllFrames = LoadSheet(idleSheet);
+        attackVerticalAllFrames = LoadSheet(attackVerticalSheet);
     }
 
     private static Sprite[] LoadSheet(Texture2D sheet)
@@ -1300,16 +1459,37 @@ private void FixedUpdate()
 
         string path = UnityEditor.AssetDatabase.GetAssetPath(sheet);
 
-        // Ordena los frames como se leen: de arriba a abajo y de izquierda a derecha
-        Sprite[] frames = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path)
+        Sprite[] sprites = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path)
             .OfType<Sprite>()
             .OrderByDescending(s => s.rect.y)
-            .ThenBy(s => s.rect.x)
             .ToArray();
 
-        if (frames.Length == 0)
+        if (sprites.Length == 0)
+        {
             Debug.LogWarning($"{sheet.name} no tiene sprites. Ponle Sprite Mode: Multiple y córtala en el Sprite Editor.");
-        return frames;
+            return sprites;
+        }
+
+        // Ordena los frames como se leen: de arriba a abajo y de izquierda a derecha.
+        // Se agrupan por fila con tolerancia: con el corte automático un frame puede quedar
+        // 1-2 px más arriba o abajo que sus vecinos, y ordenar solo por 'y' lo mandaba a otro
+        // lugar (el sheet_51 terminaba al final y el 2do golpe a la izquierda acababa en el arco rojo).
+        float tolerance = sprites.Min(s => s.rect.height) * 0.5f;
+        var frames = new List<Sprite>(sprites.Length);
+        var row = new List<Sprite>();
+        float rowTop = sprites[0].rect.y;
+        foreach (Sprite s in sprites)
+        {
+            if (rowTop - s.rect.y > tolerance)
+            {
+                frames.AddRange(row.OrderBy(r => r.rect.x));
+                row.Clear();
+                rowTop = s.rect.y;
+            }
+            row.Add(s);
+        }
+        frames.AddRange(row.OrderBy(r => r.rect.x));
+        return frames.ToArray();
     }
 #endif
 
@@ -1408,6 +1588,7 @@ private void FixedUpdate()
     {
         CancelAttack();
         isDashing = false;
+        EndLightningDash();
         hitStunTimer = 0f;
         scriptedMove = Vector2.zero;
         if (slowMotionRoutine != null) StopCoroutine(slowMotionRoutine);
@@ -1574,6 +1755,6 @@ private void FixedUpdate()
         ghost.transform.rotation = transform.rotation;
 
         DashGhost dashGhost = ghost.AddComponent<DashGhost>();
-        dashGhost.Initialize(sr.sprite, dashColor, transform.localScale, ghostLifetime, sr.material, sr.sortingLayerName, sr.sortingOrder);
+        dashGhost.Initialize(sr.sprite, lightningDash ? lightningColor : dashColor, transform.localScale, ghostLifetime, sr.material, sr.sortingLayerName, sr.sortingOrder);
     }
 }

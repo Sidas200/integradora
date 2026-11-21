@@ -82,7 +82,8 @@ public class GameHud : MonoBehaviour
     {
         UpdatePotions();
         if (inventoryHint == null) return;
-        string message = ControlHints.Format("{inventory}: Inventario   ·   {pause}: Pausa");
+        string message = ControlHints.Format("{inventory}: Inventario   ·   {pause}: Pausa" +
+            (SwordCompanion.Available ? "   ·   {sword}: Aoi" : ""));
         if (inventoryHint.text != message) inventoryHint.text = message;
     }
 

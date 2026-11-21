@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e4285355d7234af4a5c7418047c645c, type: 3}
+  m_Name: researcher_fall_op1
+  m_EditorClassIdentifier: Game.Gameplay::DialogueData
+  lockedByDesigner: 0
+  lines:
+  - speaker: Tsuki
+    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
+    text: Busco a una chica que se llevaron con un rayo de luz. Si me ayudas, acepto.
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "\xBFUn rayo de luz? \xBFDel cielo? \xA1Ay, esto se pone cada vez mejor!"
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 11400000, guid: fd3818779968f411da183b829c946c16, type: 2}

@@ -16,7 +16,28 @@ MonoBehaviour:
   lines:
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "\xA1Volviste! \xBFEncontraste algo raro? Lo que sea. Me sirve todo."
+    condition:
+      requires: 
+      forbids: kaede_meet_distrust
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "\xBFOtra vez por aqu\xED? Empiezo a pensar que s\xED conf\xEDas en m\xED."
+    condition:
+      requires: kaede_meet_distrust
+      forbids: 
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: "El santuario est\xE1 al norte de la llanura. Su puerta pide un Alma peque\xF1a."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: Los Custodios de ruinas la guardan. Los slimes sueltan flores y restos para pociones y armadura.
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

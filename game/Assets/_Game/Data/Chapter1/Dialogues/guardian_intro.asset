@@ -17,18 +17,30 @@ MonoBehaviour:
   - speaker: 
     portrait: {fileID: 0}
     text: "La Amrita cae sobre la piedra. Los ojos del guardi\xE1n se encienden."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Varn
     portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
     text: "...\xBFQui\xE9n me despierta? Un humano... con la marca de Rulebreaker."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Varn
     portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
     text: "Soy Varn, guardi\xE1n del umbral. Ning\xFAn condenado pasa m\xE1s all\xE1 de este punto."
-  - speaker: Tsuki
-    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
-    text: No vine a pedir permiso. Vine por alguien a quien le hice una promesa.
-  - speaker: Varn
-    portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
-    text: "Entonces demuestra que tu espada puede herir a un guardi\xE1n."
-  - speaker: 
-    portrait: {fileID: 0}
-    text: Sal de las zonas rojas antes del golpe. Ataca cuando Varn quede vulnerable.
+    condition:
+      requires: 
+      forbids: 
+  choices:
+  - text: Entonces pelea conmigo, Varn.
+    next: {fileID: 11400000, guid: 2c19470b1b48d4cd291fba1925f1de7c, type: 2}
+    setFlag: varn_respect
+  - text: No soy un condenado.
+    next: {fileID: 11400000, guid: 2857edb43171f4fd2aae802f25f6d109, type: 2}
+    setFlag: varn_intro_innocent
+  - text: "D\xE9jame pasar y nadie sale herido."
+    next: {fileID: 11400000, guid: c1f46a9334a1b4d3a874c9483f2e5194, type: 2}
+    setFlag: varn_intro_threat
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

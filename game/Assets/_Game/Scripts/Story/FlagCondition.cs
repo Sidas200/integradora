@@ -13,7 +13,22 @@ public struct FlagCondition
         this.forbids = forbids;
     }
 
-    public bool IsMet =>
-        (string.IsNullOrEmpty(requires) || StoryFlags.Has(requires)) &&
-        (string.IsNullOrEmpty(forbids) || !StoryFlags.Has(forbids));
+    // Se pueden poner varios separados por coma: "requires" pide todos, "forbids" prohíbe cualquiera.
+    public bool IsMet => HasAll(requires) && HasNone(forbids);
+
+    private static bool HasAll(string flags)
+    {
+        if (string.IsNullOrEmpty(flags)) return true;
+        foreach (var f in flags.Split(','))
+            if (f.Trim().Length > 0 && !StoryFlags.Has(f.Trim())) return false;
+        return true;
+    }
+
+    private static bool HasNone(string flags)
+    {
+        if (string.IsNullOrEmpty(flags)) return true;
+        foreach (var f in flags.Split(','))
+            if (f.Trim().Length > 0 && StoryFlags.Has(f.Trim())) return false;
+        return true;
+    }
 }
