@@ -22,6 +22,18 @@ public static class GamepadInput
     public static bool LeftShoulderPressed => AnyPressed(Button.LeftShoulder);
     public static bool RightShoulderPressed => AnyPressed(Button.RightShoulder);
 
+    // Presionar el stick derecho (R3): hablar con la doncella de la espada
+    public static bool RightStickPressed
+    {
+        get
+        {
+            var pads = Gamepad.all;
+            for (int i = 0; i < pads.Count; i++)
+                if (pads[i].rightStickButton.wasPressedThisFrame) return true;
+            return false;
+        }
+    }
+
     // Flecha izquierda de la cruceta (la cruceta también mueve a Tsuki)
     public static bool DpadLeftPressed
     {

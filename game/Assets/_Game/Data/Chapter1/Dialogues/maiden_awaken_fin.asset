@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e4285355d7234af4a5c7418047c645c, type: 3}
+  m_Name: maiden_awaken_fin
+  m_EditorClassIdentifier: Game.Gameplay::DialogueData
+  lockedByDesigner: 0
+  lines:
+  - speaker: Aoi
+    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
+    text: "Mi lugar est\xE1 en tu espada. Perm\xEDteme volver a ella... y prestarte mi rayo."
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Aoi
+    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
+    text: "Las dem\xE1s doncellas a\xFAn duermen. F\xF3rjale un M\xF3dulo con las almas de los golems: as\xED romper\xE1s el sello del guardi\xE1n."
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Aoi
+    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
+    text: Ve, portador. Desde ahora, viajo contigo.
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

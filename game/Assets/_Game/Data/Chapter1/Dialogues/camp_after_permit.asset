@@ -16,7 +16,34 @@ MonoBehaviour:
   lines:
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "\xBFUn permiso de guardi\xE1n? \xBFEn tu primer intento?"
+    text: "\xBFUn permiso de guardi\xE1n? \xBFEn tu primer intento? \xA1D\xE9jame verlo! No, no lo guardes, \xA1d\xE9jame verlo!"
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "\xBFQue Varn te llam\xF3 \"guerrero\"? Los guardianes no hablan as\xED de los humanos. Eres todav\xEDa m\xE1s raro de lo que pensaba. Me encanta."
+    condition:
+      requires: varn_respect
+      forbids: 
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "Dijiste que ir\xEDas por los cuatro. Uno menos."
+    condition:
+      requires: kaede_briefing_resolve
+      forbids: 
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "Para alguien que no confiaba en m\xED, hacemos buen equipo, \xBFno?"
+    condition:
+      requires: kaede_meet_distrust
+      forbids: 
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: "Faltan tres zonas... pero ahora s\xE9 que se puede. Vamos por el siguiente."
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

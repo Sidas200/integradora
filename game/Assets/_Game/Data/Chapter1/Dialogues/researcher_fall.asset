@@ -17,27 +17,54 @@ MonoBehaviour:
   - speaker: ???
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: "\xA1Aaah! ...Auch. Esa rama no era tan firme como pensaba."
+    condition:
+      requires: 
+      forbids: 
   - speaker: ???
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "T\xFA... no tienes alas de luz ni ojos de piedra. Eres humano. Un humano de verdad."
+    text: "Espera... \xA1espera, espera! No tienes alas de luz ni ojos de piedra. \xA1Eres humano! \xA1Un humano de verdad!"
+    condition:
+      requires: 
+      forbids: 
   - speaker: Tsuki
     portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
-    text: "\xBFTan raro es?"
+    text: "...\xBFTan raro es?"
+    condition:
+      requires: 
+      forbids: 
   - speaker: ???
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Aqu\xED, s\xED. Y esa marca en tu mano es la de Rulebreaker. Si alguien m\xE1s la ve, te ejecutan."
+    text: "\xBFRaro? \xA1Es fascinante! Y esa marca en tu mano es la de Rulebreaker. Si alguien m\xE1s la ve, te ejecutan."
+    condition:
+      requires: 
+      forbids: 
   - speaker: ???
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: Tranquilo, no voy a delatarte. Me da demasiada curiosidad.
+    text: Tranquilo, no voy a delatarte. Me das demasiada curiosidad como para perderte.
+    condition:
+      requires: 
+      forbids: 
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: "Soy Kaede. Investigo cosas que no deber\xEDa. Tengo una base escondida entre los \xE1rboles, al oeste."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Hay una forja. Te dejo usarla si me dejas estudiarte. \xBFTrato?"
-  - speaker: Tsuki
-    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
-    text: Busco a una chica que se llevaron con un rayo de luz. Si me ayudas, acepto.
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: 'Trato hecho. Te veo en el campamento: sigue el camino hacia el oeste.'
+    text: "Hay una forja. Te dejo usarla si me dejas estudiarte. \xBFTrato? Di que s\xED. Por favor, di que s\xED."
+    condition:
+      requires: 
+      forbids: 
+  choices:
+  - text: Acepto. Busco a alguien y necesito ayuda.
+    next: {fileID: 11400000, guid: 5f131fe86ea464fc886fabcd0c95fdfa, type: 2}
+    setFlag: kaede_meet_accept
+  - text: "\xBFEstudiarme? \xBFQu\xE9 me vas a hacer?"
+    next: {fileID: 11400000, guid: 4122ee2968c4a4fe8b9748d3f6bcdbc7, type: 2}
+    setFlag: kaede_meet_question
+  - text: "No conf\xEDo en ti."
+    next: {fileID: 11400000, guid: 37d9a3c2e76a1413c94135f78d40fa59, type: 2}
+    setFlag: kaede_meet_distrust
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

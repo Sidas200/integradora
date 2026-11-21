@@ -17,18 +17,36 @@ MonoBehaviour:
   - speaker: 
     portrait: {fileID: 0}
     text: "La espada carmes\xED brilla. La piedra de la estatua se agrieta... y algo despierta."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Aoi
     portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
-    text: "...Mil a\xF1os. Ha pasado mucho tiempo, portador."
+    text: "...Mil a\xF1os esperando. Y por fin, un portador digno."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Tsuki
     portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
     text: "\xBFEres una de las doncellas?"
+    condition:
+      requires: 
+      forbids: 
   - speaker: Aoi
     portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
-    text: "Soy Aoi, la primera. Mi poder sigue en esa espada, pero a\xFAn duerme."
-  - speaker: Aoi
-    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
-    text: "F\xF3rjale un M\xF3dulo con las almas de los golems. Solo as\xED romper\xE1 el sello del guardi\xE1n."
-  - speaker: Aoi
-    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
-    text: "Ve. Cuando la espada despierte del todo, yo despertar\xE9 contigo."
+    text: Soy Aoi, la primera. Es un honor conocerte, portador. Superaste mi prueba sin dudar ni un instante.
+    condition:
+      requires: 
+      forbids: 
+  choices:
+  - text: "\xBFConoces a Hikari? Tiene la misma marca."
+    next: {fileID: 11400000, guid: 2620e15b400c84836ae93754a74238af, type: 2}
+    setFlag: aoi_ask_hikari
+  - text: "\xBFPor qu\xE9 la espada me eligi\xF3 a m\xED?"
+    next: {fileID: 11400000, guid: 74a11f43f55e7487bb3f84559652a405, type: 2}
+    setFlag: aoi_ask_sword
+  - text: "\xBFQu\xE9 le pas\xF3 al rey?"
+    next: {fileID: 11400000, guid: 9399763a4692941e4aec39135f84e690, type: 2}
+    setFlag: aoi_ask_king
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

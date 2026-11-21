@@ -17,6 +17,15 @@ MonoBehaviour:
   - speaker: 
     portrait: {fileID: 0}
     text: Una puerta de cristal azul. En el centro hay un hueco con forma de alma.
+    condition:
+      requires: 
+      forbids: 
   - speaker: Tsuki
     portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
     text: "Kaede dijo que los Custodios de ruinas guardan almas peque\xF1as..."
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

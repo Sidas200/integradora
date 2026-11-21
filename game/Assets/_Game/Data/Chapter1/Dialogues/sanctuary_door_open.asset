@@ -17,3 +17,9 @@ MonoBehaviour:
   - speaker: 
     portrait: {fileID: 0}
     text: "El Alma peque\xF1a encaja en el hueco. La puerta se disuelve en luz azul."
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}
