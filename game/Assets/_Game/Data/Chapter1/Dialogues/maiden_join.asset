@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e4285355d7234af4a5c7418047c645c, type: 3}
+  m_Name: maiden_join
+  m_EditorClassIdentifier: Game.Gameplay::DialogueData
+  lockedByDesigner: 0
+  lines:
+  - speaker: Tsuki
+    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
+    text: "...\xBFQu\xE9 fue eso? Por un instante, yo era el rayo."
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Aoi
+    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
+    text: "Ese es mi poder, portador. Mientras me lleves contigo, nada podr\xE1 alcanzarte."
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Tsuki
+    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
+    text: "Gracias, Aoi. Te prometo que lo usar\xE9 bien."
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Aoi
+    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
+    text: "Lo s\xE9. Si alguna vez dudas del camino, ll\xE1mame. Estar\xE9 en tu espada."
+    condition:
+      requires: 
+      forbids: 
+  - speaker: 
+    portrait: {fileID: 0}
+    text: "Aoi volvi\xF3 a la espada carmes\xED. Desbloqueaste el Paso de Rayo."
+    condition:
+      requires: 
+      forbids: 
+  - speaker: 
+    portrait: {fileID: 0}
+    text: "Presiona {dash} para esquivar convertido en rayo: da\xF1as a los enemigos que atraviesas."
+    condition:
+      requires: 
+      forbids: 
+  - speaker: 
+    portrait: {fileID: 0}
+    text: Presiona {sword} en cualquier momento para hablar con Aoi y pedirle consejo.
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

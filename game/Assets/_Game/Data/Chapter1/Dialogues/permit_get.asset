@@ -17,6 +17,15 @@ MonoBehaviour:
   - speaker: 
     portrait: {fileID: 0}
     text: "Obtuviste el Permiso del Guardi\xE1n (1 de 4)."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Tsuki
     portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
     text: Uno menos. Hikari, ya voy.
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

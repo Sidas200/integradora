@@ -17,6 +17,15 @@ MonoBehaviour:
   - speaker: Tsuki
     portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
     text: 'No tengo ninguna Gota de Amrita. Kaede puede forjarla: 5 Flores destello y 3 Almas antiguas.'
+    condition:
+      requires: 
+      forbids: 
   - speaker: 
     portrait: {fileID: 0}
     text: Puedes volver al Bosque Quebrado por el camino de entrada (abajo a la izquierda).
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

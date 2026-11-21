@@ -16,10 +16,37 @@ MonoBehaviour:
   lines:
   - speaker: Varn
     portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
+    text: ...Esa espada. Y ese valor. No eres un humano cualquiera.
+    condition:
+      requires: varn_respect
+      forbids: 
+  - speaker: Varn
+    portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
+    text: Me venciste de frente, como prometiste. Es un honor reconocerlo.
+    condition:
+      requires: varn_respect
+      forbids: 
+  - speaker: Varn
+    portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
     text: ...Esa espada. No es una espada cualquiera.
+    condition:
+      requires: 
+      forbids: varn_respect
   - speaker: Varn
     portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
     text: Has vencido, humano. La ley del juicio me obliga a reconocerlo.
-  - speaker: Varn
-    portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
-    text: 'Toma mi permiso. Pero recuerda: el Gran Juzgado no perdona a quien rompe las reglas.'
+    condition:
+      requires: 
+      forbids: varn_respect
+  choices:
+  - text: "\xBFSabes ad\xF3nde se llevaron a Hikari?"
+    next: {fileID: 11400000, guid: e32099f862c0a492fbd595ca5e70b842, type: 2}
+    setFlag: varn_defeat_hikari
+  - text: "\xBFPor qu\xE9 sirves a ese dios?"
+    next: {fileID: 11400000, guid: 6c4acbf5c06ad4feb819fea8b997306d, type: 2}
+    setFlag: varn_defeat_why
+  - text: Peleaste bien.
+    next: {fileID: 11400000, guid: 6c3ba0ac3a9b94e2fb07e501bfbabb90, type: 2}
+    setFlag: varn_defeat_respect
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

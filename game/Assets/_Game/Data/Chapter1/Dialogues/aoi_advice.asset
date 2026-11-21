@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e4285355d7234af4a5c7418047c645c, type: 3}
+  m_Name: aoi_advice
+  m_EditorClassIdentifier: Game.Gameplay::DialogueData
+  lockedByDesigner: 0
+  lines:
+  - speaker: Aoi
+    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
+    text: "\xBFMe llamabas, portador?"
+    condition:
+      requires: 
+      forbids: 
+  choices:
+  - text: "\xBFQu\xE9 debo hacer ahora?"
+    next: {fileID: 11400000, guid: c25a91441214a4f54a5a9304f30a57b6, type: 2}
+    setFlag: 
+  - text: Dame un consejo de combate.
+    next: {fileID: 11400000, guid: 7ee5fb64483dc45679828761e39067df, type: 2}
+    setFlag: 
+  - text: "H\xE1blame de ti, Aoi."
+    next: {fileID: 11400000, guid: 286628424577b4e2d8bce070ad92acfa, type: 2}
+    setFlag: 
+  choiceSpeaker: 
+  continueWith: {fileID: 0}
