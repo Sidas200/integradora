@@ -100,7 +100,7 @@ public class SlashUnlockScene : MonoBehaviour
         DialogueUI.Play(data, () => Destroy(this));
     }
 
-    private static void UpdateSparks(System.Collections.Generic.List<(SpriteRenderer sr, Vector2 vel, float life)> sparks)
+    internal static void UpdateSparks(System.Collections.Generic.List<(SpriteRenderer sr, Vector2 vel, float life)> sparks)
     {
         for (int i = sparks.Count - 1; i >= 0; i--)
         {
@@ -120,7 +120,7 @@ public class SlashUnlockScene : MonoBehaviour
         }
     }
 
-    private static SpriteRenderer NewSprite(string name, Sprite sprite, Material material, int order)
+    internal static SpriteRenderer NewSprite(string name, Sprite sprite, Material material, int order)
     {
         var sr = new GameObject(name).AddComponent<SpriteRenderer>();
         sr.sprite = sprite;
@@ -131,7 +131,7 @@ public class SlashUnlockScene : MonoBehaviour
         return sr;
     }
 
-    private static Sprite SoftCircle()
+    internal static Sprite SoftCircle()
     {
         const int n = 32;
         var tex = new Texture2D(n, n) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
@@ -146,7 +146,7 @@ public class SlashUnlockScene : MonoBehaviour
         return Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), n / 0.8f);
     }
 
-    private static Sprite Dot()
+    internal static Sprite Dot()
     {
         var tex = new Texture2D(2, 2) { filterMode = FilterMode.Point };
         tex.SetPixels(new[] { Color.white, Color.white, Color.white, Color.white });

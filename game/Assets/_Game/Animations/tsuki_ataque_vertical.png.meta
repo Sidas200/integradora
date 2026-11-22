@@ -1,0 +1,639 @@
+fileFormatVersion: 2
+guid: f75c41c1cff434cb9bf607f535632f74
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2283781527492299616
+    second: tsuki_ataque_vertical_0
+  - first:
+      213: 5304361981158885552
+    second: tsuki_ataque_vertical_1
+  - first:
+      213: -8012524840977340218
+    second: tsuki_ataque_vertical_2
+  - first:
+      213: 7158962765098622713
+    second: tsuki_ataque_vertical_3
+  - first:
+      213: -145923904806064634
+    second: tsuki_ataque_vertical_4
+  - first:
+      213: 539646861498912614
+    second: tsuki_ataque_vertical_5
+  - first:
+      213: -8973393488861924158
+    second: tsuki_ataque_vertical_6
+  - first:
+      213: 2799393744360367813
+    second: tsuki_ataque_vertical_7
+  - first:
+      213: 681356776771837385
+    second: tsuki_ataque_vertical_8
+  - first:
+      213: 8115499963680190254
+    second: tsuki_ataque_vertical_9
+  - first:
+      213: -6554281134160133512
+    second: tsuki_ataque_vertical_10
+  - first:
+      213: -618690700734792853
+    second: tsuki_ataque_vertical_11
+  - first:
+      213: 6630768451735295985
+    second: tsuki_ataque_vertical_12
+  - first:
+      213: 6319833714349317974
+    second: tsuki_ataque_vertical_13
+  - first:
+      213: -7609353945078153215
+    second: tsuki_ataque_vertical_14
+  - first:
+      213: -567054587919240616
+    second: tsuki_ataque_vertical_15
+  - first:
+      213: -8375597115746811463
+    second: tsuki_ataque_vertical_16
+  - first:
+      213: -5543118676023608242
+    second: tsuki_ataque_vertical_17
+  - first:
+      213: -130658800810648022
+    second: tsuki_ataque_vertical_18
+  - first:
+      213: 5060287583703540175
+    second: tsuki_ataque_vertical_19
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_0
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 72
+        width: 41
+        height: 48
+      alignment: 9
+      pivot: {x: 0.365854, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3b57e2cca9ee543598d78e593c63b450
+      internalID: 2283781527492299616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_1
+      rect:
+        serializedVersion: 2
+        x: 100
+        y: 72
+        width: 37
+        height: 48
+      alignment: 9
+      pivot: {x: 0.378378, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 40d3294c5196e4ab987039c28d9602e3
+      internalID: 5304361981158885552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_2
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 72
+        width: 36
+        height: 48
+      alignment: 9
+      pivot: {x: 0.583333, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2de3666ac944245e0a51fc8130782402
+      internalID: -8012524840977340218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_3
+      rect:
+        serializedVersion: 2
+        x: 239
+        y: 72
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.72973, y: 0.765957}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dd93f1a7495bd487b8e51465739fcc6a
+      internalID: 7158962765098622713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_4
+      rect:
+        serializedVersion: 2
+        x: 315
+        y: 72
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.72973, y: 0.765957}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 88061689cb67948f19d8a584370cecd3
+      internalID: -145923904806064634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_5
+      rect:
+        serializedVersion: 2
+        x: 391
+        y: 72
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.72973, y: 0.765957}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fd53cb30f93f2428c8df01ebdb8720fb
+      internalID: 539646861498912614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_6
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 72
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.72973, y: 0.765957}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 57c19d23a492d4c1a95f2ddbab12dfc5
+      internalID: -8973393488861924158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_7
+      rect:
+        serializedVersion: 2
+        x: 549
+        y: 72
+        width: 36
+        height: 48
+      alignment: 9
+      pivot: {x: 0.583333, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aacecf056b23f46a4b0ca6a86b21f540
+      internalID: 2799393744360367813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_8
+      rect:
+        serializedVersion: 2
+        x: 632
+        y: 72
+        width: 37
+        height: 48
+      alignment: 9
+      pivot: {x: 0.378378, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 09eedb99f6b2e4486a9e863c2f49ef1a
+      internalID: 681356776771837385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_9
+      rect:
+        serializedVersion: 2
+        x: 707
+        y: 72
+        width: 42
+        height: 48
+      alignment: 9
+      pivot: {x: 0.357143, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7740a1b1c02004e298d98b048dcd3569
+      internalID: 8115499963680190254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_10
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 1
+        width: 41
+        height: 48
+      alignment: 9
+      pivot: {x: 0.365854, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 58bf42cf7bfbe440b968dc3a46fd33b2
+      internalID: -6554281134160133512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_11
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 1
+        width: 39
+        height: 49
+      alignment: 9
+      pivot: {x: 0.384615, y: 0.734694}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6219416365cde47589ead8e8de8f2e3c
+      internalID: -618690700734792853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_12
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 2
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.348837, y: 0.734694}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a1a60c657c73f45afab37402c2a536ec
+      internalID: 6630768451735295985
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_13
+      rect:
+        serializedVersion: 2
+        x: 251
+        y: 4
+        width: 41
+        height: 49
+      alignment: 9
+      pivot: {x: 0.365854, y: 0.734694}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dbbf4a9bbb0ca4378b226c27bc60621b
+      internalID: 6319833714349317974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_14
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 5
+        width: 30
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 972c1eedc7ead4e57849b2f9175f7b60
+      internalID: -7609353945078153215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_15
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 4
+        width: 21
+        height: 48
+      alignment: 9
+      pivot: {x: 0.571429, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e405dcf19f1644be1bb75623c2d2dbb2
+      internalID: -567054587919240616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_16
+      rect:
+        serializedVersion: 2
+        x: 479
+        y: 5
+        width: 26
+        height: 46
+      alignment: 9
+      pivot: {x: 0.653846, y: 0.782609}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4c69758447296402493da5a6cb09d050
+      internalID: -8375597115746811463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_17
+      rect:
+        serializedVersion: 2
+        x: 555
+        y: 5
+        width: 29
+        height: 45
+      alignment: 9
+      pivot: {x: 0.689655, y: 0.8}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf79331a6cf2b4c9e99a59963980f643
+      internalID: -5543118676023608242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_18
+      rect:
+        serializedVersion: 2
+        x: 636
+        y: 6
+        width: 28
+        height: 47
+      alignment: 9
+      pivot: {x: 0.714286, y: 0.765957}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d12d52703c6094f4da3d72ce915ff792
+      internalID: -130658800810648022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tsuki_ataque_vertical_19
+      rect:
+        serializedVersion: 2
+        x: 709
+        y: 6
+        width: 28
+        height: 50
+      alignment: 9
+      pivot: {x: 0.714286, y: 0.72}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0140babc3a7e643b187113f7442f3d2d
+      internalID: 5060287583703540175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 73a9048b9e7cc45a3af686d8c923bd1c
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      tsuki_ataque_vertical_0: 2283781527492299616
+      tsuki_ataque_vertical_1: 5304361981158885552
+      tsuki_ataque_vertical_10: -6554281134160133512
+      tsuki_ataque_vertical_11: -618690700734792853
+      tsuki_ataque_vertical_12: 6630768451735295985
+      tsuki_ataque_vertical_13: 6319833714349317974
+      tsuki_ataque_vertical_14: -7609353945078153215
+      tsuki_ataque_vertical_15: -567054587919240616
+      tsuki_ataque_vertical_16: -8375597115746811463
+      tsuki_ataque_vertical_17: -5543118676023608242
+      tsuki_ataque_vertical_18: -130658800810648022
+      tsuki_ataque_vertical_19: 5060287583703540175
+      tsuki_ataque_vertical_2: -8012524840977340218
+      tsuki_ataque_vertical_3: 7158962765098622713
+      tsuki_ataque_vertical_4: -145923904806064634
+      tsuki_ataque_vertical_5: 539646861498912614
+      tsuki_ataque_vertical_6: -8973393488861924158
+      tsuki_ataque_vertical_7: 2799393744360367813
+      tsuki_ataque_vertical_8: 681356776771837385
+      tsuki_ataque_vertical_9: 8115499963680190254
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

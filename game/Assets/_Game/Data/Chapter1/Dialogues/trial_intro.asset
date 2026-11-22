@@ -17,12 +17,27 @@ MonoBehaviour:
   - speaker: 
     portrait: {fileID: 0}
     text: "La espada carmes\xED brilla al acercarse a la estatua. Una voz resuena en la sala."
+    condition:
+      requires: 
+      forbids: 
   - speaker: ???
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: Portador... muchos trajeron espadas. Ninguna era digna.
+    condition:
+      requires: 
+      forbids: 
   - speaker: ???
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: Demuestra que la tuya lo es. Sobrevive a la prueba.
+    condition:
+      requires: 
+      forbids: 
   - speaker: 
     portrait: {fileID: 0}
     text: "La entrada se sella. Algo despierta en los c\xEDrculos del suelo."
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

@@ -12,6 +12,9 @@ public class SceneLoader : MonoBehaviour
 
     public bool IsBusy { get; private set; }
 
+    // Fundido a negro (también lo usan escenas guiadas, como el despertar de Aoi)
+    public ScreenFader Fader => fader;
+
     private bool sceneLoaded;
 
     private void Awake()

@@ -202,6 +202,10 @@ public class GameFlow : MonoBehaviour
         if (entrySnapshot != null)
         {
             var session = SessionState.Instance;
+            // Sin guardado todavía: la foto de entrada traería los contadores viejos y la muerte
+            // recién contada se perdería. Se conservan los de la sesión.
+            if (entrySnapshot.stats == null) entrySnapshot.stats = new StatsData();
+            CopySessionCounters(entrySnapshot.stats, session);
             entrySnapshot.ApplyTo(session);
             session.currentHealth = -1;
             session.respawnAtSafePoint = false;
@@ -242,9 +246,51 @@ public class GameFlow : MonoBehaviour
     private void HandlePlayerDied()
     {
         PlayStats.PlayerDied(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        PersistStats();
         if (InventoryScreen.Instance != null) InventoryScreen.Instance.Close();
         GameInput.Lock(this);
         StartCoroutine(ShowDefeat());
+    }
+
+    // Retry() recarga el guardado del disco y ApplyTo pisaría los contadores de la sesión con los
+    // del último cristal: la muerte y los enemigos vencidos desde entonces se perdían. Aquí se
+    // escriben solo las estadísticas, sin mover el punto seguro ni tocar inventario ni mundo.
+    private void PersistStats()
+    {
+        SaveData data;
+        try
+        {
+            data = PersistStats(repository, SessionState.Instance);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"No se pudieron guardar las estadísticas: {e.Message}");
+            return;
+        }
+        if (data != null) SaveWritten?.Invoke(data);
+    }
+
+    // Núcleo de PersistStats, estático para poder probarlo con un repositorio en carpeta temporal.
+    // Devuelve el guardado escrito, o null si todavía no hay guardado (antes del primer cristal).
+    public static SaveData PersistStats(ISaveRepository repository, SessionState session)
+    {
+        if (repository == null || session == null) return null;
+        var data = repository.Load();
+        if (data == null) return null;
+        if (data.stats == null) data.stats = new StatsData();
+        CopySessionCounters(data.stats, session);
+        repository.Save(data);
+        return data;
+    }
+
+    // Solo los contadores que cambian entre cristales sin depender del mundo. materialsCollected
+    // se queda como está: los pickups vuelven a aparecer al reintentar y se contarían dos veces.
+    private static void CopySessionCounters(StatsData stats, SessionState session)
+    {
+        stats.enemiesDefeated = session.enemiesDefeated;
+        stats.deaths = session.deaths;
+        stats.playTimeSec = Mathf.FloorToInt(session.playTimeSec);
+        stats.itemsCrafted = session.itemsCrafted;
     }
 
     private IEnumerator ShowDefeat()

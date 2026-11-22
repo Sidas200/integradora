@@ -16,7 +16,28 @@ MonoBehaviour:
   lines:
   - speaker: Varn
     portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
+    text: "Volviste. Lo sab\xEDa: los que tienen agallas no se quedan en el suelo."
+    condition:
+      requires: varn_respect
+      forbids: 
+  - speaker: Varn
+    portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
+    text: "Lev\xE1ntate y pelea otra vez, guerrero."
+    condition:
+      requires: varn_respect
+      forbids: 
+  - speaker: Varn
+    portrait: {fileID: 21300000, guid: e84f912d4eed34337868ea71e8b7ce68, type: 3}
     text: Volviste. Tu terquedad es casi digna de respeto.
+    condition:
+      requires: 
+      forbids: varn_respect
   - speaker: 
     portrait: {fileID: 0}
     text: Sal de las zonas rojas antes del golpe. Ataca cuando Varn quede vulnerable.
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

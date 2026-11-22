@@ -16,10 +16,34 @@ MonoBehaviour:
   lines:
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "\xBFLa doncella te habl\xF3? \xA1Entonces la espada s\xED responde!"
+    text: "\xBF\xA1La doncella te habl\xF3!? \xBFC\xF3mo era su voz? \xBFBrillaba? \xA1Cu\xE9ntamelo todo!"
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "\xBFY dices que ahora vive dentro de tu espada? ...Necesito una libreta nueva. O tres."
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "Y pensar que no confiabas en m\xED. Mira todo lo que estamos descubriendo juntos."
+    condition:
+      requires: kaede_meet_distrust
+      forbids: 
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: "Ahora forja el M\xF3dulo de espada: 10 Almas antiguas y 5 Circuitos antiguos."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: "Con \xE9l despierta la espada, y ese sello no te detendr\xE1."
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

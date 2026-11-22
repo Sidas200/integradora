@@ -66,7 +66,7 @@ Tests EditMode: `SaveRepositoryTests` (8) y telemetría (9). Todos pasan.
 ## Pendientes y supuestos
 
 **Pendientes para el equipo**
-- **Arte final**: lista y reglas de reemplazo en [`art-needed.md`](art-needed.md). `kratos.png` (Enemy_Melee) no es pixel art (PPU 800, Bilinear).
+- **Arte final**: lista y reglas de reemplazo en [`art-needed.md`](art-needed.md).
 - **Nombres por aprobar**: [`pending-names.md`](pending-names.md) (Kaede, Aoi, Llanura del Eco, Bosque Quebrado, Varn, Centinela).
 - **Audio**: no hay música ni efectos (el juego se entiende sin sonido, como pide el RNF).
 - **Animaciones**: Kaede, Aoi, el Centinela y Varn son sprites estáticos con movimiento por código (caída, flotar, sacudidas).

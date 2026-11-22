@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e4285355d7234af4a5c7418047c645c, type: 3}
+  m_Name: maiden_awaken_op1
+  m_EditorClassIdentifier: Game.Gameplay::DialogueData
+  lockedByDesigner: 0
+  lines:
+  - speaker: Tsuki
+    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
+    text: "Busco a Hikari. Tiene la misma marca que yo. \xBFSabes algo de ella?"
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Aoi
+    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
+    text: Esa marca la llevan quienes el cielo escoge para juzgar.
+    condition:
+      requires: 
+      forbids: 
+  - speaker: Aoi
+    portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
+    text: "Si se la llevaron, a\xFAn vive. Y con alguien como t\xFA busc\xE1ndola, no est\xE1 sola."
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 11400000, guid: ae849f04cbfa543afa438959004bde29, type: 2}

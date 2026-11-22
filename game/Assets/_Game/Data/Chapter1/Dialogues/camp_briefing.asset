@@ -16,43 +16,43 @@ MonoBehaviour:
   lines:
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Bienvenido a mi escondite. Aqu\xED no llegan los ojos del cielo."
+    text: "\xA1Llegaste! Bienvenido a mi escondite. Aqu\xED no llegan los ojos del cielo."
+    condition:
+      requires: 
+      forbids: kaede_meet_question,kaede_meet_distrust
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "\xA1Llegaste! Tranquilo, hoy solo vamos a hablar. Las mediciones, despu\xE9s. ...Bueno, quiz\xE1s una."
+    condition:
+      requires: kaede_meet_question
+      forbids: 
+  - speaker: Kaede
+    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
+    text: "Viniste, aunque no conf\xEDas en m\xED. \xBFVes? Sigo sin delatarte. Punto para m\xED."
+    condition:
+      requires: kaede_meet_distrust
+      forbids: 
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: "Escucha bien. Esta isla tiene cuatro zonas. En el centro est\xE1 el Gran Juzgado: el dios de la justicia."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Kaede
     portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
     text: "Si se llevaron a tu amiga, seguro est\xE1 ah\xED. Pero para entrar necesitas los permisos de los cuatro guardianes."
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: En cada zona hay un santuario. En cada uno duerme una de las cuatro doncellas de la leyenda.
-  - speaker: Tsuki
-    portrait: {fileID: 21300000, guid: 3efdcac1e115744e8b625ebc29df26fe, type: 3}
-    text: "\xBFLas doncellas de la espada del rey?"
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Las mismas. Y creo que tu espada carmes\xED puede despertarlas."
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: 'Otra cosa: las armas normales no hieren a un dios. Ni a sus guardianes.'
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "El guardi\xE1n de esta zona espera al este, en el Bosque Quebrado, detr\xE1s de un sello."
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Primero, el santuario del norte. Su puerta solo se abre con un Alma peque\xF1a."
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Los Custodios de ruinas guardan almas dentro. Vence a uno y la tendr\xE1s."
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Con las Almas antiguas y los Circuitos que sueltan los golems forjamos un M\xF3dulo de espada."
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Y el guardi\xE1n duerme. Para despertarlo necesitar\xE1s una Gota de Amrita: tambi\xE9n sale de la forja."
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: "Si te sobra cuero y restos de slime, f\xF3rjate una armadura. La vas a necesitar."
-  - speaker: Kaede
-    portrait: {fileID: 21300000, guid: 90c97c6082e584db3be51f2edeb1da7e, type: 3}
-    text: 'Antes de salir, toca el cristal: guarda tu avance.'
+    condition:
+      requires: 
+      forbids: 
+  choices:
+  - text: "Entonces ir\xE9 por los cuatro."
+    next: {fileID: 11400000, guid: 8a05f301f056e466bb0c97fb018739f8, type: 2}
+    setFlag: kaede_briefing_resolve
+  - text: "\xBFPor qu\xE9 me ayudas de verdad?"
+    next: {fileID: 11400000, guid: 75b9106b2bc50430da9863e784b86f54, type: 2}
+    setFlag: kaede_briefing_why
+  - text: "\xBFY si mejor fuerzo la entrada?"
+    next: {fileID: 11400000, guid: d2ab8e5502e6d41e7b5f3cf266016041, type: 2}
+    setFlag: kaede_briefing_force
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

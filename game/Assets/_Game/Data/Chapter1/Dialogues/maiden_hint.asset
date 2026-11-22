@@ -14,6 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Gameplay::DialogueData
   lockedByDesigner: 0
   lines:
+  - speaker: 
+    portrait: {fileID: 0}
+    text: "La estatua est\xE1 vac\xEDa. La espada carmes\xED vibra en tu mano."
+    condition:
+      requires: 
+      forbids: 
   - speaker: Aoi
     portrait: {fileID: 21300000, guid: 75b1f1f88f6ed40b993dc3c8db33a6af, type: 3}
-    text: "El M\xF3dulo de espada primero. Despu\xE9s, el sello del este. No lo olvides."
+    text: "El M\xF3dulo de espada primero, portador. Despu\xE9s, el sello del este. Estoy contigo."
+    condition:
+      requires: 
+      forbids: 
+  choices: []
+  choiceSpeaker: 
+  continueWith: {fileID: 0}

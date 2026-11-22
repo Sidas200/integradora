@@ -134,6 +134,70 @@ public class SaveRepositoryTests
         CollectionAssert.AreEqual(new[] { "05_CombatZone/Enemy_Melee_A" }, loaded.progress.defeated);
     }
 
+    // Morir y reintentar recarga el guardado del disco: las estadísticas escritas al morir deben
+    // sobrevivir a esa recarga, sin mover el punto seguro ni tocar inventario ni mundo.
+    [Test]
+    public void PersistStats_ThenReload_KeepsDeathsAndItemsCrafted()
+    {
+        var saved = CreateSample();
+        saved.stats.deaths = 1;
+        saved.stats.itemsCrafted = 0;
+        saved.stats.materialsCollected = 4;
+        saved.progress.defeated.Add("05_CombatZone/Enemy_Melee_A");
+        repo.Save(saved);
+
+        var go = new GameObject("SessionStateTest");
+        try
+        {
+            var session = go.AddComponent<SessionState>();
+            repo.Load().ApplyTo(session);
+            // Lo que pasó desde el último cristal
+            session.deaths = 2;
+            session.itemsCrafted = 3;
+            session.enemiesDefeated = 5;
+            session.playTimeSec = 125.7f;
+            session.materialsCollected = 9;
+            session.safePointScene = "Assets/OtraEscena.unity";
+            session.defeated.Add("05_CombatZone/Enemy_Melee_B");
+            session.materials.Clear();
+
+            Assert.IsNotNull(GameFlow.PersistStats(repo, session));
+            repo.Load().ApplyTo(session); // lo que hace Retry()
+
+            Assert.AreEqual(2, session.deaths);
+            Assert.AreEqual(3, session.itemsCrafted);
+            Assert.AreEqual(5, session.enemiesDefeated);
+            Assert.AreEqual(125f, session.playTimeSec);
+            // Lo demás queda como en el último cristal
+            Assert.AreEqual(4, session.materialsCollected);
+            Assert.AreEqual("Assets/Escena.unity", session.safePointScene);
+            CollectionAssert.AreEqual(new[] { "05_CombatZone/Enemy_Melee_A" }, session.defeated);
+            Assert.AreEqual(2, session.materials.Count);
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(go);
+        }
+    }
+
+    [Test]
+    public void PersistStats_WithoutSave_WritesNothing()
+    {
+        var go = new GameObject("SessionStateTest");
+        try
+        {
+            var session = go.AddComponent<SessionState>();
+            session.deaths = 1;
+
+            Assert.IsNull(GameFlow.PersistStats(repo, session));
+            Assert.IsFalse(repo.Exists());
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(go);
+        }
+    }
+
     [Test]
     public void Delete_RemovesFile()
     {

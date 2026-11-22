@@ -49,6 +49,9 @@ public class DialogueUI : MonoBehaviour
         [Tooltip("Otros nombres con los que habla antes de presentarse (p. ej. \"???\"). Solo cuentan en " +
                  "diálogos donde el personaje también habla con su nombre.")]
         public string[] aliases;
+        [Tooltip("Zona de los ojos en el busto (0-1, desde abajo a la izquierda) para la franja de las decisiones. " +
+                 "En 0 usa la de fábrica de Tsuki, Varn y Kaede.")]
+        public Rect eyes;
 
         [NonSerialized] public Image image;
         [NonSerialized] public Sprite color, gray;
@@ -66,6 +69,8 @@ public class DialogueUI : MonoBehaviour
     private bool layoutCaptured;
 
     private DialogueData current;
+    private readonly System.Collections.Generic.List<DialogueData.Line> lines = new System.Collections.Generic.List<DialogueData.Line>();
+    private DialogueChoiceUI choiceUI;
     private int lineIndex;
     private bool typing;
     private Action onFinished;
@@ -158,7 +163,7 @@ public class DialogueUI : MonoBehaviour
         foreach (var slot in busts)
         {
             if (slot.image == null) continue;
-            bool show = current.lines.Exists(l => l.speaker == slot.speaker);
+            bool show = lines.Exists(l => l.speaker == slot.speaker);
             slot.aliasesActive = show;
             slot.image.gameObject.SetActive(show);
             slot.talking = false;
@@ -208,7 +213,7 @@ public class DialogueUI : MonoBehaviour
 
     public static void Play(DialogueData dialogue, Action finished = null)
     {
-        if (Instance == null || dialogue == null || dialogue.lines.Count == 0)
+        if (Instance == null || !Playable(dialogue))
         {
             finished?.Invoke();
             return;
@@ -221,9 +226,7 @@ public class DialogueUI : MonoBehaviour
         // Si ya habia uno abierto, terminarlo para no perder su callback.
         if (IsOpen) Close();
 
-        current = dialogue;
         onFinished = finished;
-        lineIndex = 0;
         panel.SetActive(true);
         GameInput.Lock(this);
 
@@ -231,15 +234,30 @@ public class DialogueUI : MonoBehaviour
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
         inputReadyAt = Time.unscaledTime + 0.15f;
-        SetupBust();
         UpdateControlHint();
-        ShowLine();
+        Begin(dialogue);
+    }
+
+    // Empieza un diálogo dentro de la caja ya abierta (el primero o la respuesta a una decisión)
+    private void Begin(DialogueData dialogue)
+    {
+        current = dialogue;
+        lineIndex = 0;
+        // Solo las líneas cuya condición se cumple (los personajes hablan distinto según lo elegido)
+        lines.Clear();
+        lines.AddRange(dialogue.lines.FindAll(l => l.condition.IsMet));
+        SetupBust();
+        if (lines.Count > 0) ShowLine();
+        else ShowChoices();
     }
 
     private void Update()
     {
         if (!IsOpen) return;
         UpdateBust();
+
+        // Durante la decisión, la franja de los ojos maneja la entrada
+        if (choiceUI != null && choiceUI.IsActive) return;
 
         // Actualizar el indicador aunque el juego este pausado o el texto se este escribiendo.
         UpdateControlHint();
@@ -250,9 +268,11 @@ public class DialogueUI : MonoBehaviour
         // X del teclado o Start / Options del mando saltan toda la conversacion; el callback corre
         // igual, asi la historia avanza como si se leyera. La pausa no se abre en ese frame
         // (GameInput.GameplayBlocked).
+        // Si hay una decisión, saltar lleva directo a ella (no se puede omitir).
         if (SkipPressed())
         {
-            Close();
+            if (current.HasChoices) SkipToChoices();
+            else Close();
             return;
         }
 
@@ -265,8 +285,95 @@ public class DialogueUI : MonoBehaviour
         }
 
         lineIndex++;
-        if (lineIndex >= current.lines.Count) Close();
-        else ShowLine();
+        if (lineIndex < lines.Count) ShowLine();
+        else
+        {
+            lineIndex = lines.Count - 1;
+            if (current.HasChoices) ShowChoices();
+            else if (Playable(current.continueWith) && current.continueWith != current) Begin(current.continueWith);
+            else Close();
+        }
+    }
+
+    private static bool Playable(DialogueData d) =>
+        d != null && (d.HasChoices || d.lines.Exists(l => l.condition.IsMet));
+
+    // ---------- DECISIONES ----------
+
+    private void SkipToChoices()
+    {
+        if (lines.Count > 0 && lineIndex != lines.Count - 1)
+        {
+            // Deja a la vista la última línea (normalmente la pregunta)
+            lineIndex = lines.Count - 1;
+            ShowLine();
+        }
+        if (typing) FinishTyping();
+        ShowChoices();
+    }
+
+    private void ShowChoices()
+    {
+        if (!current.HasChoices) { Close(); return; }
+        if (typing) FinishTyping();
+        continueHint.SetActive(false);
+
+        if (choiceUI == null)
+        {
+            var canvas = panel.GetComponentInParent<Canvas>(true);
+            if (canvas == null) { Debug.LogWarning("[DialogueUI] Sin Canvas para la decisión."); Close(); return; }
+            choiceUI = DialogueChoiceUI.Create(canvas.rootCanvas, bodyText);
+        }
+
+        string speaker = ChoiceSpeaker(current);
+        Sprite portrait = null;
+        Rect eyes = default;
+        bool flip = false;
+        var slot = BustFor(speaker);
+        if (slot != null && slot.color != null)
+        {
+            portrait = slot.color;
+            eyes = slot.eyes.width > 0f ? slot.eyes : DefaultEyes(slot.speaker);
+            flip = slot.flip;
+        }
+        else
+        {
+            // Sin busto: el retrato chico de su última línea, en una franja a la altura de la cara
+            var line = current.lines.FindLast(l => l.speaker == speaker && l.portrait != null);
+            portrait = line.portrait;
+            eyes = new Rect(0.1f, 0.39f, 0.8f, 0.21f);
+        }
+
+        var texts = current.choices.ConvertAll(c => ControlHints.Format(c.text));
+        choiceUI.Show(portrait, eyes, flip, speaker, texts, OnChoice);
+    }
+
+    private void OnChoice(int index)
+    {
+        if (current == null || index < 0 || index >= current.choices.Count) { Close(); return; }
+        var choice = current.choices[index];
+        StoryFlags.Set(choice.setFlag);
+        inputReadyAt = Time.unscaledTime + 0.15f;
+
+        if (Playable(choice.next)) Begin(choice.next);
+        else if (Playable(current.continueWith)) Begin(current.continueWith);
+        else Close();
+    }
+
+    // De quién son los ojos: quien decide es Tsuki, salvo que el diálogo indique otro
+    private static string ChoiceSpeaker(DialogueData data) =>
+        string.IsNullOrEmpty(data.choiceSpeaker) ? "Tsuki" : data.choiceSpeaker;
+
+    // Franja de los ojos en cada busto (466x640): 228x60 px alrededor de los ojos
+    private static Rect DefaultEyes(string speaker)
+    {
+        switch (speaker)
+        {
+            case "Tsuki": return new Rect(0.1846f, 0.6375f, 0.4893f, 0.0938f);
+            case "Kaede": return new Rect(0.1970f, 0.6328f, 0.4935f, 0.0938f);
+            case "Varn": return new Rect(0.3176f, 0.6953f, 0.4893f, 0.0938f);
+            default: return new Rect(0.2f, 0.62f, 0.6f, 0.12f);
+        }
     }
 
     private void UpdateControlHint()
@@ -309,7 +416,8 @@ public class DialogueUI : MonoBehaviour
         var scheme = ControlHints.Current;
         if (scheme == shownScheme || current == null) return;
         shownScheme = scheme;
-        string raw = current.lines[lineIndex].text;
+        if (lineIndex < 0 || lineIndex >= lines.Count) return;
+        string raw = lines[lineIndex].text;
         if (string.IsNullOrEmpty(raw) || raw.IndexOf('{') < 0) return;
         bodyText.text = ControlHints.Format(raw);
         if (!typing) bodyText.maxVisibleCharacters = int.MaxValue;
@@ -317,7 +425,7 @@ public class DialogueUI : MonoBehaviour
 
     private void ShowLine()
     {
-        var line = current.lines[lineIndex];
+        var line = lines[lineIndex];
         bool narration = string.IsNullOrEmpty(line.speaker);
 
         nameBox.SetActive(!narration);
@@ -377,6 +485,7 @@ public class DialogueUI : MonoBehaviour
     private void Close()
     {
         if (typeRoutine != null) StopCoroutine(typeRoutine);
+        if (choiceUI != null) choiceUI.Hide();
         panel.SetActive(false);
         current = null;
         GameInput.Unlock(this);
